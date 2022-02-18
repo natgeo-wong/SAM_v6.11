@@ -1,6 +1,6 @@
 	subroutine write_all()
 	
-	use vars
+  use vars
 	implicit none
 	character *4 rankchar
 	character *256 filename
@@ -74,7 +74,8 @@
 	subroutine read_all()
 	
 	use vars
-	implicit none
+	use params, only: dokuangensemble
+  implicit none
 	character *4 rankchar
 	character *256 filename
 	integer irank, ii
@@ -158,7 +159,7 @@
 
         ! Kuang Ensemble run: turn on mpi after boundaries and diagnose (Song Qiyu, 2022)
         if(dokuangensemble) dompi = .true.
-        
+
         return
         end
  

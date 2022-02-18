@@ -8,6 +8,7 @@ use microphysics
 use sgs
 use tracers
 use movies, only: init_movies
+use params, only: dokuangensemble
 implicit none
 
 integer k, icyc, nn, nstatsteps

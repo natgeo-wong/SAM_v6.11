@@ -12,7 +12,7 @@ use movies, only : irecc
 use instrument_diagnostics, only: zero_instr_diag
 implicit none
 	
-integer icondavg, ierr
+integer icondavg, ierr, ios, ios_missing_namelist, place_holder
 
 NAMELIST /PARAMETERS/ dodamping, doupperbound, docloud, doprecip, &
                 dolongwave, doshortwave, dosgs, dz, doconstdz, &

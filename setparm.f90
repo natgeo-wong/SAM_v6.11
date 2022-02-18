@@ -17,24 +17,24 @@ integer icondavg, ierr, ios, ios_missing_namelist, place_holder
 NAMELIST /PARAMETERS/ dodamping, doupperbound, docloud, doprecip, &
                 dolongwave, doshortwave, dosgs, dz, doconstdz, &
                 docoriolis, docoriolisz, dosurface, dolargescale, doradforcing, &
-		fluxt0,fluxq0,tau0,tabs_s,z0,nelapse, nelapsemin, dt, dx, dy,  &
+		            fluxt0,fluxq0,tau0,tabs_s,z0,nelapse, nelapsemin, dt, dx, dy,  &
                 fcor, ug, vg, nstop, caseid, case_restart,caseid_restart, &
-		nstat, nstatfrq, nprint, nrestart, doradsimple, &
-		nsave3D, nsave3Dstart, nsave3Dend, dosfcforcing, &
-		donudging_uv, donudging_tq, &
+		            nstat, nstatfrq, nprint, nrestart, doradsimple, &
+		            nsave3D, nsave3Dstart, nsave3Dend, dosfcforcing, &
+		            donudging_uv, donudging_tq, &
                 donudging_t, donudging_q, tauls,tautqls,&
                 nudging_uv_z1, nudging_uv_z2, nudging_t_z1, nudging_t_z2, &
                 nudging_q_z1, nudging_q_z2, dofplane, &
-		timelargescale, longitude0, latitude0, day0, nrad, &
-		OCEAN,LAND,SFC_FLX_FXD,SFC_TAU_FXD, soil_wetness, &
+		            timelargescale, longitude0, latitude0, day0, nrad, &
+		            OCEAN,LAND,SFC_FLX_FXD,SFC_TAU_FXD, soil_wetness, &
                 doensemble, nensemble, dowallx, dowally, &
                 nsave2D, nsave2Dstart, nsave2Dend, qnsave3D, & 
                 docolumn, save2Dbin, save2Davg, save3Dbin, &
                 save2Dsep, save3Dsep, dogzip2D, dogzip3D, restart_sep, &
-	        doseasons, doperpetual, doradhomo, dosfchomo, doisccp, &
+	              doseasons, doperpetual, doradhomo, dosfchomo, doisccp, &
                 domodis, domisr, dodynamicocean, ocean_type, delta_sst, &
                 depth_slab_ocean, Szero, deltaS, timesimpleocean, &
-		dosolarconstant, solar_constant, zenith_angle, rundatadir, &
+                dosolarconstant, solar_constant, zenith_angle, rundatadir, &
                 dotracers, output_sep, perturb_type, &
                 doSAMconditionals, dosatupdnconditionals, &
                 doscamiopdata, iopfile, dozero_out_day0, &
@@ -158,6 +158,19 @@ end if
         end if
 
         if(tautqls.eq.99999999.) tautqls = tauls
+
+        !===============================================================
+        ! KUANG_LAB ADDITION
+
+        if(dokuangensemble) then
+          if(masterproc) then
+            write(*,*) '*********************************************************'
+            write(*,*) '  Using the Kuang_Lab Ensemble Run Method'
+            write(*,*) '  This will turn off MPI in the model run, such that'
+            write(*,*) '  each subdomain is run independently of each other.'
+            write(*,*) '*********************************************************'
+          end if
+        end if
           
         dtfactor = 1.
         

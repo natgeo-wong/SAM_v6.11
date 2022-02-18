@@ -1,5 +1,6 @@
 	subroutine write_all()
 	
+  use params, only: dokuangensemble
 	use vars
 	implicit none
 	character *4 rankchar
@@ -158,7 +159,7 @@
 
         ! Kuang Ensemble run: turn on mpi after boundaries and diagnose (Song Qiyu, 2022)
         if(dokuangensemble) dompi = .true.
-        
+
         return
         end
  

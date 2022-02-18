@@ -148,10 +148,17 @@
 
 ! update the boundaries 
 ! (just in case when some parameterization initializes and needs boundary points)
+        
+        ! Kuang Ensemble run: turn off mpi for boundaries and diagnose (Song Qiyu, 2022)
+        if(dokuangensemble) dompi = .false.
 
+        call diagnose() ! added by qiyusong  
         call boundaries(1)
         call boundaries(4)
 
+        ! Kuang Ensemble run: turn on mpi after boundaries and diagnose (Song Qiyu, 2022)
+        if(dokuangensemble) dompi = .true.
+        
         return
         end
  

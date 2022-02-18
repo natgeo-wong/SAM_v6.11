@@ -99,7 +99,10 @@ do while(nstep.lt.nstop.and.nelapse.gt.0)
 !------------------------------------------------------------------
 
   ncycle = 1
-
+  
+  ! Kuang Ensemble run: turn off mpi entering each loop (Song Qiyu, 2022)
+  if(dokuangensemble) dompi = .false.
+  
   call kurant()
 
   total_water_before = total_water()
@@ -189,6 +192,7 @@ do while(nstep.lt.nstop.and.nelapse.gt.0)
 !----------------------------------------------------------
 !     Fill boundaries for SGS diagnostic fields:
 
+
      call boundaries(4)
 !-----------------------------------------------
 !       advection of momentum:
@@ -272,8 +276,11 @@ do while(nstep.lt.nstop.and.nelapse.gt.0)
   total_water_after = total_water()
 !----------------------------------------------------------
 !  collect statistics, write save-file, etc.
-
+   
    call stepout(nstatsteps)
+      
+   ! Kuang Ensemble run: turn on mpi after each loop (Song Qiyu, 2022)
+   if(dokuangensemble) dompi = .true.
   
 !----------------------------------------------------------
 

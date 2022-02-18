@@ -44,7 +44,15 @@ NAMELIST /PARAMETERS/ dodamping, doupperbound, docloud, doprecip, &
                 bubble_radius_ver,bubble_dtemp,bubble_dq, dosmoke, dossthomo, &
                 rad3Dout, nxco2, dosimfilesout, notracegases, &
                 doradlat, doradlon, ncycle_max, doseawater, SLM, LES_S
-	
+
+! Options added by Kuang Lab at Harvard
+NAMELIST /KUANG_OPTIONS/ dokuangensemble
+
+!bloss: Create dummy namelist, so that we can figure out error code
+!       for a mising namelist.  This lets us differentiate between
+!       missing namelists and those with an error within the namelist.
+NAMELIST /BNCUIODSBJCB/ place_holder
+
 !----------------------------------
 !  Read namelist variables from the standard input:
 !------------
@@ -58,11 +66,43 @@ if (ierr.ne.0) then
 end if
 close(55)
 
+!----------------------------------
+!  Read namelist for Kuang_Lab options from same prm file:
+!------------
+open(55,file='./'//trim(case)//'/prm', status='old',form='formatted')
+
+!bloss: get error code for missing namelist (by giving the name for
+!       a namelist that doesn't exist in the prm file).
+read (UNIT=55,NML=BNCUIODSBJCB,IOSTAT=ios_missing_namelist)
+rewind(55) !note that one must rewind before searching for new namelists
+
+!bloss: read in UWOPTIONS namelist
+read (UNIT=55,NML=KUANG_OPTIONS,IOSTAT=ios)
+if (ios.ne.0) then
+  if(masterproc) write(*,*) 'ios_missing_namelist = ', ios_missing_namelist
+  if(masterproc) write(*,*) 'ios for KUANG_OPTIONS = ', ios
+   !namelist error checking
+   if(ios.ne.ios_missing_namelist) then
+     rewind(55) !note that one must rewind before searching for new namelists
+     read (UNIT=55,NML=KUANG_OPTIONS)
+     if(masterproc) then
+       write(*,*) '****** ERROR: bad specification in KUANG_OPTIONS namelist'
+     end if
+      call task_abort()
+   elseif(masterproc) then
+      write(*,*) '****************************************************'
+      write(*,*) '****** No KUANG_OPTIONS namelist in prm file *********'
+      write(*,*) '****************************************************'
+   end if
+end if
+close(55)
+
 ! write namelist values out to file for documentation
 if(masterproc) then
       open(unit=55,file='./OUT_STAT/'//trim(case)//'_'//trim(caseid)//'.nml',&
             form='formatted')
       write (55,nml=PARAMETERS)
+      write (55,nml=KUANG_OPTIONS)
       write(55,*) 
       close(55)
 end if

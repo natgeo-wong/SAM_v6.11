@@ -115,6 +115,9 @@ logical:: dosmoke = .false.
 logical:: notracegases = .false.
 logical:: doseawater = .false.
 
+! Kuang Options
+logical:: dokuangensemble = .false. ! Subdomains defined in domains.f90 are run separately
+
 ! Specify solar constant and zenith angle for perpetual insolation.
 ! Based onn Tompkins and Graig (1998)
 ! Note that if doperpetual=.true. and dosolarconstant=.false.

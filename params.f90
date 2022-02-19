@@ -137,5 +137,12 @@ integer:: perturb_type  = 0 ! type of initial noise in setperturb()
   real:: bubble_dtemp = 0.
   real:: bubble_dq = 0.
 
+! linear response perturbation: layer by layer (Song Qiyu, 2022)
+logical:: dolayerperturb = .false.
+integer:: tperturbi = 0
+integer:: qperturbi = 0
+real:: tperturbA = 1.     ! Default perturbation 1 time positive
+real:: qperturbA = 1.
+
 
 end module params

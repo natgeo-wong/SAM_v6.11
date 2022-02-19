@@ -15,6 +15,9 @@ real tt(nzm,2),qq(nzm,2),uu(nzm,2),vv(nzm,2),ww(nzm,2)
 real ratio1, ratio2, ratio_t1, ratio_t2
 logical zgrid
 
+! linear response perturbation (Song Qiyu, 2022)
+real, save :: delt_t, delt_q    ! Layer by layer perturbation
+
 call t_startf ('forcing')
 
 
@@ -173,6 +176,21 @@ if(dolargescale.and.time.gt.timelargescale) then
     end do
 
    end do ! n
+
+   ! linear response perturbation: layer by layer (Song Qiyu, 2022)
+   if(dolayerperturb) then
+     delt_t = 0.5/86400.
+     delt_q = 1.e-3*0.2/86400.
+     ! Apply perturbation forcing
+     if (tperturbi.gt.0) then
+       tt(tperturbi,:) = tt(tperturbi,:)+tperturbA*delt_t
+     end if
+     if (qperturbi.gt.0) then
+       ! For height with small humidity, rescale humidity perturbation
+       delt_q = min(delt_q,0.2*qg0(qperturbi)/7200.)
+       qq(qperturbi,:) = qq(qperturbi,:)+qperturbA*delt_q
+     end if
+   end if
 
    coef=(day-dayls(nn))/(dayls(nn+1)-dayls(nn))
    dosubsidence = .false.

@@ -115,9 +115,6 @@ logical:: dosmoke = .false.
 logical:: notracegases = .false.
 logical:: doseawater = .false.
 
-! Kuang Options
-logical:: dokuangensemble = .false. ! Subdomains defined in domains.f90 are run separately
-
 ! Specify solar constant and zenith angle for perpetual insolation.
 ! Based onn Tompkins and Graig (1998)
 ! Note that if doperpetual=.true. and dosolarconstant=.false.
@@ -136,6 +133,18 @@ integer:: perturb_type  = 0 ! type of initial noise in setperturb()
   real:: bubble_radius_ver = 0.
   real:: bubble_dtemp = 0.
   real:: bubble_dq = 0.
+
+! The following are added by Kuang Lab at Harvard
+
+! Options
+logical:: dokuangensemble = .false. ! Subdomains defined in domains.f90 are run separately
+
+! linear response perturbation: layer by layer (Song Qiyu, 2022)
+logical:: dolayerperturb = .false.
+integer:: tperturbi = 0
+integer:: qperturbi = 0
+real:: tperturbA = 1.     ! Default perturbation 1 time positive
+real:: qperturbA = 1.
 
 
 end module params

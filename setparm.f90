@@ -43,11 +43,11 @@ NAMELIST /PARAMETERS/ dodamping, doupperbound, docloud, doprecip, &
                 bubble_x0,bubble_y0,bubble_z0,bubble_radius_hor, &
                 bubble_radius_ver,bubble_dtemp,bubble_dq, dosmoke, dossthomo, &
                 rad3Dout, nxco2, dosimfilesout, notracegases, &
-                doradlat, doradlon, ncycle_max, doseawater, SLM, LES_S, &
-                dolayerperturb, tperturbi, qperturbi, tperturbA, qperturbA ! linear response perturbation: layer by layer (Song Qiyu, 2022)
+                doradlat, doradlon, ncycle_max, doseawater, SLM, LES_S
 
-! Options added by Kuang Lab at Harvard
-NAMELIST /KUANG_OPTIONS/ dokuangensemble
+! Parameters added by Kuang Lab at Harvard
+NAMELIST /KUANG_PARAMS/ dokuangensemble, &
+                dolayerperturb, tperturbi, qperturbi, tperturbA, qperturbA ! linear response perturbation: layer by layer (Song Qiyu, 2022)
 
 !bloss: Create dummy namelist, so that we can figure out error code
 !       for a mising namelist.  This lets us differentiate between
@@ -78,21 +78,21 @@ read (UNIT=55,NML=BNCUIODSBJCB,IOSTAT=ios_missing_namelist)
 rewind(55) !note that one must rewind before searching for new namelists
 
 !bloss: read in UWOPTIONS namelist
-read (UNIT=55,NML=KUANG_OPTIONS,IOSTAT=ios)
+read (UNIT=55,NML=KUANG_PARAMS,IOSTAT=ios)
 if (ios.ne.0) then
   if(masterproc) write(*,*) 'ios_missing_namelist = ', ios_missing_namelist
-  if(masterproc) write(*,*) 'ios for KUANG_OPTIONS = ', ios
+  if(masterproc) write(*,*) 'ios for KUANG_PARAMS = ', ios
    !namelist error checking
    if(ios.ne.ios_missing_namelist) then
      rewind(55) !note that one must rewind before searching for new namelists
-     read (UNIT=55,NML=KUANG_OPTIONS)
+     read (UNIT=55,NML=KUANG_PARAMS)
      if(masterproc) then
-       write(*,*) '****** ERROR: bad specification in KUANG_OPTIONS namelist'
+       write(*,*) '****** ERROR: bad specification in KUANG_PARAMS namelist'
      end if
       call task_abort()
    elseif(masterproc) then
       write(*,*) '****************************************************'
-      write(*,*) '****** No KUANG_OPTIONS namelist in prm file *********'
+      write(*,*) '******* No KUANG_PARAMS namelist in prm file *******'
       write(*,*) '****************************************************'
    end if
 end if
@@ -103,7 +103,7 @@ if(masterproc) then
       open(unit=55,file='./OUT_STAT/'//trim(case)//'_'//trim(caseid)//'.nml',&
             form='formatted')
       write (55,nml=PARAMETERS)
-      write (55,nml=KUANG_OPTIONS)
+      write (55,nml=KUANG_PARAMS)
       write(55,*) 
       close(55)
 end if
@@ -159,6 +159,8 @@ end if
         end if
 
         if(tautqls.eq.99999999.) tautqls = tauls
+        
+        dtfactor = 1.
 
         !===============================================================
         ! KUANG_LAB ADDITION
@@ -173,7 +175,20 @@ end if
           end if
         end if
           
-        dtfactor = 1.
+        if(dolayerperturb) then
+          if(masterproc) then
+            write(*,*) '*********************************************************'
+            write(*,*) '  Using the Kuang_Lab layer-by-layer perturbation'
+            write(*,*) '  This is meant to calculate linear response function.'
+            if(tperturbi.gt.0.and.tperturbA.ne.0.) then
+              write(*,*) '  Add temperature perturbation to layer ', tperturbi
+            end if
+            if(qperturbi.gt.0.and.qperturbA.ne.0.) then
+              write(*,*) '  Add water vapor perturbation to layer ', qperturbi
+            end if
+            write(*,*) '*********************************************************'
+          end if
+        end if
         
         !===============================================================
         ! UW ADDITION

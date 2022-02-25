@@ -100,7 +100,7 @@ close(55)
 
 ! write namelist values out to file for documentation
 if(masterproc) then
-      open(unit=55,file='./OUT_STAT/'//trim(case)//'_'//trim(caseid)//'.nml',&
+      open(unit=55,file='./'//trim(case)//'/'//trim(case)//'_'//trim(caseid)//'.nml',&
             form='formatted')
       write (55,nml=PARAMETERS)
       write (55,nml=KUANG_PARAMS)

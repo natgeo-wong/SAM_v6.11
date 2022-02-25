@@ -577,7 +577,11 @@ contains
                   eccf = sum(p_factor(:, lat)/solarZenithAngleCos(:)) / real(nx) 
                end if
             else
-               call shr_orb_decl (dayForSW, eccen, mvelpp, lambm0, obliqr, delta, eccf)
+               if (dosolarconstant) then
+                  eccf = solar_constant/(1367.)
+               else
+                  call shr_orb_decl (dayForSW, eccen, mvelpp, lambm0, obliqr, delta, eccf)
+               end if
                solarZenithAngleCos(:) =  &
                  zenith(dayForSW, real(pi * latitude(:, lat)/180., kind_rb), &
                                   real(pi * longitude(:, lat)/180., kind_rb) )

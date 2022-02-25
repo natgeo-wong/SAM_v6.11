@@ -33,7 +33,7 @@ real fcorz      ! Vertical Coriolis parameter
 real :: coszrs = 0.
 real salt_factor ! correction factor for water vapor saturation over sea-water
 
-integer:: ncycle_max = 4  ! maximum number of subcycling within dt
+integer:: ncycle_max = 50  ! maximum number of subcycling within dt
 
 !----------------------------------------------
 ! Parameters set by PARAMETERS namelist:

@@ -11,7 +11,7 @@ implicit none
 
 integer i,j,k,n,nn,m,iz,iday0,iday
 real coef, radtend, dayy
-real tt(nzm,2),qq(nzm,2),uu(nzm,2),vv(nzm,2),ww(nzm,2)
+real tt(nzm,2),qq(nzm,2),uu(nzm,2),vv(nzm,2),ww(nzm,2),pp
 real ratio1, ratio2, ratio_t1, ratio_t2
 logical zgrid, pgrid
 
@@ -51,37 +51,39 @@ do n=1,2
    if(zsnd(2,m).gt.zsnd(1,m)) zgrid=.true.
    if(psnd(2,m).lt.psnd(1,m)) pgrid=.true.
 
-   if(masterproc) print*,'error in grid in snd'
+   if((.not.zgrid).and.(.not.pgrid)) then
+      if(masterproc) print*,'error in grid in snd'
       stop
    end if
+
    do iz = 1,nzm
    if(zgrid) then
       do i = 2,nzsnd
          if(z(iz).le.zsnd(i,m)) then
-         coef = (z(iz)-zsnd(i-1,m))/(zsnd(i,m)-zsnd(i-1,m)) 
-         tt(iz,n)=tsnd(i-1,m)+(tsnd(i,m)-tsnd(i-1,m))*coef
-         if(pgrid) then
-            pp=psnd(i-1,m)+(psnd(i,m)-psnd(i-1,m))*coef
-            tt(iz,n)=tt(iz,n)/((1000./pp)**(rgas/cp))
-         else
-            tt(iz,n)=tt(iz,n)/prespotb(iz)
-         endif
-         qq(iz,n)=qsnd(i-1,m)+(qsnd(i,m)-qsnd(i-1,m))*coef
-         uu(iz,n)=usnd(i-1,m)+(usnd(i,m)-usnd(i-1,m))*coef
-         vv(iz,n)=vsnd(i-1,m)+(vsnd(i,m)-vsnd(i-1,m))*coef
-         goto 11
+            coef = (z(iz)-zsnd(i-1,m))/(zsnd(i,m)-zsnd(i-1,m)) 
+            tt(iz,n)=tsnd(i-1,m)+(tsnd(i,m)-tsnd(i-1,m))*coef
+            if(pgrid) then
+               pp=psnd(i-1,m)+(psnd(i,m)-psnd(i-1,m))*coef
+               tt(iz,n)=tt(iz,n)/((1000./pp)**(rgas/cp))
+            else
+               tt(iz,n)=tt(iz,n)/prespotb(iz)
+            endif
+            qq(iz,n)=qsnd(i-1,m)+(qsnd(i,m)-qsnd(i-1,m))*coef
+            uu(iz,n)=usnd(i-1,m)+(usnd(i,m)-usnd(i-1,m))*coef
+            vv(iz,n)=vsnd(i-1,m)+(vsnd(i,m)-vsnd(i-1,m))*coef
+            goto 11
          endif
       end do
    else
       do i = 2,nzsnd
          if(pres(iz).ge.psnd(i,m)) then
-         coef = (pres(iz)-psnd(i-1,m))/(psnd(i,m)-psnd(i-1,m))
-         tt(iz,n)=tsnd(i-1,m)+(tsnd(i,m)-tsnd(i-1,m))*coef
-         tt(iz,n)=tt(iz,n)/prespotb(iz)
-         qq(iz,n)=qsnd(i-1,m)+(qsnd(i,m)-qsnd(i-1,m))*coef
-         uu(iz,n)=usnd(i-1,m)+(usnd(i,m)-usnd(i-1,m))*coef
-         vv(iz,n)=vsnd(i-1,m)+(vsnd(i,m)-vsnd(i-1,m))*coef
-         goto 11
+            coef = (pres(iz)-psnd(i-1,m))/(psnd(i,m)-psnd(i-1,m))
+            tt(iz,n)=tsnd(i-1,m)+(tsnd(i,m)-tsnd(i-1,m))*coef
+            tt(iz,n)=tt(iz,n)/prespotb(iz)
+            qq(iz,n)=qsnd(i-1,m)+(qsnd(i,m)-qsnd(i-1,m))*coef
+            uu(iz,n)=usnd(i-1,m)+(usnd(i,m)-usnd(i-1,m))*coef
+            vv(iz,n)=vsnd(i-1,m)+(vsnd(i,m)-vsnd(i-1,m))*coef
+            goto 11
          endif
       end do
    end if

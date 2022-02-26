@@ -170,7 +170,7 @@ subroutine micro_setparm()
 
    ! write namelist values out to file for documentation
    if(masterproc) then
-      open(unit=55,file='./OUT_STAT/'//trim(case)//'_'//trim(caseid)//'.nml', form='formatted', position='append')    
+      open(unit=55,file='./'//trim(case)//'/'//trim(case)//'_'//trim(caseid)//'.nml', form='formatted', position='append')    
       write (unit=55,nml=MICRO_THOMPSON,IOSTAT=ios)
       write(55,*) ' '
       close(unit=55)

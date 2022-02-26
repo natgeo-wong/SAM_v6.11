@@ -1,6 +1,6 @@
 ! Non-blocking receives before blocking sends
 
-subroutine pressure_kuang
+subroutine pressure_mpiensemble
 	
 !       Original pressure solver based on horizontal slabs
 !       (C) 1998, 2002 Marat Khairoutdinov
@@ -9,7 +9,7 @@ subroutine pressure_kuang
 !       Also, used for a 2D version 
 !       For more processors for the given number of levels and 3D, use pressure_big
 !
-!       Kuang Ensemble run:
+!       MPI Ensemble run:
 !       Modified by Song Qiyu (2022)
 !       Renamed into a separate file/subroutine by Nathanael Wong (2022)
 
@@ -538,7 +538,7 @@ call task_barrier()
 
 call press_grad()
 
-end subroutine pressure_kuang
+end subroutine pressure_mpiensemble
 
 
 

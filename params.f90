@@ -137,7 +137,7 @@ integer:: perturb_type  = 0 ! type of initial noise in setperturb()
 ! The following are added by Kuang Lab at Harvard
 
 ! Options
-logical:: dokuangensemble = .false. ! Subdomains defined in domains.f90 are run separately
+logical:: dompiensemble = .false. ! Subdomains defined in domains.f90 are run separately
 
 ! linear response perturbation: layer by layer (Song Qiyu, 2022)
 logical:: dolayerperturb = .false.

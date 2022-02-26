@@ -46,7 +46,7 @@ NAMELIST /PARAMETERS/ dodamping, doupperbound, docloud, doprecip, &
                 doradlat, doradlon, ncycle_max, doseawater, SLM, LES_S
 
 ! Parameters added by Kuang Lab at Harvard
-NAMELIST /KUANG_PARAMS/ dokuangensemble, &
+NAMELIST /KUANG_PARAMS/ dompiensemble, &
                 dolayerperturb, tperturbi, qperturbi, tperturbA, qperturbA ! linear response perturbation: layer by layer (Song Qiyu, 2022)
 
 !bloss: Create dummy namelist, so that we can figure out error code
@@ -165,7 +165,7 @@ end if
         !===============================================================
         ! KUANG_LAB ADDITION
 
-        if(dokuangensemble.AND.dompi) then
+        if(dompiensemble.AND.dompi) then
           if(masterproc) then
             write(*,*) '*********************************************************'
             write(*,*) '  Using the Kuang_Lab Ensemble Run Method'
@@ -175,13 +175,13 @@ end if
             write(*,*) '  restart files.'
             write(*,*) '*********************************************************'
           end if
-        else if(dokuangensemble.AND.(.NOT.dompi)) then
-          dokuangensemble = .false.
+        else if(dompiensemble.AND.(.NOT.dompi)) then
+          dompiensemble = .false.
           if(masterproc) then
             write(*,*) '*********************************************************'
             write(*,*) '  Do not use the Kuang_Lab Ensemble Run Method'
             write(*,*) '  MPI is not called because number of processors = 1'
-            write(*,*) '  Setting dokuangensemble to FALSE'
+            write(*,*) '  Setting dompiensemble to FALSE'
             write(*,*) '*********************************************************'
           end if
         end if

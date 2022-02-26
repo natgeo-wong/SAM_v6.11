@@ -74,7 +74,7 @@
 	subroutine read_all()
 	
 	use vars
-	use params, only: dokuangensemble
+	use params, only: dompiensemble
   implicit none
 	character *4 rankchar
 	character *256 filename
@@ -151,14 +151,14 @@
 ! (just in case when some parameterization initializes and needs boundary points)
         
         ! Kuang Ensemble run: turn off mpi for boundaries and diagnose (Song Qiyu, 2022)
-        if(dokuangensemble) dompi = .false.
+        if(dompiensemble) dompi = .false.
 
         call diagnose() ! added by qiyusong  
         call boundaries(1)
         call boundaries(4)
 
         ! Kuang Ensemble run: turn on mpi after boundaries and diagnose (Song Qiyu, 2022)
-        if(dokuangensemble) dompi = .true.
+        if(dompiensemble) dompi = .true.
 
         return
         end

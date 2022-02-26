@@ -8,7 +8,7 @@ use microphysics
 use sgs
 use tracers
 use movies, only: init_movies
-use params, only: dokuangensemble
+use params, only: dompiensemble
 implicit none
 
 integer k, icyc, nn, nstatsteps
@@ -102,7 +102,7 @@ do while(nstep.lt.nstop.and.nelapse.gt.0)
   ncycle = 1
   
   ! Kuang Ensemble run: turn off mpi entering each loop (Song Qiyu, 2022)
-  if(dokuangensemble) dompi = .false.
+  if(dompiensemble) dompi = .false.
   
   call kurant()
 
@@ -281,7 +281,7 @@ do while(nstep.lt.nstop.and.nelapse.gt.0)
    call stepout(nstatsteps)
       
    ! Kuang Ensemble run: turn on mpi after each loop (Song Qiyu, 2022)
-   if(dokuangensemble) dompi = .true.
+   if(dompiensemble) dompi = .true.
   
 !----------------------------------------------------------
 

@@ -98,7 +98,7 @@ module rad
 
   use shr_orb_mod, only: shr_orb_params, shr_orb_decl, shr_orb_cosz
   use params, only: SLM
-  use params, only: dokuangensemble
+  use params, only: dompiensemble
   implicit none
   private
 
@@ -786,12 +786,12 @@ contains
        
       if(mod(nstep,nstat*(1+nrestart_skip)).eq.0.or.nstep.eq.nstop.or.nelapse.eq.0) then
         ! Kuang Ensemble run: turn on mpi before writing (Song Qiyu, 2022)
-        if(dokuangensemble) then
+        if(dompiensemble) then
           dompi = .true.
         endif
         call write_rad() ! write radiation restart file
         ! Kuang Ensemble run: turn off mpi after writing (Song Qiyu, 2022)
-        if(dokuangensemble) then
+        if(dompiensemble) then
           dompi = .false.
         endif
       end if
@@ -1063,7 +1063,7 @@ contains
     endif
 
     ! Kuang Ensemble run: turn on mpi for broadcast (Song Qiyu, 2022)
-    if(dokuangensemble) dompi = .true.
+    if(dompiensemble) dompi = .true.
  
     if(dompi) then
       call task_bcast_real8(0,o3,nzm+1)
@@ -1078,7 +1078,7 @@ contains
     end if
 
     ! Kuang Ensemble run: turn off mpi after broadcast (Song Qiyu, 2022)
-    if(dokuangensemble) dompi = .false.
+    if(dompiensemble) dompi = .false.
 
   end subroutine tracesini
   ! ----------------------------------------------------------------------------

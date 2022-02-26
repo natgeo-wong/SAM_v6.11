@@ -325,7 +325,7 @@ aver=1./dble(n)
 factor=1./dble(nx*ny)
 
 ! Kuang Ensemble run: turn on mpi to calculate outpu (Song Qiyu, 2022)
-if(dokuangensemble) dompi = .true.
+if(dompiensemble) dompi = .true.
 
 if(dompi) then
   ! average condavg_factor across domains.  This will sum the
@@ -535,7 +535,7 @@ if(dompi) then
 endif
 
 ! Kuang Ensemble run: turn off mpi after calculating buffer values (Song Qiyu, 2022)
-if(dokuangensemble) dompi = .false.
+if(dompiensemble) dompi = .false.
 
 if(masterproc) then
 

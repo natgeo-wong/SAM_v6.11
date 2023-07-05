@@ -35,21 +35,26 @@ if(.not.SFC_FLX_FXD) then
 
           if(landmask(i,j).eq.0) then
 
-           u_h = 0.5*(u(i+1,j,1)+u(i,j,1)) + ug
-           v_h = 0.5*(v(i,j+YES3D,1)+v(i,j,1)) + vg
-           ta_h = tabs(i,j,1)
-           q_h = qv(i,j,1)
-           t_h = tabs(i,j,1)*prespot(1)
-           t_s = (sstxy(i,j)+t00)*prespoti(1)
-           q_s = salt_factor*qsatw(sstxy(i,j)+t00,presi(1))
+            u_h = 0.5*(u(i+1,j,1)+u(i,j,1)) + ug
+            v_h = 0.5*(v(i,j+YES3D,1)+v(i,j,1)) + vg
+            ta_h = tabs(i,j,1)
+            q_h = qv(i,j,1)
+            t_h = tabs(i,j,1)*prespot(1)
+            t_s = (sstxy(i,j)+t00)*prespoti(1)
+            q_s = salt_factor*qsatw(sstxy(i,j)+t00,presi(1))
 
-           call oceflx(rho(1), u_h, v_h, ta_h, q_h, t_h, z(1)-zi(1), t_s, q_s, &
-                        fluxt0, fluxq0, taux0, tauy0)
+            if (dobulksfcflx) then
+              call oceflx(rho(1), u_h, v_h, ta_h, q_h, t_h, z(1)-zi(1), t_s, q_s, &
+                fluxt0, fluxq0, taux0, tauy0)
+            else
+              call oceflx(rho(1), bulksfcflx_u, 0, ta_h, q_h, t_h, z(1)-zi(1), t_s, q_s, &
+                fluxt0, fluxq0, taux0, tauy0)
+            endif
 
-           fluxbu(i,j) = taux0/rho(1)
-           fluxbv(i,j) = tauy0/rho(1)
-           fluxbt(i,j) = fluxt0
-           fluxbq(i,j) = fluxq0
+            fluxbu(i,j) = taux0/rho(1)
+            fluxbv(i,j) = tauy0/rho(1)
+            fluxbt(i,j) = fluxt0
+            fluxbq(i,j) = fluxq0
 
           end if  
 

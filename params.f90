@@ -150,4 +150,9 @@ real:: qperturbA = 1.
 logical :: doradtendency = .false. 
 real :: troptend = 1.5 ! Convective tendency in Pauluis & Garner [2006]
 
+! Option to fix wind speed used in calculation of bulk surface fluxes
+! Taken from Peter Blossey's version of SAM
+logical :: dobulksfcflx = .false.
+real :: bulksfcflx_u = 0.
+
 end module params

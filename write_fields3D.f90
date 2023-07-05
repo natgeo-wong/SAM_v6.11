@@ -56,7 +56,9 @@ if(masterproc.or.output_sep) then
     end if
     filename='./OUT_3D/'//trim(case)//'_'//trim(caseid)//'_'// &
         rankchar(5-lenstr(rankchar):4)//'_'//timechar(1:10)//filetype//sepchar
-    open(46,file=filename,status='unknown',form='unformatted')
+    open(46,file=filename,status='unknown',form='unformatted', &
+!            BUFFERED='YES', & ! use for intel compiler
+            ACTION='WRITE')
 
   else
     if(save3Dbin) then
@@ -75,15 +77,21 @@ if(masterproc.or.output_sep) then
     if(save3Dsep) then
       filename='./OUT_3D/'//trim(case)//'_'//trim(caseid)//'_'// &
         rankchar(5-lenstr(rankchar):4)//'_'//timechar(1:10)//filetype//sepchar
-      open(46,file=filename,status='unknown',form='unformatted')	
+      open(46,file=filename,status='unknown',form='unformatted', &
+!              BUFFERED='YES', & ! use for intel compiler
+              ACTION='WRITE')	
     else
       filename='./OUT_3D/'//trim(case)//'_'//trim(caseid)//'_'// &
         rankchar(5-lenstr(rankchar):4)//filetype//sepchar
       if(nrestart.eq.0.and.notopened3D) then
-         open(46,file=filename,status='unknown',form='unformatted')	
+         open(46,file=filename,status='unknown',form='unformatted', &
+!                 BUFFERED='YES', & ! use for intel compiler
+                 ACTION='WRITE')	
       else
-         open(46,file=filename,status='unknown', &
-                              form='unformatted', position='append')
+         open(46,file=filename,status='unknown', form='unformatted', &
+                 position='append', &
+!                 BUFFERED='YES', & ! use for intel compiler
+                 ACTION='WRITE')
       end if
       notopened3D=.false.
     end if  

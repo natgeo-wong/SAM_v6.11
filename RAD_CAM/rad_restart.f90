@@ -17,7 +17,9 @@
           open(56,file='./RESTART/'//case(1:len_trim(case))//'_'// &
                caseid(1:len_trim(caseid))//'_'// &
                rankchar(5-lenstr(rankchar):4)//'_restart_rad.bin', &
-               status='unknown',form='unformatted')
+               status='unknown',form='unformatted',&
+!               BUFFERED='YES', & ! use for intel compiler
+               ACTION='WRITE')
           write(56) nsubdomains
 	  write(56) initrad,nradsteps,tabs_rad,qc_rad,qi_rad,qv_rad,qs_rad, &
                     cld_rad, rel_rad, rei_rad, res_rad, &
@@ -40,7 +42,9 @@
                   open(56,file='./RESTART/'//case(1:len_trim(case))//'_'// &
                       caseid(1:len_trim(caseid))//'_'// &
                       rankchar(5-lenstr(rankchar):4)//'_restart_rad.bin', &
-                      status='unknown',form='unformatted')
+                      status='unknown',form='unformatted', &
+!                      BUFFERED='YES', & ! use for intel compiler
+                      ACTION='WRITE')
                   write(56) nsubdomains
 
                else
@@ -48,7 +52,9 @@
                   open(56,file='./RESTART/'//case(1:len_trim(case))//'_'// & 
                       caseid(1:len_trim(caseid))//'_'// &
                       rankchar(5-lenstr(rankchar):4)//'_restart_rad.bin', &
-                      status='unknown',form='unformatted', position='append')
+                      status='unknown',form='unformatted', position='append', &
+!                      BUFFERED='YES', & ! use for intel compiler
+                      ACTION='WRITE')
 
                end if
 
@@ -94,11 +100,15 @@
           if(nrestart.ne.2) then
             open(56,file='./RESTART/'//trim(case)//'_'//trim(caseid)//'_'// &
               rankchar(5-lenstr(rankchar):4)//'_restart_rad.bin', &
-              status='unknown',form='unformatted')
+              status='unknown',form='unformatted', &
+!              BUFFERED='YES', & ! use for intel compiler
+              ACTION='READ')
           else
             open(56,file='./RESTART/'//trim(case_restart)//'_'//trim(caseid_restart)//'_'// &
               rankchar(5-lenstr(rankchar):4)//'_restart_rad.bin', &
-              status='unknown',form='unformatted')
+              status='unknown',form='unformatted', &
+!              BUFFERED='YES', & ! use for intel compiler
+              ACTION='READ')
           end if
           read (56)
 	  read(56) initrad,nradsteps,tabs_rad,qc_rad,qi_rad,qv_rad,qs_rad,  &
@@ -114,11 +124,15 @@
           if(nrestart.ne.2) then
             open(56,file='./RESTART/'//trim(case)//'_'//trim(caseid)//'_'// &
               rankchar(5-lenstr(rankchar):4)//'_restart_rad.bin', &
-              status='unknown',form='unformatted')
+              status='unknown',form='unformatted', &
+!              BUFFERED='YES', & ! use for intel compiler
+              ACTION='READ')
           else
             open(56,file='./RESTART/'//trim(case_restart)//'_'//trim(caseid_restart)//'_'// &
               rankchar(5-lenstr(rankchar):4)//'_restart_rad.bin', &
-              status='unknown',form='unformatted')
+              status='unknown',form='unformatted', &
+!              BUFFERED='YES', & ! use for intel compiler
+              ACTION='READ')
           end if
 
           do irank=0,nsubdomains-1

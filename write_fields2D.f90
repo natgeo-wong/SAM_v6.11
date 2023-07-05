@@ -74,11 +74,15 @@ if(masterproc.or.output_sep) then
     if(save2Dsep) then
        filename='./OUT_2D/'//trim(case)//'_'//trim(caseid)//'_'// &
           rankchar(5-lenstr(rankchar):4)//'_'//timechar(1:10)//filetype//sepchar 
-          open(46,file=filename,status='unknown',form='unformatted')
+          open(46,file=filename,status='unknown',form='unformatted', &
+!                  BUFFERED='YES', &   ! use for intel compiler
+                  ACTION='WRITE')
     else
        filename='./OUT_2D/'//trim(case)//'_'//trim(caseid)//'_'// &
              rankchar(5-lenstr(rankchar):4)//filetype//sepchar
-       open(46,file=filename,status=filestatus,form='unformatted')	
+       open(46,file=filename,status=filestatus,form='unformatted', &
+!               BUFFERED='YES', &  ! use for intel compiler
+               ACTION='READWRITE')	
        do while(.true.)
          read(46,end=222)  nsteplast
          if(nsteplast.ge.nstep) then

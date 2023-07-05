@@ -19,6 +19,9 @@ logical zgrid, pgrid
 ! linear response perturbation (Song Qiyu, 2022)
 real, save :: delt_t, delt_q    ! Layer by layer perturbation
 
+! ktrop index for tropopause
+integer :: ktrop
+
 call t_startf ('forcing')
 
 
@@ -251,7 +254,7 @@ if(dolargescale.and.time.gt.timelargescale) then
          am_wtg_time = am_wtg
       endif
 
-      if (dowtg_dgr) call wtg_james2009(nzm, &
+      if (dowtg_blossey_etal_JAMES2009) call wtg_james2009(nzm, &
             100.*pres, tg0, qg0, tabs0, qv0, qn0+qp0, &
             fcor, lambda_wtg, am_wtg_time, am_wtg_exp, o_wtg, ktrop)
       if (dowtg_decompdgw) then

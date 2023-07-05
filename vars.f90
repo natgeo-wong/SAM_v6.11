@@ -53,7 +53,7 @@ real precinstsoil(nx,ny) ! current surface precip. rate on soil (instantaneous)
 
 real   t0(nzm), q0(nzm), qv0(nzm), tabs0(nzm), tl0(nzm), &
        tv0(nzm), u0(nzm), v0(nzm), &
-       tg0(nzm), qg0(nzm), ug0(nzm), vg0(nzm), pg0(nzm), p0(nzm), &
+       tg0(nzm), tp0(nzm), qg0(nzm), ug0(nzm), vg0(nzm), pg0(nzm), p0(nzm), &
        t01(nzm), q01(nzm), qp0(nzm), qn0(nzm)
 !----------------------------------------------------------------
 ! "observed" (read from snd file) surface characteristics 

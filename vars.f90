@@ -53,7 +53,7 @@ real precinstsoil(nx,ny) ! current surface precip. rate on soil (instantaneous)
 
 real   t0(nzm), q0(nzm), qv0(nzm), tabs0(nzm), tl0(nzm), &
        tv0(nzm), u0(nzm), v0(nzm), &
-       tg0(nzm), qg0(nzm), ug0(nzm), vg0(nzm), p0(nzm), &
+       tg0(nzm), qg0(nzm), ug0(nzm), vg0(nzm), pg0(nzm), p0(nzm), &
        t01(nzm), q01(nzm), qp0(nzm), qn0(nzm)
 !----------------------------------------------------------------
 ! "observed" (read from snd file) surface characteristics 
@@ -222,6 +222,24 @@ real swvp_xy(nx,ny)  ! saturated water vapor path (wrt water)
 ! Cloud and echo top heights, and cloud top temperature (instantaneous)
 real cloudtopheight(nx,ny), echotopheight(nx,ny), cloudtoptemp(nx,ny)
 real cloudcover(nx,ny)
+
+! WTG am and theta coefficients
+! for gradual WTG implementation from RCE to full damping state
+! (added by Nathanael Wong on 2021/01/17)
+! (theta coefficients added by Nathanael Wong on 2022/03/19)
+real twtg
+real twtgmax
+real am_wtg_time
+real tau_wtg_time
+
+! WTG vertical variables for statistics output
+! (added by Nathanael Wong on 2023/07/05)
+real :: wsub_ref(nz) = 0. ! used to output reference large-scale vertical motion
+real :: w_wtg(nz)
+real :: wwtgr(nz)
+real :: o_wtg(nz)
+real :: owtgr(nz)
+real :: wwtgc(nz)
 
 ! END UW ADDITIONS
 !===========================================================================

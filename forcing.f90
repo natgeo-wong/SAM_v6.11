@@ -306,10 +306,6 @@ if(dolargescale.and.time.gt.timelargescale) then
       o_wtg(1:nzm) = -w_wtg(1:nzm)*rho(1:nzm)*ggr
       owtgr(1:nzm) = -wwtgr(1:nzm)*rho(1:nzm)*ggr
 
-      wsub(1:nzm) = wsub(1:nzm) + w_wtg(1:nzm)
-
-      dosubsidence = .true.
-
    end if
 
    if (dotgr.OR.dodgw) then

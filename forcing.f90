@@ -65,7 +65,7 @@ do n=1,2
             tt(iz,n)=tsnd(i-1,m)+(tsnd(i,m)-tsnd(i-1,m))*coef
             if(pgrid) then
                pp(iz,n)=psnd(i-1,m)+(psnd(i,m)-psnd(i-1,m))*coef
-               tt(iz,n)=tt(iz,n)/((1000./pp)**(rgas/cp))
+               tt(iz,n)=tt(iz,n)/((1000./pp(iz,n))**(rgas/cp))
             else
                tt(iz,n)=tt(iz,n)/prespotb(iz)
             endif
@@ -80,8 +80,7 @@ do n=1,2
       do i = 2,nzsnd
          if(pres(iz).ge.psnd(i,m)) then
             coef = (pres(iz)-psnd(i-1,m))/(psnd(i,m)-psnd(i-1,m))
-            tt(iz,n)=tsnd(i-1,m)+(tsnd(i,m)-tsnd(i-1,m))*coef
-            tt(iz,n)=tt(iz,n)/prespotb(iz)
+            tt(iz,n)=tsnd(i-1,m)+(tsnd(i,m)-tsnd(i-1,m))*coef/prespotb(iz)
             tp(iz,n)=tsnd(i-1,m)+(tsnd(i,m)-tsnd(i-1,m))*coef
             qq(iz,n)=qsnd(i-1,m)+(qsnd(i,m)-qsnd(i-1,m))*coef
             uu(iz,n)=usnd(i-1,m)+(usnd(i,m)-usnd(i-1,m))*coef

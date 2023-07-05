@@ -155,4 +155,9 @@ real :: troptend = 1.5 ! Convective tendency in Pauluis & Garner [2006]
 logical :: dobulksfcflx = .false.
 real :: bulksfcflx_u = 0.
 
+logical :: dooceantimeperturb = .false.
+real, dimension(5) :: tabs_ptscale = (/0., 0., 0., 0., 0./) ! Vector of sinusoidal periods, units in days
+real, dimension(5) :: tabs_pamp    = (/0., 0., 0., 0., 0./) ! Vector of sinusoidal amplitudes, units in K
+real, dimension(5) :: tabs_pphase  = (/0., 0., 0., 0., 0./) ! Vector of sinusoidal amplitudes, units in K
+
 end module params

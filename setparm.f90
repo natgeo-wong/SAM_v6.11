@@ -49,7 +49,8 @@ NAMELIST /PARAMETERS/ dodamping, doupperbound, docloud, doprecip, &
 NAMELIST /KUANG_PARAMS/ dompiensemble, &
                 dolayerperturb, tperturbi, qperturbi, tperturbA, qperturbA, &
                 doradtendency, troptend, &
-                dobulksfcflx, bulksfcflx_u
+                dobulksfcflx, bulksfcflx_u, &
+                dooceantimeperturb, tabs_ptscale, tabs_pamp, tabs_pphase
 
 !bloss: Create dummy namelist, so that we can figure out error code
 !       for a mising namelist.  This lets us differentiate between

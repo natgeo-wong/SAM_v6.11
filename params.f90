@@ -134,7 +134,7 @@ integer:: perturb_type  = 0 ! type of initial noise in setperturb()
   real:: bubble_dtemp = 0.
   real:: bubble_dq = 0.
 
-! The following are added by Kuang Lab at Harvard
+!!!!!  The following are added by Kuang Lab at Harvard !!!!!
 
 ! Options
 logical:: dompiensemble = .false. ! Subdomains defined in domains.f90 are run separately
@@ -146,5 +146,13 @@ integer:: qperturbi = 0
 real:: tperturbA = 1.     ! Default perturbation 1 time positive
 real:: qperturbA = 1.
 
+! Radiative tendencies as per Pauluis & Garner [2006]
+logical :: doradtendency = .false. 
+real :: troptend = 1.5 ! Convective tendency in Pauluis & Garner [2006]
+
+! Option to fix wind speed used in calculation of bulk surface fluxes
+! Taken from Peter Blossey's version of SAM
+logical :: dobulksfcflx = .false.
+real :: bulksfcflx_u = 0.
 
 end module params

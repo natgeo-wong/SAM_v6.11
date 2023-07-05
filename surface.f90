@@ -44,10 +44,10 @@ if(.not.SFC_FLX_FXD) then
             q_s = salt_factor*qsatw(sstxy(i,j)+t00,presi(1))
 
             if (dobulksfcflx) then
-              call oceflx(rho(1), u_h, v_h, ta_h, q_h, t_h, z(1)-zi(1), t_s, q_s, &
+              call oceflx(rho(1), bulksfcflx_u, 0, ta_h, q_h, t_h, z(1)-zi(1), t_s, q_s, &
                 fluxt0, fluxq0, taux0, tauy0)
             else
-              call oceflx(rho(1), bulksfcflx_u, 0, ta_h, q_h, t_h, z(1)-zi(1), t_s, q_s, &
+              call oceflx(rho(1), u_h, v_h, ta_h, q_h, t_h, z(1)-zi(1), t_s, q_s, &
                 fluxt0, fluxq0, taux0, tauy0)
             endif
 

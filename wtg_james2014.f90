@@ -60,6 +60,7 @@ integer :: ktrop
 integer :: kbl
 integer :: inum
 integer :: wtgscale_vertmodenum
+real :: tmp ! temporary variable used to find cold point of model sounding.
 real :: min_temp ! temporary variable used to find cold point of model sounding.
 real :: ztrop ! Height of tropopause level (m)
 real, parameter :: pi = 3.141592653589793 ! from MATLAB, format long.
@@ -79,7 +80,8 @@ if (z(nz) < 1.e4) then
 
 end if
 
-wtgscale_vertmodenum = floor(nzm/2)
+tmp = nzm/2
+wtgscale_vertmodenum = floor(tmp)
 
 ! ===== find index of cold point tropopause in vertical. =====
 ! reverse pressure coordinate, and find index

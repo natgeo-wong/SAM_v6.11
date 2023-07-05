@@ -267,6 +267,10 @@ if(dolargescale.and.time.gt.timelargescale) then
             o_wtg, wwtgc, ktrop)
       end if
 
+      ! convert from omega in Pa/s to wsub in m/s
+      w_wtg(1:nzm) = -o_wtg(1:nzm)/rho(1:nzm)/ggr
+      if (dowtg_decompdgw) wwtgr(1:nzm) = -owtgr(1:nzm)/rho(1:nzm)/ggr
+
    end if
 
    if (dotgr) then

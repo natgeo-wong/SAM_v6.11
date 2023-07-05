@@ -75,6 +75,7 @@ real, allocatable, dimension(:) :: mkoutputscale
 logical :: douse_reffc = .true., douse_reffi = .true.
 logical :: dosnow_radiatively_active = .true.
 logical :: dorrtm_cloud_optics_from_effrad_LegacyOption = .false.
+logical :: reff_ice_holds_Dge = .false. ! not used
 
 ! You can also have some additional, diagnostic, arrays, for example, total
 ! nonprecipitating cloud water, etc:
@@ -558,7 +559,7 @@ subroutine micro_proc()
 use params, only: fac_cond, fac_sub, rgas
 use grid, only: z, zi
 use vars, only: t,  gamaz, precsfc, precflux, qpfall, tlat, prec_xy, &
-     nstep, nstatis, icycle, total_water_prec
+     nstep, nstatis, icycle, total_water_prec, precinst
 
 
 real, dimension(nzm) :: &
@@ -726,6 +727,7 @@ do j = 1,ny
          total_water_prec = total_water_prec + sfcpcp
 
          ! take care of surface precipitation
+         precinst(i,j) = precinst(i,j) + sfcpcp/dtn
          precsfc(i,j) = precsfc(i,j) + sfcpcp/dz
          prec_xy(i,j) = prec_xy(i,j) + sfcpcp/dz
 

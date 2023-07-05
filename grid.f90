@@ -5,8 +5,8 @@ use advection, only: NADV, NADVS
 
 implicit none
 
-character(7), parameter :: version = '6.11.7 '
-character(8), parameter :: version_date = 'May 2021'
+character(7), parameter :: version = '6.11.8 '
+character(8), parameter :: version_date = 'July 2022'
         
 integer, parameter :: nx = nx_gl/nsubdomains_x
 integer, parameter :: ny = ny_gl/nsubdomains_y 

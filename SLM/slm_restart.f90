@@ -23,7 +23,9 @@
           filename='./RESTART/'//case(1:len_trim(case))//'_'// &
                caseid(1:len_trim(caseid))//'_'// &
                rankchar(5-lenstr(rankchar):4)//'_restart_slm.bin'
-          open(176,file=trim(filename),status='unknown',form='unformatted')
+          open(176,file=trim(filename),status='unknown',form='unformatted', &
+!              BUFFERED='YES', & ! use for intel compiler
+              ACTION='WRITE')
           write(176) nsubdomains
 	  write(176) soilt, soilw, mw, mws, t_canop, t_cas, q_cas, soilt_obs, soilw_obs,&
 		dosoilwnudging, dosoiltnudging,tausoil,landtype0,LAI0,clay0,sand0, &
@@ -45,7 +47,9 @@
                   open(176,file='./RESTART/'//case(1:len_trim(case))//'_'// &
                       caseid(1:len_trim(caseid))//'_'// &
                       rankchar(5-lenstr(rankchar):4)//'_restart_slm.bin', &
-                      status='unknown',form='unformatted')
+                      status='unknown',form='unformatted', &
+!                      BUFFERED='YES',  & ! use for intel compiler
+                      ACTION='WRITE')
                   write(176) nsubdomains
 
                else
@@ -53,7 +57,9 @@
                   open(176,file='./RESTART/'//case(1:len_trim(case))//'_'// & 
                       caseid(1:len_trim(caseid))//'_'// &
                       rankchar(5-lenstr(rankchar):4)//'_restart_slm.bin', &
-                      status='unknown',form='unformatted', position='append')
+                      status='unknown',form='unformatted', position='append', &
+!                      BUFFERED='YES', & ! use for intel compiler
+                      ACTION='WRITE')
 
                end if
               write(176) soilt, soilw, mw, mws, t_canop, t_cas, q_cas, soilt_obs, soilw_obs,&
@@ -106,7 +112,9 @@
                          rankchar(5-lenstr(rankchar):4)//'_restart_slm.bin'
            end if
 
-          open(176,file=filename, status='unknown',form='unformatted')
+          open(176,file=filename, status='unknown',form='unformatted', &
+!                   BUFFERED='YES', & ! use for intel compiler
+                   ACTION='READ')
           read (176)
           read (176) soilt, soilw, mw, mws, t_canop, t_cas, q_cas, soilt_obs, soilw_obs,&
                 dosoilwnudging, dosoiltnudging,tausoil,landtype0,LAI0,clay0,sand0, &
@@ -126,7 +134,9 @@
                          rankchar(5-lenstr(rankchar):4)//'_restart_slm.bin'
            end if
 
-          open(176,file=filename,status='unknown',form='unformatted')
+          open(176,file=filename,status='unknown',form='unformatted', &
+!                   BUFFERED='YES', & ! use for intel compiler
+                   ACTION='READ')
 
           do irank=0,nsubdomains-1
 

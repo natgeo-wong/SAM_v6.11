@@ -10,106 +10,56 @@ use sgs, only: setperturb_sgs
 
 implicit none
 
-! Modified so that there is an option to produced identical perturbations regardless of 
-!  the parallel decomposition. All random numbers are computed on masterproc
-!  and scattered to the other processes, by replacing scalar rrr with
-!  rrr_loc and rrr_glob
-! Only an option because we don't want a global size array for very large problems.
-! Default will be false, so user will have to go in here and reset it true and recompile.
-! Don Dazlich, dazlich@atmos.colostate.edu 2 Feb 2017
-
-integer i,j,k,ptype,it,jt, n, sender
+integer i,j,k,ptype,it,jt,n,ii,jj
 real rrr,ranf_
-real xxx,yyy,zzz
-logical :: do_decomp_independent_perturb = .false.
-real rrr_loc(nx,ny,nzm)
-real, allocatable, dimension(:,:,:) :: rrr_gl
+real xxx,yyy,zzz,sss
 
-call ranset_(3*rank)
+call ranset_(3+nensemble)
 
 ptype = perturb_type
 
 call setperturb_sgs(ptype)  ! set sgs fields
 
-if(do_decomp_independent_perturb) then
-   if(masterproc) then
-      allocate(rrr_gl(nx_gl,ny_gl,nzm))
-      do k=1,nzm
-       do j=1,ny_gl
-        do i=1,nx_gl
-           rrr_gl(i,j,k) = ranf_()
-        end do
-       end do
-      end do
-   endif
-   
-   if(masterproc) then
-     do n = 1, nsubdomains-1
-! get the array section for rank n and send it
-        call task_rank_to_index(n,it,jt)
-        do k=1,nzm
-         do j=1,ny
-          do i=1,nx
-             rrr_loc(i,j,k) = rrr_gl(i+it,j+jt,k)
-          end do
-         end do
-        end do
- 
-        call task_bsend_float(n,rrr_loc,nx*ny*nzm,n)
-     enddo
-
-! get the masterproc array section
-     do k=1,nzm
-      do j=1,ny
-       do i=1,nx
-          rrr_loc(i,j,k) = rrr_gl(i,j,k)
-       end do
-      end do
-     end do
-    else
-
-! receive array section from masterproc
-       call task_breceive_float(rrr_loc,nx*ny*nzm,sender,rank)
-    endif
-     
-   call task_barrier()
-   if(masterproc) deallocate(rrr_gl)
-else
-     do k=1,nzm
-      do j=1,ny
-       do i=1,nx
-          rrr_loc(i,j,k) = ranf_()
-       end do
-      end do
-     end do
-endif
+call task_rank_to_index(rank,it,jt)
 
 select case (ptype)
 
   case(-1)  ! no perturbation is set
+ 
 
   case(0)
 
+     sss = 0.
      do k=1,nzm
-      do j=1,ny
-       do i=1,nx
-         rrr=1.-2.*rrr_loc(i,j,k)
+      do jj=1,ny_gl
+       j=jj-jt
+       do ii=1,nx_gl
+        i=ii-it 
+        rrr=1.-2.*ranf_()
+        sss = sss + rrr
+        if(i.ge.1.and.i.le.nx.and.j.ge.1.and.j.le.ny) then
          if(k.le.5) then
             t(i,j,k)=t(i,j,k)+0.02*rrr*(6-k)
          endif
+        end if
        end do
       end do
      end do
+     if(masterproc) print*,'>>>>>> sss=',sss
 
   case(1)
 
      do k=1,nzm
-      do j=1,ny
-       do i=1,nx
-         rrr=1.-2.*rrr_loc(i,j,k)
+      do jj=1,ny_gl
+       j=jj-jt
+       do ii=1,nx_gl
+        i=ii-it 
+        rrr=1.-2.*ranf_()
+        if(i.ge.1.and.i.le.nx.and.j.ge.1.and.j.le.ny) then
          if(q0(k).gt.6.e-3) then
             t(i,j,k)=t(i,j,k)+0.1*rrr
          endif
+        end if
        end do
       end do
      end do
@@ -127,7 +77,6 @@ select case (ptype)
        print*, 'bubble_dq=',bubble_dq
      end if
 
-     call task_rank_to_index(rank,it,jt)
      do k=1,nzm
        zzz = z(k)
        do j=1,ny
@@ -150,12 +99,16 @@ select case (ptype)
   case(3)   ! gcss wg1 smoke-cloud case
 
      do k=1,nzm
-      do j=1,ny
-       do i=1,nx
-         rrr=1.-2.*rrr_loc(i,j,k)
+      do jj=1,ny_gl
+       j=jj-jt
+       do ii=1,nx_gl
+        i=ii-it 
+        rrr=1.-2.*ranf_()
+        if(i.ge.1.and.i.le.nx.and.j.ge.1.and.j.le.ny) then
          if(q0(k).gt.0.5e-3) then
             t(i,j,k)=t(i,j,k)+0.1*rrr
          endif
+        end if
        end do
       end do
      end do
@@ -163,12 +116,16 @@ select case (ptype)
   case(4)  ! gcss wg1 arm case
 
      do k=1,nzm
-      do j=1,ny
-       do i=1,nx
-         rrr=1.-2.*rrr_loc(i,j,k)
+      do jj=1,ny_gl
+       j=jj-jt
+       do ii=1,nx_gl
+        i=ii-it 
+        rrr=1.-2.*ranf_()
+        if(i.ge.1.and.i.le.nx.and.j.ge.1.and.j.le.ny) then
          if(z(k).le.200.) then
             t(i,j,k)=t(i,j,k)+0.1*rrr*(1.-z(k)/200.)
          endif
+        end if
        end do
       end do
      end do
@@ -176,14 +133,18 @@ select case (ptype)
   case(5)  ! gcss wg1 BOMEX case
 
      do k=1,nzm
-      do j=1,ny
-       do i=1,nx
-         rrr=1.-2.*rrr_loc(i,j,k)
+      do jj=1,ny_gl
+       j=jj-jt
+       do ii=1,nx_gl
+        i=ii-it 
+        rrr=1.-2.*ranf_()
+        if(i.ge.1.and.i.le.nx.and.j.ge.1.and.j.le.ny) then
          if(z(k).le.1600.) then
             t(i,j,k)=t(i,j,k)+0.1*rrr
             micro_field(i,j,k,index_water_vapor)= &
                       micro_field(i,j,k,index_water_vapor)+0.025e-3*rrr
          endif
+        end if
        end do
       end do
      end do
@@ -192,14 +153,18 @@ select case (ptype)
 
 
      do k=1,nzm
-      do j=1,ny
-       do i=1,nx
-         rrr=1.-2.*rrr_loc(i,j,k)
+      do jj=1,ny_gl
+       j=jj-jt
+       do ii=1,nx_gl
+        i=ii-it 
+        rrr=1.-2.*ranf_()
+        if(i.ge.1.and.i.le.nx.and.j.ge.1.and.j.le.ny) then
          if(q0(k).gt.6.e-3) then
             t(i,j,k)=t(i,j,k)+0.1*rrr
             micro_field(i,j,k,index_water_vapor)= &
                       micro_field(i,j,k,index_water_vapor)+2.5e-5*rrr
          endif
+        end if
        end do
       end do
      end do

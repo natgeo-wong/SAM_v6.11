@@ -1,6 +1,6 @@
 	subroutine write_all()
 	
-  use vars
+	use vars
 	implicit none
 	character *4 rankchar
 	character *256 filename
@@ -12,7 +12,9 @@
         if(masterproc) then
          print*,'Writing restart file ...'
          filename = './RESTART/'//trim(case)//'_'//trim(caseid)//'_misc_restart.bin'
-         open(66,file=trim(filename), status='unknown',form='unformatted')
+         open(66,file=trim(filename), status='unknown',form='unformatted', &
+!                      BUFFERED='YES', & ! use for intel compiler
+                      ACTION='WRITE')
         end if
 
 
@@ -24,7 +26,9 @@
                 rankchar(5-lenstr(rankchar):4)//'_restart.bin'
 
 
-          open(65,file=trim(filename), status='unknown',form='unformatted')
+          open(65,file=trim(filename), status='unknown',form='unformatted', &
+!                      BUFFERED='YES', & ! use for intel compiler
+                      ACTION='WRITE')
           write(65) nsubdomains, nsubdomains_x, nsubdomains_y
 
 	  call write_statement
@@ -43,13 +47,17 @@
 
 	       if(masterproc) then
 	      
-	        open(65,file=trim(filename), status='unknown',form='unformatted')
+	        open(65,file=trim(filename), status='unknown',form='unformatted', &
+!                      BUFFERED='YES', & ! use for intel compiler
+                      ACTION='WRITE')
 	        write(65) nsubdomains, nsubdomains_x, nsubdomains_y
 
 	       else
 
                 open(65,file=trim(filename), status='unknown',form='unformatted',&
-                   position='append')
+                   position='append', &
+!                      BUFFERED='YES', & ! use for intel compiler
+                      ACTION='WRITE')
 
 	       end if
 
@@ -75,7 +83,7 @@
 	
 	use vars
 	use params, only: dompiensemble
-  implicit none
+	implicit none
 	character *4 rankchar
 	character *256 filename
 	integer irank, ii
@@ -88,7 +96,9 @@
         else
           filename = './RESTART/'//trim(case_restart)//'_'//trim(caseid_restart)//'_misc_restart.bin'
         end if
-        open(66,file=trim(filename), status='unknown',form='unformatted')
+        open(66,file=trim(filename), status='unknown',form='unformatted', &
+!                      BUFFERED='YES', & ! use for intel compiler
+                      ACTION='READ')
 
 
 	if(restart_sep) then
@@ -104,7 +114,10 @@
            end if
 
 
-           open(65,file=trim(filename), status='unknown',form='unformatted')
+           open(65,file=trim(filename), status='unknown',form='unformatted', &
+!                      BUFFERED='YES', & ! use for intel compiler
+                      ACTION='READ')
+
            read(65)
 
 	   call read_statement
@@ -121,7 +134,10 @@
 	    filename='./RESTART/'//trim(case_restart)//'_'//trim(caseid_restart)//'_'//&
                   rankchar(5-lenstr(rankchar):4)//'_restart.bin'
           end if
-          open(65,file=trim(filename), status='unknown',form='unformatted')
+          open(65,file=trim(filename), status='unknown',form='unformatted', &
+!                      BUFFERED='YES', & ! use for intel compiler
+                      ACTION='READ')
+
 
 	  do irank=0,nsubdomains-1
 	
@@ -149,7 +165,7 @@
 
 ! update the boundaries 
 ! (just in case when some parameterization initializes and needs boundary points)
-        
+
         ! Kuang Ensemble run: turn off mpi for boundaries and diagnose (Song Qiyu, 2022)
         if(dompiensemble) dompi = .false.
 

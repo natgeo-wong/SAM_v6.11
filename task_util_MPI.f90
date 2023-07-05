@@ -1,7 +1,8 @@
 
 	subroutine task_start(rank,numtasks)
 
-	include 'mpif.h'	
+        use mpi
+        implicit none
 	integer rank,numtasks,rc,ierr
 	call MPI_INIT(ierr)
         if(ierr .ne. 0) then
@@ -20,7 +21,9 @@
 	subroutine task_abort()
 	
         use grid, only: dompi, nstep,nstop
-	include 'mpif.h'	
+        use mpi
+        implicit none
+
 	integer ierr, rc
 
 	if(dompi) then
@@ -37,7 +40,9 @@
 	subroutine task_stop()
 	
         use grid, only: dompi,nstep,nstop,nelapse
-	include 'mpif.h'	
+        use mpi
+        implicit none
+
 	integer ierr
 
 	if(dompi) then
@@ -58,8 +63,8 @@
         subroutine task_barrier()
 
         use grid, only: dompi
+        use mpi
         implicit none
-	include 'mpif.h'	
 	integer ierr
         
 	if(dompi) then
@@ -72,8 +77,9 @@
 !----------------------------------------------------------------------
 
         subroutine task_bcast_float4(rank_from,buffer,length)
+
+        use mpi
         implicit none
-        include 'mpif.h'
 
         integer rank_from       ! broadcasting task's rank
         real(4) buffer(*)          ! buffer of data
@@ -88,8 +94,9 @@
 !----------------------------------------------------------------------
 
         subroutine task_bcast_real(rank_from,buffer,length)
+
+        use mpi
         implicit none
-        include 'mpif.h'
 
         integer rank_from       ! broadcasting task's rank
         real    buffer(*)          ! buffer of data
@@ -111,8 +118,9 @@
 !----------------------------------------------------------------------
 
         subroutine task_bcast_real8(rank_from,buffer,length)
+
+        use mpi
         implicit none
-        include 'mpif.h'
 
         integer rank_from       ! broadcasting task's rank
         real*8 buffer(*)          ! buffer of data
@@ -127,8 +135,9 @@
 !----------------------------------------------------------------------
 
         subroutine task_bcast_integer(rank_from,buffer,length)
+
+        use mpi
         implicit none
-        include 'mpif.h'
 
         integer rank_from       ! broadcasting task's rank
         integer buffer(*)          ! buffer of data
@@ -143,8 +152,9 @@
 !----------------------------------------------------------------------
 
 	subroutine task_bsend_float(rank_to,buffer,length,tag)
-	implicit none
-	include 'mpif.h'	
+
+        use mpi
+        implicit none
 	
 	integer rank_to		! receiving task's rank
 	real buffer(*)		! buffer of data
@@ -165,8 +175,9 @@
 !----------------------------------------------------------------------
 
 	subroutine task_bsend_float4(rank_to,buffer,length,tag)
-	implicit none
-	include 'mpif.h'	
+
+        use mpi
+        implicit none
 	
 	integer rank_to		! receiving task's rank
 	real(4) buffer(*)		! buffer of data
@@ -182,8 +193,9 @@
 !----------------------------------------------------------------------
 
 	subroutine task_send_float(rank_to,buffer,length,tag,request)
-	implicit none
-	include 'mpif.h'	
+
+        use mpi
+        implicit none
 	
 	integer rank_to		! receiving task's rank
 	real buffer(*)		! buffer of data
@@ -208,8 +220,8 @@
 
 	subroutine task_send_integer(rank_to,buffer,length,tag,request)
 
-	implicit none
-	include 'mpif.h'	
+        use mpi
+        implicit none
 	
 	integer rank_to		! receiving task's rank
 	integer buffer(*)	! buffer of data
@@ -228,8 +240,8 @@
 
 	subroutine task_send_character(rank_to,buffer,length,tag,request)
 
-	implicit none
-	include 'mpif.h'	
+        use mpi
+        implicit none
 	
 	integer rank_to		! receiving task's rank
 	character*1 buffer(*)	! buffer of data
@@ -247,8 +259,8 @@
 
         subroutine task_send_integer2(rank_to,buffer,length,tag,request)
 
+        use mpi
         implicit none
-        include 'mpif.h'
 
         integer rank_to         ! receiving task's rank
         integer(2) buffer(*)   ! buffer of data
@@ -268,9 +280,9 @@
 
         subroutine task_breceive_float(buffer,length,rank,tag)
 
-	implicit none
-	include 'mpif.h'	
-	
+        use mpi
+        implicit none
+
 	real buffer(*)		! buffer of data
 	integer length		! buffers' length
 	integer status(MPI_STATUS_SIZE)
@@ -294,9 +306,9 @@
 
         subroutine task_receive_float(buffer,length,request)
 
-	implicit none
-	include 'mpif.h'	
-	
+        use mpi
+        implicit none
+
 	real buffer(*)		! buffer of data
 	integer length		! buffers' length
 	integer request
@@ -318,8 +330,8 @@
 
         subroutine task_receive_float4(buffer,length,request)
 
-	implicit none
-	include 'mpif.h'	
+        use mpi
+        implicit none
 	
 	real(4) buffer(*)		! buffer of data
 	integer length		! buffers' length
@@ -336,8 +348,8 @@
 
         subroutine task_receive_integer(buffer,length,request)
 
-	implicit none
-	include 'mpif.h'	
+        use mpi
+        implicit none
 	
 	integer buffer(*)	! buffer of data
 	integer length		! buffers' length
@@ -354,9 +366,9 @@
 
         subroutine task_receive_character(buffer,length,request)
 
-	implicit none
-	include 'mpif.h'	
-	
+        use mpi
+        implicit none
+
 	character*1 buffer(*)	! buffer of data
 	integer length		! buffers' length
 	integer request
@@ -371,8 +383,8 @@
 
         subroutine task_receive_integer2(buffer,length,request)
 
+        use mpi
         implicit none
-        include 'mpif.h'
 
         integer(2) buffer(*)   ! buffer of data
         integer length          ! buffers' length
@@ -388,8 +400,9 @@
 !----------------------------------------------------------------------
         subroutine task_wait(request,rank,tag)
 
-	implicit none
-	include 'mpif.h'
+        use mpi
+        implicit none
+
 	integer status(MPI_STATUS_SIZE),request
 	integer rank, tag
 	integer ierr
@@ -405,8 +418,9 @@
         subroutine task_waitall(count,reqs,ranks,tags)
 
 	use grid, only: dompi
-	implicit none
-	include 'mpif.h'
+        use mpi
+        implicit none
+
  	integer count,reqs(count)
 	integer stats(MPI_STATUS_SIZE,1000),ranks(count),tags(count)
 	integer ierr, i
@@ -428,8 +442,9 @@
 !----------------------------------------------------------------------
         subroutine task_test(request,flag,rank,tag)
 
-	implicit none
-	include 'mpif.h'
+        use mpi
+        implicit none
+
 	integer status(MPI_STATUS_SIZE),request
 	integer rank, tag
 	logical flag
@@ -447,9 +462,9 @@
 
         subroutine task_sum_real(buffer_in,buffer_out,length)
 
-	implicit none
-	include 'mpif.h'	
-	
+        use mpi
+        implicit none
+
 	real buffer_in(*)	! buffer of data
 	real buffer_out(*)	! buffer of data
 	integer length		! buffers' length
@@ -471,8 +486,8 @@
 
         subroutine task_sum_real8(buffer_in,buffer_out,length)
 
-	implicit none
-	include 'mpif.h'	
+        use mpi
+        implicit none
 	
 	real(8) buffer_in(*)	! buffer of data
 	real(8) buffer_out(*)	! buffer of data
@@ -488,9 +503,9 @@
 
         subroutine task_sum_integer(buffer_in,buffer_out,length)
 
-	implicit none
-	include 'mpif.h'	
-	
+        use mpi
+        implicit none
+
 	integer buffer_in(*)	! buffer of data
 	integer buffer_out(*)	! buffer of data
 	integer length		! buffers' length
@@ -505,9 +520,9 @@
 
         subroutine task_max_real(buffer_in,buffer_out,length)
 
-	implicit none
-	include 'mpif.h'	
-	
+        use mpi
+        implicit none
+
 	real buffer_in(*)	! buffer of data
 	real buffer_out(*)	! buffer of data
 	integer length		! buffers' length
@@ -528,9 +543,9 @@
 
         subroutine task_max_real4(buffer_in,buffer_out,length)
 
-	implicit none
-	include 'mpif.h'	
-	
+        use mpi
+        implicit none
+
 	real(4) buffer_in(*)	! buffer of data
 	real(4) buffer_out(*)	! buffer of data
 	integer length		! buffers' length
@@ -545,9 +560,9 @@
 
         subroutine task_max_integer(buffer_in,buffer_out,length)
 
-	implicit none
-	include 'mpif.h'	
-	
+        use mpi
+        implicit none
+
 	integer buffer_in(*)	! buffer of data
 	integer buffer_out(*)	! buffer of data
 	integer length		! buffers' length
@@ -563,9 +578,9 @@
 
         subroutine task_min_real(buffer_in,buffer_out,length)
 
-	implicit none
-	include 'mpif.h'	
-	
+        use mpi
+        implicit none
+
 	real buffer_in(*)	! buffer of data
 	real buffer_out(*)	! buffer of data
 	integer length		! buffers' length
@@ -585,9 +600,9 @@
 
         subroutine task_min_real4(buffer_in,buffer_out,length)
 
-	implicit none
-	include 'mpif.h'	
-	
+        use mpi
+        implicit none
+
 	real(4) buffer_in(*)	! buffer of data
 	real(4) buffer_out(*)	! buffer of data
 	integer length		! buffers' length
@@ -601,9 +616,9 @@
 
         subroutine task_min_integer(buffer_in,buffer_out,length)
 
-	implicit none
-	include 'mpif.h'	
-	
+        use mpi
+        implicit none
+
 	integer buffer_in(*)	! buffer of data
 	integer buffer_out(*)	! buffer of data
 	integer length		! buffers' length
@@ -616,8 +631,9 @@
 	end
 !----------------------------------------------------------------------
         subroutine task_bcast_fourdim_array_real(rank_from,array,n1,n2,n3,n4)
+
+        use mpi
         implicit none
-        include 'mpif.h'
 
         integer, intent(in) :: rank_from          ! broadcasting task's rank
         real, intent(inout) :: array(n1,n2,n3,n4) ! array to be broadcast
@@ -674,8 +690,8 @@
 !----------------------------------------------------------------------
 
         subroutine task_bcast_fourdim_array_real8(rank_from,array,n1,n2,n3,n4)
+        use mpi
         implicit none
-        include 'mpif.h'
 
         integer, intent(in) :: rank_from          ! broadcasting task's rank
         real(8), intent(inout) :: array(n1,n2,n3,n4) ! array to be broadcast
@@ -739,8 +755,10 @@
 
 
         subroutine task_bcast_fivedim_array_real8(rank_from,array,n1,n2,n3,n4,n5)
+
+        use mpi
         implicit none
-        include 'mpif.h'
+
 
         integer, intent(in) :: rank_from          ! broadcasting task's rank
         real(8), intent(inout) :: array(n1,n2,n3,n4,n5) ! array to be broadcast
@@ -806,8 +824,9 @@
 !----------------------------------------------------------------------
 
         subroutine task_bcast_sixdim_array_real8(rank_from,array,n1,n2,n3,n4,n5,n6)
+
+        use mpi
         implicit none
-        include 'mpif.h'
 
         integer, intent(in) :: rank_from          ! broadcasting task's rank
         real(8), intent(inout) :: array(n1,n2,n3,n4,n5,n6) ! array to be broadcast

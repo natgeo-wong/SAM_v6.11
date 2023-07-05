@@ -579,8 +579,8 @@ contains
             else
                if (dosolarconstant) then
                   eccf = solar_constant/(1367.)
-               else
-                  call shr_orb_decl (dayForSW, eccen, mvelpp, lambm0, obliqr, delta, eccf)
+            else
+               call shr_orb_decl (dayForSW, eccen, mvelpp, lambm0, obliqr, delta, eccf)
                end if
                solarZenithAngleCos(:) =  &
                  zenith(dayForSW, real(pi * latitude(:, lat)/180., kind_rb), &
@@ -789,7 +789,7 @@ contains
         if(dompiensemble) then
           dompi = .true.
         endif
-        call write_rad() ! write radiation restart file
+                 call write_rad() ! write radiation restart file
         ! Kuang Ensemble run: turn off mpi after writing (Song Qiyu, 2022)
         if(dompiensemble) then
           dompi = .false.
@@ -1064,7 +1064,7 @@ contains
 
     ! Kuang Ensemble run: turn on mpi for broadcast (Song Qiyu, 2022)
     if(dompiensemble) dompi = .true.
- 
+    
     if(dompi) then
       call task_bcast_real8(0,o3,nzm+1)
       call task_bcast_real8(0,co2,nzm+1)
@@ -1155,7 +1155,9 @@ contains
 
     if(restart_sep) then
       open(56, file = trim(constructRestartFileName(case, caseId, rank)), &
-           status='unknown',form='unformatted')
+           status='unknown',form='unformatted', &
+!           BUFFERED='YES', & ! use for intel compiler
+           ACTION='WRITE')
       write(56) nsubdomains
 	  write(56) nradsteps, qrad, radlwup, radlwdn, radswup, radswdn, &
         radqrlw, radqrsw, radqrclw, radqrcsw, &
@@ -1171,7 +1173,9 @@ contains
         call task_barrier()
         if(irank == rank) then
           open(56, file = trim(constructRestartFileName(case, caseId, nSubdomains)), &
-               status='unknown',form='unformatted')
+               status='unknown',form='unformatted', &
+!               BUFFERED='YES', & ! use for intel compiler
+               ACTION='READWRITE')
           if(masterproc) then
             write(56) nsubdomains
           else
@@ -1207,10 +1211,14 @@ contains
     
       if(nrestart.ne.2) then
         open(56, file = trim(constructRestartFileName(case, caseid, rank)), &
-             status='unknown',form='unformatted')
+             status='unknown',form='unformatted', &
+!             BUFFERED='YES', & ! use for intel compiler
+             ACTION='READ')
       else
         open(56, file = trim(constructRestartFileName(case_restart, caseid_restart, rank)), &
-             status='unknown',form='unformatted')
+             status='unknown',form='unformatted', &
+!             BUFFERED='YES', & ! use for intel compiler
+             ACTION='READ')
       end if
       read (56)
       read(56) nradsteps, qrad, radlwup, radlwdn, radswup, radswdn, &
@@ -1230,10 +1238,14 @@ contains
         if(irank == rank) then
           if(nrestart.ne.2) then
             open(56, file = trim(constructRestartFileName(case, caseId, nSubdomains)), &
-                 status='unknown',form='unformatted')
+                 status='unknown',form='unformatted', &
+!                 BUFFERED='YES', & ! use for intel compiler
+                 ACTION='READ')
           else
             open(56, file = trim(constructRestartFileName(case, caseId_restart, nSubdomains)), &
-                 status='unknown',form='unformatted')
+                 status='unknown',form='unformatted', &
+!                 BUFFERED='YES', & ! use for intel compiler
+                 ACTION='READ')
           end if
           read (56)
           do ii=0,irank-1 ! skip records

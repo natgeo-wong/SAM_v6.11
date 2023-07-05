@@ -20,7 +20,7 @@ use vars, only: rho, w, t, tabs, qv, qcl, qci, qpl, qpi, &
      tlatqi, tabs0, qv0, fluxbq, fluxtq, dtfactor, &
      sstxy, t00, rhow, &
      condavg_mask, ncondavg, condavgname, condavglongname, &
-     nstep,nprint, nstatis, icycle, total_water_prec, &
+     nstep,nprint, nstatis, icycle, total_water_prec, precinst, &&
      nrainy, ncmn, nrmn
 
 use hbuffer, only: hbuf_put     
@@ -691,6 +691,7 @@ do j = 1,ny
         total_water_prec = total_water_prec + ppt_rain
 
         ! take care of surface precipitation
+        precinst(i,j) = precinst(i,j) + pptncv/dtn
         precsfc(i,j) = precsfc(i,j) + pptncv/dz
         prec_xy(i,j) = prec_xy(i,j) + pptncv/dz
 

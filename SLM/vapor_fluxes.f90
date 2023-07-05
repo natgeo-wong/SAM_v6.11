@@ -64,7 +64,7 @@ real, external :: qsatw
 	r_soil = min(10000._DBL,max(100._DBL,r_a*(1.0_DBL/soil_diff-1.0_DBL))) 
 	totalR_soil = r_soil + r_a + r_litter
  ELSE
-	r_soil = min(10000._DBL,max(50._DBL,r_d*(1.0_DBL/soil_diff-1.0+DBL)))
+	r_soil = min(10000._DBL,max(50._DBL,r_d*(1.0_DBL/soil_diff-1.0_DBL)))
 	totalR_soil = r_soil + r_d + r_litter
  END IF
 	

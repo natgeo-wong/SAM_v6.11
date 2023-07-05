@@ -680,6 +680,7 @@ do j=1,ny
                          rootL(i,j) = 1.5
                          root_a(i,j) = 5.558
                          root_b(i,j) = 2.614
+                         Rc_min(i,j) = 100.
                          Rgl(i,j) = 100.
                          hs_rc(i,j) = 39.18
                          BAI(i,j) = 50.

@@ -155,4 +155,9 @@ real :: troptend = 1.5 ! Convective tendency in Pauluis & Garner [2006]
 logical :: dobulksfcflx = .false.
 real :: bulksfcflx_u = 0.
 
+! Specify a "island" within which SST is allowed to vary
+! If dosstisland = .false. and  dodynamicocean = .true. the entire domain SST varies
+logical :: dosstisland = .false. ! specify an island within which SST is allowed to vary
+real    :: sstislandradius = 0.  ! sstisland radius in meters
+
 end module params

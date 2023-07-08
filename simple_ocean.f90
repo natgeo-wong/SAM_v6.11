@@ -93,8 +93,8 @@ end subroutine set_sst
 
 SUBROUTINE sst_evolve
  use vars, only: sstxy, t00, fluxbt, fluxbq, rhow,qocean_xy
- use params, only: cp, lcond, tabs_s, ocean_type, dossthomo, &
-                   depth_slab_ocean, Szero, deltaS, timesimpleocean
+ use params, only: cp, lcond, tabs_s, ocean_type, dossthomo, dosstisland, &
+                   depth_slab_ocean, Szero, deltaS, timesimpleocean, sstislandradius
  use rad, only: swnsxy, lwnsxy
 
  real, parameter :: rhor = 1000. ! density of water (kg/m3)
@@ -102,7 +102,7 @@ SUBROUTINE sst_evolve
  real factor_cp, factor_lc, qoceanxy
  real tmpx(nx), lx
  real(8) sss(1),ssss(1)
- integer i,j
+ integer i, j, it, jt
 
       if(time.lt.timesimpleocean) return
 
@@ -120,20 +120,43 @@ SUBROUTINE sst_evolve
       ! for the ocean mixed layer temperature: dT/dt = S - E.
       ! The source: CPT?GCSS WG4 idealized Walker-circulation 
       ! RCE Intercomparison proposed by C. Bretherton.
-      do j=1,ny
-         do i=1,nx
-           qoceanxy = Szero + deltaS*abs(2.*tmpx(i)/lx - 1)
-	   qocean_xy(i,j) = qocean_xy(i,j) + qoceanxy*dtfactor
+      if (.NOT.dosstisland) then
+        do j=1,ny
+          do i=1,nx
+              qoceanxy       = Szero + deltaS*abs(2.*tmpx(i)/lx - 1)
+              qocean_xy(i,j) = qocean_xy(i,j) + qoceanxy * dtfactor
 
-            sstxy(i,j) = sstxy(i,j) &
-                 + dtn*(swnsxy(i,j)          & ! SW Radiative Heating
-                 - lwnsxy(i,j)               & ! LW Radiative Heating
-                 - factor_cp*fluxbt(i,j)     & ! Sensible Heat Flux
-                 - factor_lc*fluxbq(i,j)     & ! Latent Heat Flux
-                 + qoceanxy)            & ! Ocean Heating
-                 /(rhor*cw*depth_slab_ocean)        ! Convert W/m^2 Heating to K/s
-         end do
-      end do
+              sstxy(i,j) = sstxy(i,j) &
+                  + dtn*(swnsxy(i,j)          & ! SW Radiative Heating
+                  - lwnsxy(i,j)               & ! LW Radiative Heating
+                  - factor_cp*fluxbt(i,j)     & ! Sensible Heat Flux
+                  - factor_lc*fluxbq(i,j)     & ! Latent Heat Flux
+                  + qoceanxy)            & ! Ocean Heating
+                  /(rhor*cw*depth_slab_ocean)        ! Convert W/m^2 Heating to K/s
+          end do
+        end do
+      else
+        ! Kuang Lab Addition
+        ! Specify a small "island" where SST varies. SST elsewhere is held fixed.
+        ! Added by Nathanael Wong on 2023/07/08
+        call task_rank_to_index(rank,it,jt)
+        do j=1,ny
+          do i=1,nx
+            if ((((i+it-1-nx_gl/2)*dx)**2+((j+jt-1-ny_gl/2)*dy)**2).lt.sstislandradius**2) then
+              qoceanxy       = Szero + deltaS*abs(2.*tmpx(i)/lx - 1)
+              qocean_xy(i,j) = qocean_xy(i,j) + qoceanxy * dtfactor
+
+              sstxy(i,j) = sstxy(i,j) &
+                  + dtn*(swnsxy(i,j)          & ! SW Radiative Heating
+                  - lwnsxy(i,j)               & ! LW Radiative Heating
+                  - factor_cp*fluxbt(i,j)     & ! Sensible Heat Flux
+                  - factor_lc*fluxbq(i,j)     & ! Latent Heat Flux
+                  + qoceanxy)            & ! Ocean Heating
+                  /(rhor*cw*depth_slab_ocean)        ! Convert W/m^2 Heating to K/s
+            end if
+          end do
+        end do
+      end if
 
      if(dossthomo) then
         sss = 0.

@@ -203,6 +203,13 @@ end if
             write(*,*) '*********************************************************'
           end if
         end if
+          
+        if(sstisland_landmld.EQ.0) then
+          if(masterproc) then
+            write(*,*) 'Land mixed-layer depth not specified, setting to depth_slab_ocean'
+          end if
+          sstisland_landmld = depth_slab_ocean
+        end if
         
         !===============================================================
         ! UW ADDITION

@@ -150,8 +150,7 @@ SUBROUTINE sst_evolve
                   + dtn*(swnsxy(i,j)          & ! SW Radiative Heating
                   - lwnsxy(i,j)               & ! LW Radiative Heating
                   - factor_cp*fluxbt(i,j)     & ! Sensible Heat Flux
-                  - factor_lc*fluxbq(i,j)     & ! Latent Heat Flux
-                  + qoceanxy)            & ! Ocean Heating
+                  - factor_lc*fluxbq(i,j))    & ! Latent Heat Flux
                   /(rhor*cw*depth_slab_ocean)        ! Convert W/m^2 Heating to K/s
             end if
           end do

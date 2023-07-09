@@ -50,7 +50,7 @@ NAMELIST /KUANG_PARAMS/ dompiensemble, &
                 dolayerperturb, tperturbi, qperturbi, tperturbA, qperturbA, &
                 doradtendency, troptend, &
                 dobulksfcflx, bulksfcflx_u, &
-                dosstisland, sstislandradius
+                dosstisland, sstisland_radius, sstisland_landmld, sstisland_oceanmld
 
 !bloss: Create dummy namelist, so that we can figure out error code
 !       for a mising namelist.  This lets us differentiate between

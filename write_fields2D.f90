@@ -23,7 +23,7 @@ integer, external :: lenstr
 
 
 
-nfields= 32
+nfields= 34
 if(.not.dolongwave) nfields = nfields-4
 if(.not.doshortwave) nfields = nfields-5
 if(.not.dodynamicocean) nfields=nfields-1
@@ -34,6 +34,7 @@ if(.not.docloud) nfields = nfields-3
 if(SFC_FLX_FXD) nfields = nfields-2
 if(.not.SLM) nfields = nfields-1
 if(.not.save2Davg) nfields = nfields-1
+if(.not.(dodynamicocean.and.dosstislands)) nfields = nfields-2
 !===================================================================
 ! For SLM
 !===================================================================

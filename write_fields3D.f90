@@ -30,7 +30,6 @@ if(docloud) nfields=nfields+SUM(flag_micro3Dout)-flag_micro3Dout(index_water_vap
 if((dolongwave.or.doshortwave).and..not.doradhomo) nfields=nfields+1
 if(compute_reffc.and.(dolongwave.or.doshortwave).and.rad3Dout) nfields=nfields+1
 if(compute_reffi.and.(dolongwave.or.doshortwave).and.rad3Dout) nfields=nfields+1
-if(dodynamicocean.and.dosstislands) nfields = nfields+2
 
 nfields1=0
 

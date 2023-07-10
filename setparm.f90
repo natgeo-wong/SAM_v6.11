@@ -50,7 +50,9 @@ NAMELIST /KUANG_PARAMS/ dompiensemble, &
                 dolayerperturb, tperturbi, qperturbi, tperturbA, qperturbA, &
                 doradtendency, troptend, &
                 dobulksfcflx, bulksfcflx_u, &
-                dosstisland, sstisland_radius, sstisland_landmld, sstisland_oceanmld
+                dosstislands, &
+                sstislands_radius, sstislands_landmld, sstislands_oceanmld, &
+                sstislands_nrow, sstislands_ncol, sstislands_sep
 
 !bloss: Create dummy namelist, so that we can figure out error code
 !       for a mising namelist.  This lets us differentiate between
@@ -204,11 +206,18 @@ end if
           end if
         end if
           
-        if(sstisland_landmld.EQ.0) then
+        if(sstislands_landmld.EQ.0) then
           if(masterproc) then
             write(*,*) 'Land mixed-layer depth not specified, setting to depth_slab_ocean'
           end if
-          sstisland_landmld = depth_slab_ocean
+          sstislands_landmld = depth_slab_ocean
+        end if
+          
+        if(sstislands_sep.LT.(sstislands_radius*2)) then
+          if(masterproc) then
+            write(*,*) 'Land mixed-layer depth not specified, setting to depth_slab_ocean'
+          end if
+          sstislands_sep = sstislands_radius * 2
         end if
         
         !===============================================================

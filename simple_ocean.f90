@@ -11,6 +11,7 @@ module simple_ocean
 !------------------------------------------------------------
 
 use grid
+use params, only: dodynamicocean, dosstislands
 implicit none
 
 public set_sst     ! set SST 
@@ -90,8 +91,6 @@ SUBROUTINE set_sst()
   if(dodynamicocean.and.dosstislands) call sst_islands_setmld()
 
 end subroutine set_sst
-
-
 
 SUBROUTINE sst_evolve
   use vars, only: sstxy, t00, fluxbt, fluxbq, rhow,qocean_xy

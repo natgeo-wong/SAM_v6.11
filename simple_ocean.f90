@@ -214,7 +214,7 @@ subroutine sst_islands
   ! Converted to submodule on 2023/07/09
 
   use vars, only: sstxy, fluxbt, fluxbq, rhow, qocean_xy, lsm_xy, mld_xy
-  use params, only: cp, lcond, Szero, deltaS,
+  use params, only: cp, lcond, Szero, deltaS
   use rad, only: swnsxy, lwnsxy
 
   real, parameter :: rhor = 1000. ! density of water (kg/m3)
@@ -233,7 +233,7 @@ subroutine sst_islands
     do i=1,nx
 
       if (.NOT.(mld_xy(i,j).EQ.0)) then
-        if (lsm_xy(i,j).EQ.0)
+        if (lsm_xy(i,j).EQ.0) then
           qoceanxy       = Szero + deltaS*abs(2.*tmpx(i)/lx - 1)
           qocean_xy(i,j) = qocean_xy(i,j) + qoceanxy * dtfactor
         else

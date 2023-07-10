@@ -30,6 +30,7 @@ if(docloud) nfields=nfields+SUM(flag_micro3Dout)-flag_micro3Dout(index_water_vap
 if((dolongwave.or.doshortwave).and..not.doradhomo) nfields=nfields+1
 if(compute_reffc.and.(dolongwave.or.doshortwave).and.rad3Dout) nfields=nfields+1
 if(compute_reffi.and.(dolongwave.or.doshortwave).and.rad3Dout) nfields=nfields+1
+if(dodynamicocean.and.dosstislands) nfields = nfields+2
 
 nfields1=0
 
@@ -309,6 +310,39 @@ do n = 1,nmicro_fields
            save3Dbin,dompi,rank,nsubdomains)
    end if
 end do
+
+!=====================================================
+! Kuang-Lab ADDITIONS
+
+if(dodynamicocean.and.dosstislands) then
+
+  ! Save Land-Sea Mask
+  nfields1=nfields1+1
+  do j=1,ny
+    do i=1,nx
+        tmp(i,j,1)=lsm_xy(i,j)
+    end do
+  end do
+  name='lsm'
+  long_name='Land-Sea Mask'
+  units=''
+  call compress3D(tmp,nx,ny,1,name,long_name,units, &
+      save2Dbin,dompi,rank,nsubdomains)
+
+  ! Save Mixed-Layer Depth
+  nfields1=nfields1+1
+  do j=1,ny
+    do i=1,nx
+        tmp(i,j,1)=mld_xy(i,j)
+    end do
+  end do
+  name='mld'
+  long_name='Ocean Mixed-Layer Depth'
+  units='m'
+  call compress3D(tmp,nx,ny,1,name,long_name,units, &
+      save2Dbin,dompi,rank,nsubdomains)
+
+end if
 
   call task_barrier()
 

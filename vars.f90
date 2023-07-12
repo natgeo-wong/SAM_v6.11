@@ -244,4 +244,13 @@ real :: wwtgc(nz)
 ! END UW ADDITIONS
 !===========================================================================
 
+!===========================================================================
+! Kuang-Lab ADDITIONS
+
+real lsm_xy(nx,ny) ! Land-Sea Mask
+real mld_xy(nx,ny) ! Mixed-Layer Depth
+
+! END Kuang-Lab ADDITIONS
+!===========================================================================
+
 end module vars

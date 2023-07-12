@@ -134,7 +134,8 @@ integer:: perturb_type  = 0 ! type of initial noise in setperturb()
   real:: bubble_dtemp = 0.
   real:: bubble_dq = 0.
 
-!!!!!  The following are added by Kuang Lab at Harvard !!!!!
+!=====================================================
+! Kuang-Lab Additions Begin Here
 
 ! Options
 logical:: dompiensemble = .false. ! Subdomains defined in domains.f90 are run separately
@@ -181,5 +182,18 @@ real :: dthetadz_min = 1.e-3 ! if boundstatic = .true., what is the minimum boun
 
 integer :: wtgscale_vertmodenum = 2! number of vertical modes
 real, dimension(2) :: wtgscale_vertmodescl = (/1., 1./) ! strength scaling for vertical modes (number of items = wtgscale_vertmodenum)
+
+! Specify a "island" within which SST is allowed to vary
+! If dosstisland = .false. and  dodynamicocean = .true. the entire domain SST varies
+logical :: dosstislands = .false. ! specify an island within which SST is allowed to vary
+real    :: sstislands_radius   = 0.  ! sstisland radius in meters
+real    :: sstislands_oceanmld = 0.  ! depth of surrounding ocean, if 0, fix SST to tabs_s
+real    :: sstislands_landmld  = 0.  ! slab depth of "island"
+integer :: sstislands_nrow = 1.  ! number of island rows
+integer :: sstislands_ncol = 1.  ! number of island columns
+real    :: sstislands_sep  = 0.  ! spacing between island centers, should be at least 2*sstisland_radius
+
+! Kuang-Lab Additions End Here
+!=====================================================
 
 end module params

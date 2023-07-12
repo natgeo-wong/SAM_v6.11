@@ -54,8 +54,10 @@ NAMELIST /KUANG_PARAMS/ dompiensemble, &
                 dowtg_hermanraymond_JAMES2014, dowtg_decompdgw, dowtg_decomptgr, &
                 wtgscale_time, am_wtg, am_wtg_exp, lambda_wtg, &
                 dowtgLBL, boundstatic, tau_wtg, dthetadz_min, &
-                wtgscale_vertmodenum, wtgscale_vertmodescl
-
+                wtgscale_vertmodenum, wtgscale_vertmodescl, &
+                dosstislands, &
+                sstislands_radius, sstislands_landmld, sstislands_oceanmld, &
+                sstislands_nrow, sstislands_ncol, sstislands_sep
 
 !bloss: Create dummy namelist, so that we can figure out error code
 !       for a mising namelist.  This lets us differentiate between
@@ -277,6 +279,19 @@ end if
             if(wtgscale_vertmodescl(imode).gt.1) wtgscale_vertmodescl(imode) = 1
             if(wtgscale_vertmodescl(imode).lt.0) wtgscale_vertmodescl(imode) = 0
           end do
+          
+        if(sstislands_landmld.EQ.0) then
+          if(masterproc) then
+            write(*,*) 'Land mixed-layer depth not specified, setting to depth_slab_ocean'
+          end if
+          sstislands_landmld = depth_slab_ocean
+        end if
+          
+        if(sstislands_sep.LT.(sstislands_radius*2)) then
+          if(masterproc) then
+            write(*,*) 'Island separation is too small, setting to double of sstislands_radius'
+          end if
+          sstislands_sep = sstislands_radius * 2
         end if
         
         !===============================================================

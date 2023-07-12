@@ -1,16 +1,48 @@
 subroutine hbuf_conditionals_init(count,trcount)
   use vars, only: ncondavg, condavgname, condavglongname
   use rad, only: do_output_clearsky_heating_profiles
+  use params, only: dodgw, dotgr, dowtg_decomp, dowtg_decompdgw, dowtg_decomptgr, &
+       dowtg_raymondzeng_QJRMS2005, dowtg_hermanraymond_JAMES2014
   implicit none
 
   ! Initialize the list of UW statistics variables written in statistics.f90
   integer count,trcount, n
+
+  call add_to_namelist(count,trcount,'TBIAS', &
+         'Absolute temperature bias (model-OBS)','K',0)
+  call add_to_namelist(count,trcount,'QBIAS', &
+         'Water vapor mass mixing ratio bias (model-OBS)','g/kg',0)
 
   if(do_output_clearsky_heating_profiles) then
     call add_to_namelist(count,trcount,'RADQRCLW', &
          'Clearsky longwave heating rate','K/d',0)
     call add_to_namelist(count,trcount,'RADQRCSW', &
          'Clearsky shortwave heating rate','K/d',0)
+  end if
+
+  if(dodgw.OR.dotgr) then
+    call add_to_namelist(count,trcount,'WWTG', &
+         'Large-scale W induced by weak temperature gradient approx','m/s',0)
+    call add_to_namelist(count,trcount,'OWTG', &
+         'Large-scale Omega induced by weak temperature gradient approx','Pa/s',0)
+    call add_to_namelist(count,trcount,'WOBSREF', &
+         'Reference Large-scale W Before Modifications by WTG/Scaling','m/s',0)
+  end if
+
+  if(dowtg_raymondzeng_QJRMS2005) then
+    call add_to_namelist(count,trcount,'WWTGRAW', &
+         'Raw (Non-Adjusted) Component of the WTG Vertical Velocity','m/s',0)
+    call add_to_namelist(count,trcount,'OWTGRAW', &
+         'Raw (Non-Adjusted) Component of the WTG Pressure Velocity','Pa/s',0)
+  end if
+
+  if(dowtg_hermanraymond_JAMES2014.OR.dowtg_decomp) then
+    call add_to_namelist(count,trcount,'WTGCOEF', &
+         'Coefficients of Vertical Modes for Decomposed WTG Velocities',' ',0)
+    call add_to_namelist(count,trcount,'WWTGRAW', &
+         'Raw (Non-Adjusted) Component of the WTG Vertical Velocity','m/s',0)
+    call add_to_namelist(count,trcount,'OWTGRAW', &
+         'Raw (Non-Adjusted) Component of the WTG Pressure Velocity','Pa/s',0)
   end if
 
   !bloss: setup to add an arbitrary number of conditional statistics

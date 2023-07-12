@@ -157,9 +157,12 @@ real :: bulksfcflx_u = 0.
 
 ! Specify a "island" within which SST is allowed to vary
 ! If dosstisland = .false. and  dodynamicocean = .true. the entire domain SST varies
-logical :: dosstisland = .false. ! specify an island within which SST is allowed to vary
-real    :: sstisland_radius   = 0.  ! sstisland radius in meters
-real    :: sstisland_oceanmld = 0.  ! depth of surrounding ocean, if 0, fix SST to tabs_s
-real    :: sstisland_landmld  = 0.  ! slab depth of "island"
+logical :: dosstislands = .false. ! specify an island within which SST is allowed to vary
+real    :: sstislands_radius   = 0.  ! sstisland radius in meters
+real    :: sstislands_oceanmld = 0.  ! depth of surrounding ocean, if 0, fix SST to tabs_s
+real    :: sstislands_landmld  = 0.  ! slab depth of "island"
+integer :: sstislands_nrow = 1.  ! number of island rows
+integer :: sstislands_ncol = 1.  ! number of island columns
+real    :: sstislands_sep  = 0.  ! spacing between island centers, should be at least 2*sstisland_radius
 
 end module params

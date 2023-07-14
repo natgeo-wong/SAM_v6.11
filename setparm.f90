@@ -279,6 +279,7 @@ end if
             if(wtgscale_vertmodescl(imode).gt.1) wtgscale_vertmodescl(imode) = 1
             if(wtgscale_vertmodescl(imode).lt.0) wtgscale_vertmodescl(imode) = 0
           end do
+        end if
           
         if(sstislands_landmld.EQ.0) then
           if(masterproc) then

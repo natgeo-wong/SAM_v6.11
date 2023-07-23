@@ -111,10 +111,10 @@ end if
 ! ===== calculate static stability up to ztrop =====
 
 dthetadz(1) = (theta_model(2)-theta_model(1)) / (z(2)-z(1))
-if (boundstatic.AND.(dthetadz(1).lt.dthetadz_min).AND.(z(k)>5000)) dthetadz(1) = dthetadz_min
+if (boundstatic.AND.(dthetadz(1).lt.dthetadz_min)) dthetadz(1) = dthetadz_min
 do k = 2,ktrop
   dthetadz(k) = (theta_model(k+1)-theta_model(k-1)) / (z(k+1)-z(k-1))
-  if (boundstatic.AND.(dthetadz(k).lt.dthetadz_min).AND.(z(k)>5000)) dthetadz(k) = dthetadz_min
+  if (boundstatic.AND.(dthetadz(k).lt.dthetadz_min)) dthetadz(k) = dthetadz_min
 end do
 
 ! ===== calculate vertical mode coefficients =====

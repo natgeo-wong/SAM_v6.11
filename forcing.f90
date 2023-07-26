@@ -296,7 +296,7 @@ if(dolargescale.and.time.gt.timelargescale) then
                               dthetadz_min, w_wtg, wwtgr)
       if (dowtg_hermanraymond_JAMES2014) call wtg_james2014(masterproc, nzm, nz, z, &
                               tp0, tpm, tabs0, tau_wtg_time, dowtgLBL, boundstatic, &
-                              dthetadz_min, w_wtg, wwtgr, wwtgc)
+                              dthetadz_min, wtgscale_vertmodepwr, w_wtg, wwtgr, wwtgc)
       if (dowtg_decomptgr)               call wtg_decomptgr(masterproc, nzm, nz, z, &
                               tp0, tpm, tabs0, tau_wtg_time, &
                               wtgscale_vertmodenum, wtgscale_vertmodescl, &

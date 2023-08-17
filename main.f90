@@ -60,6 +60,7 @@ elseif(nrestart.eq.2) then  ! branch run
    call micro_init()  !initialize microphysics
    nstep = 0
    day0 = day
+   if((.not.SLM.and..not.dosfcforcing).AND.nrestart_resetsst) call set_sst()
 else
    print *,'Error: confused by value of NRESTART'
    call task_abort() 

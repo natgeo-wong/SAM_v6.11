@@ -194,6 +194,9 @@ integer :: sstislands_nrow = 1.  ! number of island rows
 integer :: sstislands_ncol = 1.  ! number of island columns
 real    :: sstislands_sep  = 0.  ! spacing between island centers, should be at least 2*sstisland_radius
 
+! If nrestart = 2 and dodynamicocean = false, if nrestart_resetsst = true, set all sst back to tabs_s
+logical :: nrestart_resetsst = .false.
+
 ! Kuang-Lab Additions End Here
 !=====================================================
 

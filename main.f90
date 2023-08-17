@@ -9,6 +9,7 @@ use sgs
 use tracers
 use movies, only: init_movies
 use params, only: dompiensemble
+use simple_ocean, only: set_sst
 implicit none
 
 integer k, icyc, nn, nstatsteps

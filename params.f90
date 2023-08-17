@@ -179,6 +179,7 @@ real :: tau_wtg = 1. ! Relaxation timescale (in hours) for WTG Approximation of 
 logical :: dowtgLBL = .false.
 logical :: boundstatic = .true. ! Restrict the static stability lower bound to prevent unrealistically large values of w_wtg
 real :: dthetadz_min = 1.e-3 ! if boundstatic = .true., what is the minimum bound? Default from Raymond & Zeng [2005] is 1.e-3 K/km
+real :: wtgscale_vertmodepwr = 1. ! Spectral decomposition power, default is 1 as per Herman and Raymond [2014]
 
 integer :: wtgscale_vertmodenum = 2! number of vertical modes
 real, dimension(2) :: wtgscale_vertmodescl = (/1., 1./) ! strength scaling for vertical modes (number of items = wtgscale_vertmodenum)

@@ -26,7 +26,7 @@
 
 subroutine wtg_james2014(masterproc, nzm, nz, z, &
                           theta_ref, theta_model, tabs_model, tau_wtg, &
-                          dowtgLBL, boundstatic, dthetadz_min, &
+                          dowtgLBL, boundstatic, dthetadz_min, vertmodepwr, &
                           w_wtg, wwtgr, wwtgc)
 
 implicit none
@@ -47,6 +47,7 @@ real, intent(in) :: tau_wtg ! potential temperature relaxation timescale (s^-1)
 logical, intent(in) :: dowtgLBL    ! Calculate w_wtg at boundary layer instead of linear interpolation
 logical, intent(in) :: boundstatic ! Restrict lower bound for static stability
 real, intent(in) :: dthetadz_min   ! if boundstatic = .true., what is the minimum bound?
+real, intent(in) :: vertmodepwr    ! exponent modifying strength of higher-order baroclinic modes, larger values mean higher-order modes are weaker
 
 ! ======= output =======
 real, intent(out) :: w_wtg(nzm) ! WTG large-scale pressure velocity in Pa/s on model levels.
@@ -111,10 +112,10 @@ end if
 ! ===== calculate static stability up to ztrop =====
 
 dthetadz(1) = (theta_model(2)-theta_model(1)) / (z(2)-z(1))
-if (boundstatic.AND.(dthetadz(1).lt.dthetadz_min).AND.(z(k)>5000)) dthetadz(1) = dthetadz_min
+if (boundstatic.AND.(dthetadz(1).lt.dthetadz_min)) dthetadz(1) = dthetadz_min
 do k = 2,ktrop
   dthetadz(k) = (theta_model(k+1)-theta_model(k-1)) / (z(k+1)-z(k-1))
-  if (boundstatic.AND.(dthetadz(k).lt.dthetadz_min).AND.(z(k)>5000)) dthetadz(k) = dthetadz_min
+  if (boundstatic.AND.(dthetadz(k).lt.dthetadz_min)) dthetadz(k) = dthetadz_min
 end do
 
 ! ===== calculate vertical mode coefficients =====
@@ -142,7 +143,7 @@ do k = 1,ktrop
 
   w_wtg(k) = 0
   do inum = 1,wtgscale_vertmodenum
-    w_wtg(k) = w_wtg(k) + wwtgc(inum) * sin(pi*z(k)*inum/ztrop) / inum
+    w_wtg(k) = w_wtg(k) + wwtgc(inum) * sin(pi*z(k)*inum/ztrop) / (inum ** vertmodepwr)
   end do
 
 end do

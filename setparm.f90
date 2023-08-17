@@ -54,7 +54,7 @@ NAMELIST /KUANG_PARAMS/ dompiensemble, &
                 dowtg_hermanraymond_JAMES2014, dowtg_decompdgw, dowtg_decomptgr, &
                 wtgscale_time, am_wtg, am_wtg_exp, lambda_wtg, &
                 dowtgLBL, boundstatic, tau_wtg, dthetadz_min, &
-                wtgscale_vertmodenum, wtgscale_vertmodescl, &
+                wtgscale_vertmodepwr, wtgscale_vertmodenum, wtgscale_vertmodescl, &
                 dosstislands, &
                 sstislands_radius, sstislands_landmld, sstislands_oceanmld, &
                 sstislands_nrow, sstislands_ncol, sstislands_sep
@@ -279,6 +279,7 @@ end if
             if(wtgscale_vertmodescl(imode).gt.1) wtgscale_vertmodescl(imode) = 1
             if(wtgscale_vertmodescl(imode).lt.0) wtgscale_vertmodescl(imode) = 0
           end do
+        end if
           
         if(sstislands_landmld.EQ.0) then
           if(masterproc) then

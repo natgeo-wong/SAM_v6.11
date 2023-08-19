@@ -281,19 +281,20 @@ end if
             if(wtgscale_vertmodescl(imode).lt.0) wtgscale_vertmodescl(imode) = 0
           end do
         end if
+
+        !===============================================================
+        ! Mixed-Layer Island Archipelagoes
           
-        if(sstislands_landmld.EQ.0) then
-          if(masterproc) then
-            write(*,*) 'Land mixed-layer depth not specified, setting to depth_slab_ocean'
+        if(dosstislands) then
+          if(sstislands_landmld.EQ.0) then
+            if(masterproc) write(*,*) 'Land mixed-layer depth not specified, setting to depth_slab_ocean'
+            sstislands_landmld = depth_slab_ocean
           end if
-          sstislands_landmld = depth_slab_ocean
-        end if
-          
-        if(sstislands_sep.LT.(sstislands_radius*2)) then
-          if(masterproc) then
-            write(*,*) 'Island separation is too small, setting to double of sstislands_radius'
+            
+          if(sstislands_sep.LT.(sstislands_radius*2)) then
+            if(masterproc) write(*,*) 'Island separation is too small, setting to double of sstislands_radius'
+            sstislands_sep = sstislands_radius * 2
           end if
-          sstislands_sep = sstislands_radius * 2
         end if
         
         !===============================================================

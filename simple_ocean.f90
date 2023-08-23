@@ -186,16 +186,21 @@ subroutine sst_islands_setmld
 
     print*,'opening land-sea mask file: ',trim(LSMfile)
     open(11,file=trim(LSMfile),status='old',form='unformatted')
-    print*,'extracting land-sea mask data from file ...'
+    print*,'extracting dimensions of land-sea mask from file ...'
+    print*,'extracting x-dimension of land-sea mask from file ...'
     read(11) nx_lsm
+    print*,'extracting y-dimension of land-sea mask from file ...'
     read(11) ny_lsm
+    print*,'Checking dimensions ...'
     if(nx_lsm.ne.nx_gl.or.ny_lsm.ne.ny_gl) then
         print*,'dimensions of domain in land-sea mask file are ' // &
                             'different from numerical domain sizes: nx=',nx_lsm, &
                               'ny=',ny_lsm,'  Stop...'
-        call task_abort()
+        ! call task_abort()
     end if
+    print*,'extracting land-sea mask data from file ...'
     read(11) lsm(1:nx_gl,1:ny_gl)
+    print*,'putting land-sea mask into respective task ...'
     lsm_xy(1:nx,1:ny) = lsm(1+it:nx+it,1+jt:ny+jt)
     close(11)
 

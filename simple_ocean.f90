@@ -184,13 +184,13 @@ subroutine sst_islands_setmld
 
   if(readLSM) then
 
-    if(masterproc) print*,'opening land-sea mask file: ',trim(LSMfile)
+    print*,'opening land-sea mask file: ',trim(LSMfile)
     open(11,file=trim(LSMfile),status='old',form='unformatted')
-    if(masterproc) print*,'extracting land-sea mask data from file ...'
+    print*,'extracting land-sea mask data from file ...'
     read(11) nx_lsm
     read(11) ny_lsm
     if(nx_lsm.ne.nx_gl.or.ny_lsm.ne.ny_gl) then
-        if(masterproc) print*,'dimensions of domain in land-sea mask file are ' // &
+        print*,'dimensions of domain in land-sea mask file are ' // &
                             'different from numerical domain sizes: nx=',nx_lsm, &
                               'ny=',ny_lsm,'  Stop...'
         call task_abort()

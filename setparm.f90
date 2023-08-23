@@ -12,7 +12,7 @@ use movies, only : irecc
 use instrument_diagnostics, only: zero_instr_diag
 implicit none
 	
-integer icondavg, ierr, ios, ios_missing_namelist, place_holder
+integer icondavg, ierr, ios, ios_missing_namelist, place_holder, dowtg_num, imode
 
 NAMELIST /PARAMETERS/ dodamping, doupperbound, docloud, doprecip, &
                 dolongwave, doshortwave, dosgs, dz, doconstdz, &
@@ -50,9 +50,15 @@ NAMELIST /KUANG_PARAMS/ dompiensemble, &
                 dolayerperturb, tperturbi, qperturbi, tperturbA, qperturbA, &
                 doradtendency, troptend, &
                 dobulksfcflx, bulksfcflx_u, &
+                dowtg_blossey_etal_JAMES2009, dowtg_raymondzeng_QJRMS2005, &
+                dowtg_hermanraymond_JAMES2014, dowtg_decompdgw, dowtg_decomptgr, &
+                wtgscale_time, am_wtg, am_wtg_exp, lambda_wtg, &
+                dowtgLBL, boundstatic, tau_wtg, dthetadz_min, &
+                wtgscale_vertmodepwr, wtgscale_vertmodenum, wtgscale_vertmodescl, &
                 dosstislands, &
                 sstislands_radius, sstislands_landmld, sstislands_oceanmld, &
-                sstislands_nrow, sstislands_ncol, sstislands_sep
+                sstislands_nrow, sstislands_ncol, sstislands_sep, &
+                nrestart_resetsst
 
 !bloss: Create dummy namelist, so that we can figure out error code
 !       for a mising namelist.  This lets us differentiate between
@@ -205,19 +211,90 @@ end if
             write(*,*) '*********************************************************'
           end if
         end if
-          
-        if(sstislands_landmld.EQ.0) then
-          if(masterproc) then
-            write(*,*) 'Land mixed-layer depth not specified, setting to depth_slab_ocean'
-          end if
-          sstislands_landmld = depth_slab_ocean
+
+        !===============================================================
+        ! Weak Temperature Gradient Approximation Schemes
+
+        dowtg_num = 0
+
+        dowtg_num = 0
+
+        if(dowtg_blossey_etal_JAMES2009) then
+          dodgw = .true.
+          if(masterproc) write(*,*) 'Damped Gravity Wave scheme (based on BBW09 in JAMES) is being used'
+          dowtg_num = dowtg_num + 1
         end if
-          
-        if(sstislands_sep.LT.(sstislands_radius*2)) then
+
+        if(dowtg_decompdgw) then
+          dodgw = .true.
+          dowtg_decomp = .true.
+          if(masterproc) write(*,*) 'Damped Gravity Wave scheme (Spectral Decomposition into half- and full-sine) is being used'
+          dowtg_num = dowtg_num + 1
+        end if
+
+        if(dowtg_raymondzeng_QJRMS2005) then
+          dotgr = .true.
+          if(masterproc) write(*,*) 'Temperature Gradient Relaxation scheme (based on Raymond and Zeng [2005]) is being used'
+          dowtg_num = dowtg_num + 1
+        end if
+
+        if(dowtg_hermanraymond_JAMES2014) then
+          dotgr = .true.
+          if(masterproc) write(*,*) 'Spectral Temperature Gradient Relaxation scheme (based on Herman and Raymond [2014]) is being used'
+          dowtg_num = dowtg_num + 1
+        end if
+
+        if(dowtg_decomptgr) then
+          dotgr = .true.
+          dowtg_decomp = .true.
+          if(masterproc) write(*,*) 'Temperature Gradient Relaxation scheme (Spectral Decomposition into half- and full-sine) is being used'
+          dowtg_num = dowtg_num + 1
+        end if
+
+        if(dowtg_num.GT.1) then
           if(masterproc) then
-            write(*,*) 'Land mixed-layer depth not specified, setting to depth_slab_ocean'
+            write(*,*) '********************************************************'
+            write(*,*) '  More than one of the available WTG schemes has been'
+            write(*,*) '  called.  Please select only one of these schemes to use.'
+            write(*,*) '********************************************************'
           end if
-          sstislands_sep = sstislands_radius * 2
+          call task_abort()
+        end if
+
+        if (dodgw) then
+          am_wtg = am_wtg/86400. ! convert from 1/d to 1/s.
+        end if
+
+        if (dotgr) then
+          tau_wtg = tau_wtg * 3600. ! convert from units of hours to units of sec.
+          tau_wtg = 1 / tau_wtg      ! convert from sec to sec^-1
+        end if
+
+        if (dowtg_decomp) then
+          if(wtgscale_vertmodenum.gt.nzm) then
+            if(masterproc) then
+              write(*,*) 'Number of vertical modes specified cannot be greater than nzm'
+            end if
+          end if
+          do imode=1,wtgscale_vertmodenum
+            if(wtgscale_vertmodescl(imode).gt.1) wtgscale_vertmodescl(imode) = 1
+            if(wtgscale_vertmodescl(imode).lt.0) wtgscale_vertmodescl(imode) = 0
+          end do
+        end if
+
+        !===============================================================
+        ! Mixed-Layer Island Archipelagoes
+          
+        if(dosstislands) then
+          if(sstislands_landmld.EQ.0) then
+            if(masterproc) write(*,*) 'Land mixed-layer depth not specified, setting to depth_slab_ocean'
+            sstislands_landmld = depth_slab_ocean
+          end if
+            
+          if(sstislands_sep.LT.(sstislands_radius*2)) then
+            if(masterproc) write(*,*) 'Island separation is too small, setting to double of sstislands_radius'
+            sstislands_sep = sstislands_radius * 2
+          end if
         end if
         
         !===============================================================

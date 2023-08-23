@@ -134,7 +134,8 @@ integer:: perturb_type  = 0 ! type of initial noise in setperturb()
   real:: bubble_dtemp = 0.
   real:: bubble_dq = 0.
 
-!!!!!  The following are added by Kuang Lab at Harvard !!!!!
+!=====================================================
+! Kuang-Lab Additions Begin Here
 
 ! Options
 logical:: dompiensemble = .false. ! Subdomains defined in domains.f90 are run separately
@@ -147,13 +148,41 @@ real:: tperturbA = 1.     ! Default perturbation 1 time positive
 real:: qperturbA = 1.
 
 ! Radiative tendencies as per Pauluis & Garner [2006]
+! Added by Nathanael Wong on 2023/07/05
 logical :: doradtendency = .false. 
 real :: troptend = 1.5 ! Convective tendency in Pauluis & Garner [2006]
 
 ! Option to fix wind speed used in calculation of bulk surface fluxes
 ! Taken from Peter Blossey's version of SAM
+! Added by Nathanael Wong on 2023/07/05
 logical :: dobulksfcflx = .false.
 real :: bulksfcflx_u = 0.
+
+! Damped Gravity Wave and Temperature Gradient Relaxation Implementations
+! Added by Nathanael Wong on 2023/07/05
+logical :: dodgw = .false.
+logical :: dotgr = .false.
+logical :: dowtg_decomp = .false.
+real :: wtgscale_time = 0. ! period over which theta relaxation timescale scales from infinity to ttheta_wtg.  Express as fraction of time over which WTG large-scale forcing is implemented.  So if WTG/Large-scale is turned on for 100 days, twtg_scale = 1/4 means that the scaling up to WTG occurs over 25 days.
+
+logical :: dowtg_blossey_etal_JAMES2009  = .false.
+logical :: dowtg_raymondzeng_QJRMS2005   = .false. 
+logical :: dowtg_hermanraymond_JAMES2014 = .false.
+logical :: dowtg_decompdgw = .false.
+logical :: dowtg_decomptgr = .false.
+
+real :: am_wtg = 1. ! momentum damping rate in 1/d -- note must be non-zero.
+real :: am_wtg_exp = 0. ! exponent of p/p0 in momentum damping rate.
+real :: lambda_wtg = 650.e3 ! quarter wavelength in m. default = 650.e3 (=650 km).
+
+real :: tau_wtg = 1. ! Relaxation timescale (in hours) for WTG Approximation of Raymond and Zeng [2005]
+logical :: dowtgLBL = .false.
+logical :: boundstatic = .true. ! Restrict the static stability lower bound to prevent unrealistically large values of w_wtg
+real :: dthetadz_min = 1.e-3 ! if boundstatic = .true., what is the minimum bound? Default from Raymond & Zeng [2005] is 1.e-3 K/km
+real :: wtgscale_vertmodepwr = 1. ! Spectral decomposition power, default is 1 as per Herman and Raymond [2014]
+
+integer :: wtgscale_vertmodenum = 2! number of vertical modes
+real, dimension(2) :: wtgscale_vertmodescl = (/1., 1./) ! strength scaling for vertical modes (number of items = wtgscale_vertmodenum)
 
 ! Specify a "island" within which SST is allowed to vary
 ! If dosstisland = .false. and  dodynamicocean = .true. the entire domain SST varies
@@ -164,5 +193,11 @@ real    :: sstislands_landmld  = 0.  ! slab depth of "island"
 integer :: sstislands_nrow = 1.  ! number of island rows
 integer :: sstislands_ncol = 1.  ! number of island columns
 real    :: sstislands_sep  = 0.  ! spacing between island centers, should be at least 2*sstisland_radius
+
+! If nrestart = 2 and dodynamicocean = false, if nrestart_resetsst = true, set all sst back to tabs_s
+logical :: nrestart_resetsst = .false.
+
+! Kuang-Lab Additions End Here
+!=====================================================
 
 end module params

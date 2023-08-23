@@ -236,6 +236,8 @@ subroutine sst_islands
           qoceanxy       = Szero + deltaS*abs(2.*tmpx(i)/lx - 1)
           qocean_xy(i,j) = qocean_xy(i,j) + qoceanxy * dtfactor
         else
+          qoceanxy       = 0
+          qocean_xy(i,j) = 0
         end if
         sstxy(i,j) = sstxy(i,j) &
             + dtn * (swnsxy(i,j)        & ! SW Radiative Heating

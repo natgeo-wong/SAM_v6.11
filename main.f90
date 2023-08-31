@@ -9,6 +9,7 @@ use sgs
 use tracers
 use movies, only: init_movies
 use params, only: dompiensemble
+use simple_ocean, only: set_sst
 implicit none
 
 integer k, icyc, nn, nstatsteps
@@ -60,6 +61,7 @@ elseif(nrestart.eq.2) then  ! branch run
    call micro_init()  !initialize microphysics
    nstep = 0
    day0 = day
+   if((.not.SLM.and..not.dosfcforcing).AND.nrestart_resetsst) call set_sst()
 else
    print *,'Error: confused by value of NRESTART'
    call task_abort() 

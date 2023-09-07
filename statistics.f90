@@ -195,7 +195,7 @@ real, dimension(nzm) :: rhowcl, rhowmsecl, rhowtlcl, rhowqtcl,  &
 	call hbuf_put('QVOBS',qg0,1.e3)
 	call hbuf_put('UOBS',ug0,1.)
 	call hbuf_put('VOBS',vg0,1.)
-        call hbuf_put('WOBS',wsub,1.)
+	call hbuf_put('WOBS',wsub,1.)
 	call hbuf_put('TTEND',ttend,86400.)
 	call hbuf_put('QTEND',qtend,86400.*1.e3)
 
@@ -219,6 +219,11 @@ real, dimension(nzm) :: rhowcl, rhowmsecl, rhowtlcl, rhowqtcl,  &
 	call hbuf_put('QCOND',prof3,1.e3*factor_xy)
 	call hbuf_put('QSAT',qsatwz,1.e3*factor_xy)
 	call hbuf_put('RELH',relhz,100.*factor_xy)
+
+	! Kuang Lab Addition
+	! Add bias outputs to statistics as per Blossey version of SAM
+	call hbuf_put('TBIAS',tabs0-tg0,1.)
+	call hbuf_put('QBIAS',factor_xy*(qvz+qcz)-qg0,1.e3)
 
 !-------------------------------------------------------------
 !	Fluxes:
@@ -1210,15 +1215,33 @@ real, dimension(nzm) :: rhowcl, rhowmsecl, rhowtlcl, rhowqtcl,  &
 	call hbuf_put('RADQRC',prof2,86400./(n+1.e-5)) 	
 	call hbuf_put('RADQRS',prof3,86400./(nx*ny-n+1.e-5))
 
-        if(do_output_clearsky_heating_profiles) then
-          call hbuf_put('RADQRCLW',radqrclw,factor_xy*86400.)
-          call hbuf_put('RADQRCSW',radqrcsw,factor_xy*86400.)
-        end if
+	if(do_output_clearsky_heating_profiles) then
+		call hbuf_put('RADQRCLW',radqrclw,factor_xy*86400.)
+		call hbuf_put('RADQRCSW',radqrcsw,factor_xy*86400.)
+	end if
 
-        ! Call instrument simulators.  Code is in SRC/SIMULATORS/
-        !   As of Feb 2016, this includes the ISCCP, MODIS and MISR
-        !   simulators from COSP v1.4.
-        call compute_instr_diags()
+	! Call instrument simulators.  Code is in SRC/SIMULATORS/
+	!   As of Feb 2016, this includes the ISCCP, MODIS and MISR
+	!   simulators from COSP v1.4.
+	call compute_instr_diags()
+
+	! add output for reference large-scale vertical velocity
+	if(dodgw.OR.dotgr) then
+		call hbuf_put('WWTG',w_wtg,1.)
+		call hbuf_put('OWTG',o_wtg,1.)
+		call hbuf_put('WOBSREF',wsub_ref,1.)
+	end if
+
+	if(dowtg_raymondzeng_QJRMS2005) then
+		call hbuf_put('WWTGRAW',wwtgr,1.)
+		call hbuf_put('OWTGRAW',owtgr,1.)
+	end if
+
+	if(dowtg_hermanraymond_JAMES2014.OR.dowtg_decomp) then
+		call hbuf_put('WTGCOEF',wwtgc,1.)
+		call hbuf_put('WWTGRAW',wwtgr,1.)
+		call hbuf_put('OWTGRAW',owtgr,1.)
+	end if
 
 !---------------------------------------------------------
 !  Apparent heat/moisture sources/sinks

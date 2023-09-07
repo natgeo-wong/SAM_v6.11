@@ -23,7 +23,7 @@ integer, external :: lenstr
 
 
 
-nfields= 32
+nfields= 34
 if(.not.dolongwave) nfields = nfields-4
 if(.not.doshortwave) nfields = nfields-5
 if(.not.dodynamicocean) nfields=nfields-1
@@ -34,6 +34,7 @@ if(.not.docloud) nfields = nfields-3
 if(SFC_FLX_FXD) nfields = nfields-2
 if(.not.SLM) nfields = nfields-1
 if(.not.save2Davg) nfields = nfields-1
+if(.not.(dodynamicocean.and.dosstislands)) nfields = nfields-2
 !===================================================================
 ! For SLM
 !===================================================================
@@ -595,6 +596,39 @@ call task_barrier()
 ! For SLM
 
 if(SLM) call slm_write2D(nfields1, coef)
+
+!=====================================================
+! Kuang-Lab ADDITIONS
+
+if(dodynamicocean.and.dosstislands) then
+
+  ! Save Land-Sea Mask
+  nfields1=nfields1+1
+  do j=1,ny
+    do i=1,nx
+        tmp(i,j,1)=lsm_xy(i,j)
+    end do
+  end do
+  name='lsm'
+  long_name='Land-Sea Mask'
+  units=''
+  call compress3D(tmp,nx,ny,1,name,long_name,units, &
+      save2Dbin,dompi,rank,nsubdomains)
+
+  ! Save Mixed-Layer Depth
+  nfields1=nfields1+1
+  do j=1,ny
+    do i=1,nx
+        tmp(i,j,1)=mld_xy(i,j)
+    end do
+  end do
+  name='mld'
+  long_name='Ocean Mixed-Layer Depth'
+  units='m'
+  call compress3D(tmp,nx,ny,1,name,long_name,units, &
+      save2Dbin,dompi,rank,nsubdomains)
+
+end if
 
 !===================================================================
 

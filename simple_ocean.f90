@@ -173,33 +173,58 @@ subroutine sst_islands_setmld
 
   use vars, only: lsm_xy, mld_xy
   use params, only: sstislands_radius, sstislands_landmld, sstislands_oceanmld, &
-                    sstislands_nrow, sstislands_ncol, sstislands_sep
+                    sstislands_nrow, sstislands_ncol, sstislands_sep, &
+                    readlsm, lsmfile
+
   real distsq, island_lon, island_lat
   integer i, j, it, jt, irow, icol
+  integer lsm(1:nx_gl,1:ny_gl)
 
   call task_rank_to_index(rank,it,jt)
 
-  do icol = 1, sstislands_ncol
-    do irow = 1, sstislands_nrow
+  if(readlsm) then
 
-      island_lon = nx_gl * dx / 2 + (icol-1 - (sstislands_ncol-1)*0.5) * sstislands_sep
-      island_lat = ny_gl * dx / 2 + (irow-1 - (sstislands_nrow-1)*0.5) * sstislands_sep
+    if(masterproc) print*,'opening land-sea mask file: ',trim(lsmfile)
+    open(11,file=trim(lsmfile),status='old',form='unformatted')
+    if(masterproc) print*,'extracting land-sea mask data from file ...'
+    read(11) lsm(1:nx_gl,1:ny_gl)
+    if(masterproc) print*,'putting land-sea mask into respective task ...'
+    lsm_xy(1:nx,1:ny) = lsm(1+it:nx+it,1+jt:ny+jt)
+    close(11)
 
-      do j=1,ny
-        do i=1,nx
+  else
 
-          distsq = ((i+it-1)*dx - island_lon)**2 + ((j+jt-1)*dy - island_lat)**2
-          if (distsq.lt.sstislands_radius**2) then
-            mld_xy(i,j) = sstislands_landmld
-            lsm_xy(i,j) = 1
-          else
-            mld_xy(i,j) = sstislands_oceanmld
-            lsm_xy(i,j) = 0
-          end if
+    do icol = 1, sstislands_ncol
+      do irow = 1, sstislands_nrow
 
+        island_lon = nx_gl * dx / 2 + (icol-1 - (sstislands_ncol-1)*0.5) * sstislands_sep
+        island_lat = ny_gl * dx / 2 + (irow-1 - (sstislands_nrow-1)*0.5) * sstislands_sep
+
+        do j=1,ny
+          do i=1,nx
+
+            distsq = ((i+it-1)*dx - island_lon)**2 + ((j+jt-1)*dy - island_lat)**2
+            if (distsq.lt.sstislands_radius**2) then
+              lsm_xy(i,j) = 1
+            else
+              lsm_xy(i,j) = 0
+            end if
+
+          end do
         end do
-      end do
 
+      end do
+    end do
+
+  end if
+
+  do j = 1,ny
+    do i = 1,nx
+      if(lsm_xy(i,j).eq.1) then
+        mld_xy(i,j) = sstislands_landmld
+      else
+        mld_xy(i,j) = sstislands_oceanmld
+      end if
     end do
   end do
 
@@ -236,6 +261,8 @@ subroutine sst_islands
           qoceanxy       = Szero + deltaS*abs(2.*tmpx(i)/lx - 1)
           qocean_xy(i,j) = qocean_xy(i,j) + qoceanxy * dtfactor
         else
+          qoceanxy       = 0
+          qocean_xy(i,j) = 0
         end if
         sstxy(i,j) = sstxy(i,j) &
             + dtn * (swnsxy(i,j)        & ! SW Radiative Heating

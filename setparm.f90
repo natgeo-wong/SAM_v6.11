@@ -58,6 +58,7 @@ NAMELIST /KUANG_PARAMS/ dompiensemble, &
                 dosstislands, &
                 sstislands_radius, sstislands_landmld, sstislands_oceanmld, &
                 sstislands_nrow, sstislands_ncol, sstislands_sep, &
+                readlsm, lsmfile, &
                 nrestart_resetsst
 
 !bloss: Create dummy namelist, so that we can figure out error code

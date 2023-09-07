@@ -187,12 +187,22 @@ real, dimension(2) :: wtgscale_vertmodescl = (/1., 1./) ! strength scaling for v
 ! Specify a "island" within which SST is allowed to vary
 ! If dosstisland = .false. and  dodynamicocean = .true. the entire domain SST varies
 logical :: dosstislands = .false. ! specify an island within which SST is allowed to vary
-real    :: sstislands_radius   = 0.  ! sstisland radius in meters
-real    :: sstislands_oceanmld = 0.  ! depth of surrounding ocean, if 0, fix SST to tabs_s
-real    :: sstislands_landmld  = 0.  ! slab depth of "island"
+real    :: sstislands_oceanmld = 0. ! "ocean" slab depth, if 0, ocean SST is constant
+real    :: sstislands_landmld  = 0. ! "island" slab depth, set to depth_slab_ocean if 0
+
+! Specify round islands using formula. If readlsm = true, then lsm file will override this
+real    :: sstislands_radius   = 0. ! "island" radii in meters
 integer :: sstislands_nrow = 1.  ! number of island rows
 integer :: sstislands_ncol = 1.  ! number of island columns
 real    :: sstislands_sep  = 0.  ! spacing between island centers, should be at least 2*sstisland_radius
+
+! Alternatively, specify a file to read the land-sea mask data
+! File is a binary file, with variables in this order:
+! (1) nx_lsm, which is an integer specifying number of x points
+! (2) ny_lsm, which is an integer specifying number of y points
+! (3) lsm, which is an array of 1s and 0s, with 0s denoting ocean and 1s denoting land
+logical       :: readlsm = .false. ! read land-sea mask from file
+character(80) :: lsmfile = ""
 
 ! If nrestart = 2 and dodynamicocean = false, if nrestart_resetsst = true, set all sst back to tabs_s
 logical :: nrestart_resetsst = .false.

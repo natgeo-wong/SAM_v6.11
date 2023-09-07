@@ -182,10 +182,10 @@ subroutine sst_islands_setmld
 
   call task_rank_to_index(rank,it,jt)
 
-  if(readLSM) then
+  if(readlsm) then
 
-    if(masterproc) print*,'opening land-sea mask file: ',trim(LSMfile)
-    open(11,file=trim(LSMfile),status='old',form='unformatted')
+    if(masterproc) print*,'opening land-sea mask file: ',trim(lsmfile)
+    open(11,file=trim(lsmfile),status='old',form='unformatted')
     if(masterproc) print*,'extracting land-sea mask data from file ...'
     read(11) lsm(1:nx_gl,1:ny_gl)
     if(masterproc) print*,'putting land-sea mask into respective task ...'

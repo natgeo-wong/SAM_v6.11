@@ -80,13 +80,11 @@ end do
 ztrop = z(ktrop)
 
 do k = 1,ktrop
-
-  whadley = wmax * (sin(z(k) / ztrop * pi)     * w1 + &
-                    sin(z(k) / ztrop * pi * 2) * w2 + &
-                    sin(z(k) / ztrop * pi * 3) * w3 + &
-                    sin(z(k) / ztrop * pi * 4) * w4 + &
-                    sin(z(k) / ztrop * pi * 5) * w5)
-
+  whadley(k) = wmax * (sin(z(k) / ztrop * pi)     * w1 + &
+                       sin(z(k) / ztrop * pi * 2) * w2 + &
+                       sin(z(k) / ztrop * pi * 3) * w3 + &
+                       sin(z(k) / ztrop * pi * 4) * w4 + &
+                       sin(z(k) / ztrop * pi * 5) * w5)
 end do
 
 end subroutine hadley

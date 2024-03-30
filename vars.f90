@@ -223,6 +223,12 @@ real swvp_xy(nx,ny)  ! saturated water vapor path (wrt water)
 real cloudtopheight(nx,ny), echotopheight(nx,ny), cloudtoptemp(nx,ny)
 real cloudcover(nx,ny)
 
+! END UW ADDITIONS
+!===========================================================================
+
+!===========================================================================
+! Kuang-Lab ADDITIONS
+
 ! WTG am and theta coefficients
 ! for gradual WTG implementation from RCE to full damping state
 ! (added by Nathanael Wong on 2021/01/17)
@@ -241,14 +247,12 @@ real :: o_wtg(nz)
 real :: owtgr(nz)
 real :: wwtgc(nz)
 
-! END UW ADDITIONS
-!===========================================================================
-
-!===========================================================================
-! Kuang-Lab ADDITIONS
-
 real lsm_xy(nx,ny) ! Land-Sea Mask
 real mld_xy(nx,ny) ! Mixed-Layer Depth
+
+! Hadley Cell Vertical Velocity
+! (added by Nathanael Wong on 2024/03/30)
+real :: whadley(nz)
 
 ! END Kuang-Lab ADDITIONS
 !===========================================================================

@@ -316,6 +316,13 @@ if(dolargescale.and.time.gt.timelargescale) then
 
    end if
 
+   if (dohadley) then
+      call hadley(masterproc, nzm, nz, z, tabs0, &
+                  whadmax, whad1, whad2, whad3, whad4, whad5, whadley)
+      wsub(1:nzm) = wsub(1:nzm) + whadley(1:nzm)
+      dosubsidence = .true.
+   end if
+
    if(dosubsidence) call subsidence()
 
 end if 

@@ -45,6 +45,11 @@ subroutine hbuf_conditionals_init(count,trcount)
          'Raw (Non-Adjusted) Component of the WTG Pressure Velocity','Pa/s',0)
   end if
 
+  if(dohadley) then
+    call add_to_namelist(count,trcount,'WHADLEY', &
+         'Vertical Velocity of Simulated Hadley Cell','m/s',0)
+  end if
+
   !bloss: setup to add an arbitrary number of conditional statistics
   do n = 1,ncondavg
 

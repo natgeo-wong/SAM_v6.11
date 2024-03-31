@@ -93,13 +93,14 @@ end do
 
 ! ===== prevents the Hadley Cell from growing too high =====
 ztrop = z(ktrop)
-if (ztrop>17500)
+if (ztrop>17500) then
   do k = 1,nzm
     if (z(k)<17500) then
       ktrop = k
     end if
   end do
 end if
+ztrop = z(ktrop)
 
 do k = 1,ktrop
   whadley(k) = wmax * (sin(z(k) / ztrop * pi)     * w1 + &

@@ -254,6 +254,10 @@ real mld_xy(nx,ny) ! Mixed-Layer Depth
 ! (added by Nathanael Wong on 2024/03/30)
 real :: whadley(nz)
 
+real thad
+real thadmax
+real whad
+
 ! END Kuang-Lab ADDITIONS
 !===========================================================================
 

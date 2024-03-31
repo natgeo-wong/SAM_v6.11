@@ -215,6 +215,7 @@ real    :: whad2    = 0.
 real    :: whad3    = 0.
 real    :: whad4    = 0.
 real    :: whad5    = 0.
+real    :: hadscale_time = 0.
 
 ! Kuang-Lab Additions End Here
 !=====================================================

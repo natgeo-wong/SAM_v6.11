@@ -317,8 +317,19 @@ if(dolargescale.and.time.gt.timelargescale) then
    end if
 
    if (dohadley) then
+      if(hadscale_time.gt.0) then
+         thadmax = (nstop * dt - timelargescale) * hadscale_time
+         thad = time - timelargescale
+         if(thad.gt.thadmax) then
+            whad = whadmax
+         else
+            whad = whadmax * thad / thadmax
+         endif
+      else
+         whad = whadmax
+      endif
       call hadley(masterproc, nzm, nz, z, tabs0, &
-                  whadmax, whad1, whad2, whad3, whad4, whad5, whadley)
+                  whad, whad1, whad2, whad3, whad4, whad5, whadley)
       wsub(1:nzm) = wsub(1:nzm) + whadley(1:nzm)
       dosubsidence = .true.
    end if

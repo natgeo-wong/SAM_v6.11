@@ -81,6 +81,11 @@ if (z(nz) < 1.e4) then
 
 end if
 
+! Initialize to become zero
+w_wtg(:) = 0
+wwtgr(:) = 0
+wwtgc(:) = 0
+
 tmp = nzm/2
 wtgscale_vertmodenum = floor(tmp)
 

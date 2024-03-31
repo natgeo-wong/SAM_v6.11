@@ -102,6 +102,7 @@ if (ztrop>17500) then
 end if
 ztrop = z(ktrop)
 
+whadley(:) = 0
 do k = 1,ktrop
   whadley(k) = wmax * (sin(z(k) / ztrop * pi)     * w1 + &
                        sin(z(k) / ztrop * pi * 2) * w2 + &

@@ -86,7 +86,7 @@ ktrop = nzm ! default is top of model/atmosphere (counting from surface)
 tabs_grad = 0
 do k = (nzm-1),2,-1
   tabs_grad = (tabs_model(k-1) - tabs_model(k+1)) / (z(k+1)-z(k-1)) * 1000
-  if(tabs_grad.lt.2).AND.(z(k)>5000) then
+  if((tabs_grad.lt.2).AND.(z(k)>5000)) then
     ktrop = k
   end if
 end do

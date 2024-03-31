@@ -49,7 +49,8 @@ real, intent(out) :: whadley(nzm) ! WTG large-scale pressure velocity in Pa/s on
 integer :: k
 integer :: ktrop
 integer :: inum
-real :: min_temp ! temporary variable used to find cold point of model sounding.
+! real :: min_temp ! temporary variable used to find cold point of model sounding.
+real :: tabs_grad ! temporary variable used to find cold point of model sounding.
 real :: ztrop ! Height of tropopause level (m)
 real, parameter :: pi = 3.141592653589793 ! from MATLAB, format long.
 
@@ -65,19 +66,40 @@ if (z(nz) < 1.e4) then
 
 end if
 
-! ===== find index of cold point tropopause in vertical. =====
-! reverse pressure coordinate, and find index
-!   of cold point tropopause in the vertical.
-ktrop = nzm+1 ! default is top of model/atmosphere (counting from surface)
-min_temp = tabs_model(nzm) 
-do k = 1,nzm
-  if(tabs_model(k).lt.min_temp) then
+! ! ===== find index of cold point tropopause in vertical. =====
+! ! reverse pressure coordinate, and find index
+! !   of cold point tropopause in the vertical.
+! ktrop = nzm+1 ! default is top of model/atmosphere (counting from surface)
+! min_temp = tabs_model(nzm) 
+! do k = 1,nzm
+!   if(tabs_model(k).lt.min_temp) then
+!     ktrop = k
+!     min_temp = tabs_model(k)
+!   end if
+! end do
+
+! ===== find the tropopause using the 2 K/km method =====
+! the lowest-temperature method fails, so trying to use the method where
+! find the lowest level above 5 km where the gradient of the temperature
+! falls below 2 K/km to determine the height of the troposphere
+ktrop = nzm ! default is top of model/atmosphere (counting from surface)
+tabs_grad = 0
+do k = (nzm-1),2,-1
+  tabs_grad = (tabs_model(k-1) - tabs_model(k+1)) / (z(k+1)-z(k-1)) * 1000
+  if(tabs_grad.lt.2).AND.(z(k)>5000) then
     ktrop = k
-    min_temp = tabs_model(k)
   end if
 end do
 
+! ===== prevents the Hadley Cell from growing too high =====
 ztrop = z(ktrop)
+if (ztrop>17500)
+  do k = 1,nzm
+    if (z(k)<17500) then
+      ktrop = k
+    end if
+  end do
+end if
 
 do k = 1,ktrop
   whadley(k) = wmax * (sin(z(k) / ztrop * pi)     * w1 + &

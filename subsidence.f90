@@ -10,16 +10,6 @@ real rdz, dq
 real t_vtend, q_vtend
 real t_tend(nx,ny,nzm), q_tend(nx,ny,nzm)
 
-! Initialize large-scale vertical advective tendencies.
-do k = 1,nzm
-   ulsvadv(k) = 0.
-   vlsvadv(k) = 0.
-   qlsvadv(k) = 0.
-   tlsvadv(k) = 0.
-end do
-mklsadv(:,:) = 0. ! large-scale microphysical tendencies
-
-
 do k=2,nzm-1
   if(wsub(k).ge.0) then
      rdz=wsub(k)/(dz*adzw(k))	
@@ -75,12 +65,9 @@ do k=2,nzm-1
   q_vtend = q_vtend / float(nx*ny) 
   ttend(k) = ttend(k) + t_vtend
   qtend(k) = qtend(k) + q_vtend
-  tlsvadv(k) = t_vtend
-  qlsvadv(k) = q_vtend
-end do 
-	
-! put qlsvadv into mklsadv(:,index_water_vapor)
-mklsadv(1:nzm,index_water_vapor) = qlsvadv(1:nzm)*float(nx*ny)
+  tlsvadv(k) = tlsvadv(k) + t_vtend
+  qlsvadv(k) = qlsvadv(k) + q_vtend
+end do
 
 ! normalize large-scale vertical momentum forcing
 ulsvadv(:) = ulsvadv(:) / float(nx*ny) 

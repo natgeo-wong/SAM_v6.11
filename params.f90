@@ -209,6 +209,7 @@ logical :: nrestart_resetsst = .false.
 
 ! Try to simulate a Hadley Cell (with varying tropopause heights)
 logical :: dohadley = .false.
+logical :: dodrivenequilibrium = .false.
 real    :: whadmax  = 0.
 real    :: whad1    = 0.
 real    :: whad2    = 0.

@@ -125,15 +125,11 @@ end do
 ! ---------------------------------------------------------------
 ! Initialize tendencies:
 
+ttend(:) = 0.
+qtend(:) = 0.
 
-do k=1,nzm
-   ttend(k)=0.
-   qtend(k)=0.
-end do
-
-
+! ---------------------------------------------------------------
 ! Large-Scale Advection Forcing:
-
 
 if(dolargescale.and.time.gt.timelargescale) then
 
@@ -330,11 +326,22 @@ if(dolargescale.and.time.gt.timelargescale) then
       endif
       call hadley(masterproc, nzm, nz, z, tabs0, &
                   whad, whad1, whad2, whad3, whad4, whad5, whadley)
-      wsub(1:nzm) = wsub(1:nzm) + whadley(1:nzm)
-      dosubsidence = .true.
+      dodrivenequilibrium = .true.
    end if
 
+   ! ---------------------------------------------------------------
+   ! Initialize large-scale advection tendencies:
+
+   ulsvadv(:)   = 0.
+   vlsvadv(:)   = 0.
+   qlsvadv(:)   = 0.
+   tlsvadv(:)   = 0.
+   mklsadv(:,:) = 0. ! large-scale microphysical tendencies
+
    if(dosubsidence) call subsidence()
+   if(dodrivenequilibrium) call dodrivenequilibrium()
+
+   mklsadv(1:nzm,index_water_vapor) = qlsvadv(1:nzm)*float(nx*ny)
 
 end if 
 

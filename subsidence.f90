@@ -69,8 +69,4 @@ do k=2,nzm-1
   qlsvadv(k) = qlsvadv(k) + q_vtend
 end do
 
-! normalize large-scale vertical momentum forcing
-ulsvadv(:) = ulsvadv(:) / float(nx*ny) 
-vlsvadv(:) = vlsvadv(:) / float(nx*ny) 
-
 end

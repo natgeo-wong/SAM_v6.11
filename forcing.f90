@@ -340,7 +340,10 @@ if(dolargescale.and.time.gt.timelargescale) then
    if(dosubsidence) call subsidence()
    if(dodrivenequilibrium) call dodrivenequilibrium()
 
-   mklsadv(1:nzm,index_water_vapor) = qlsvadv(1:nzm)*float(nx*ny)
+   ! normalize large-scale vertical momentum forcing
+   ulsvadv(:) = ulsvadv(:) / float(nx*ny) 
+   vlsvadv(:) = vlsvadv(:) / float(nx*ny) 
+   mklsadv(1:nzm,index_water_vapor) = qlsvadv(1:nzm) * float(nx*ny)
 
 end if 
 

@@ -24,7 +24,7 @@
 !   upwards as in SAM, the model for which this routine was first
 !   written.
 
-subroutine hadley(masterproc, nzm, nz, z, tabs_model, wmax, w1, w2, w3, w4, w5, whadley)
+subroutine hadley(masterproc, nzm, nz, z, tabs_model, wmax, whadley)
 
 implicit none
 

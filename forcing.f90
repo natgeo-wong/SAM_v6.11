@@ -324,9 +324,8 @@ if(dolargescale.and.time.gt.timelargescale) then
       else
          whad = whadmax
       endif
-      call hadley(masterproc, nzm, nz, z, tabs0, &
-                  whad, whad1, whad2, whad3, whad4, whad5, whadley)
-      dodrivenequilibrium = .true.
+      call hadley(masterproc, nzm, nz, z, tabs0, whad, whadley)
+      if(.NOT.dodrivenequilibrium) then wsub(1:nzm) = wsub(1:nzm) + whadley(1:nzm)
    end if
 
    ! ---------------------------------------------------------------

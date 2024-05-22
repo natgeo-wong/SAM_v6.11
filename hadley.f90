@@ -85,17 +85,17 @@ end if
 ktrop = nzm ! default is top of model/atmosphere (counting from surface)
 tabs_grad = 0
 do k = (nzm-1),2,-1
-  tabs_grad = (tabs_model(k-1) - tabs_model(k+1)) / (z(k+1)-z(k-1)) * 1000
+  tabs_grad = (tabs_model(k) - tabs_model(k+1)) / (z(k+1)-z(k)) * 1000
   if((tabs_grad.lt.2).AND.(z(k)>5000)) then
-    ktrop = k
+    ktrop = k-1
   end if
 end do
 
 ! ===== prevents the Hadley Cell from growing too high =====
 ztrop = z(ktrop)
-if (ztrop>17500) then
+if (ztrop>zhadmax) then
   do k = 1,nzm
-    if (z(k)<17500) then
+    if (z(k)<zhadmax) then
       ktrop = k
     end if
   end do
@@ -104,11 +104,7 @@ ztrop = z(ktrop)
 
 whadley(:) = 0
 do k = 1,ktrop
-  whadley(k) = wmax * (sin(z(k) / ztrop * pi)     * w1 + &
-                       sin(z(k) / ztrop * pi * 2) * w2 + &
-                       sin(z(k) / ztrop * pi * 3) * w3 + &
-                       sin(z(k) / ztrop * pi * 4) * w4 + &
-                       sin(z(k) / ztrop * pi * 5) * w5)
+  whadley(k) = wmax * (sin(z(k) / ztrop * pi))
 end do
 
 end subroutine hadley

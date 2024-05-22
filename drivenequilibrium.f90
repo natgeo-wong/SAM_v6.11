@@ -22,7 +22,7 @@ do k=2,nzm-1
   end if
   do j=1,ny
     do i=1,nx
-      t_tend(i,j,k) =  - rdz * (tabs0(k1)-tabs0(k2)) - whadley * ggr / cp
+      t_tend(i,j,k) =  - rdz * (tabs0(k1)-tabs0(k2)) - whadley(k) * ggr / cp
       q_tend(i,j,k) =  - rdz * (qv0(k1)-qv0(k2))
     end do
   end do
@@ -40,8 +40,8 @@ do k=2,nzm-1
       q_vtend = q_vtend + q_tend(i,j,k)
     end do
   end do
-  t_vtend = t_vtend / float(nx*ny) - whadley(k) * ggr / cp
-  q_vtend = q_vtend / float(nx*ny) 
+  t_vtend = t_vtend / float(nx*ny)
+  q_vtend = q_vtend / float(nx*ny)
   ttend(k) = ttend(k) + t_vtend
   qtend(k) = qtend(k) + q_vtend
   tlsvadv(k) = tlsvadv(k) + t_vtend

@@ -43,13 +43,8 @@ if(.not.SFC_FLX_FXD) then
             t_s = (sstxy(i,j)+t00)*prespoti(1)
             q_s = salt_factor*qsatw(sstxy(i,j)+t00,presi(1))
 
-            if (dobulksfcflx) then
-              call oceflx(rho(1), bulksfcflx_u, 0, ta_h, q_h, t_h, z(1)-zi(1), t_s, q_s, &
-                fluxt0, fluxq0, taux0, tauy0)
-            else
-              call oceflx(rho(1), u_h, v_h, ta_h, q_h, t_h, z(1)-zi(1), t_s, q_s, &
-                fluxt0, fluxq0, taux0, tauy0)
-            endif
+            call oceflx(rho(1), u_h, v_h, ta_h, q_h, t_h, z(1)-zi(1), t_s, q_s, &
+                        fluxt0, fluxq0, taux0, tauy0)
 
             fluxbu(i,j) = taux0/rho(1)
             fluxbv(i,j) = tauy0/rho(1)
@@ -61,6 +56,21 @@ if(.not.SFC_FLX_FXD) then
          end do
        end do
 
+        if(dobulksfcflx) then
+          do j=1,ny
+            do i=1,nx
+              cd = 1.1e-3
+              delt = t(i,j,1) + t00 - gamaz(1) - (sstxy(i,j))
+              ssq  = qsatw(sstxy(i,j),pres(1))
+              delq = qv(i,j,1)  - ssq
+              wrk  = (log(10/1.e-4)/log(z(1)/1.e-4))**2
+              fluxbt(i,j) = -cd * bulksfcflx_u * delt * wrk
+              fluxbq(i,j) = -cd * bulksfcflx_u * delq * wrk
+              ! fluxbu(i,j) = -rho(1) * (u(i,j,1)+ug) * cd * windspeed*wrk
+              ! fluxbv(i,j) = -rho(1) * (v(i,j,1)+vg) * cd * windspeed*wrk
+            end do
+          end do
+        end if
 	
   end if ! OCEAN
 

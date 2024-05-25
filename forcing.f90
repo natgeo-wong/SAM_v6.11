@@ -338,7 +338,7 @@ if(dolargescale.and.time.gt.timelargescale) then
    mklsadv(:,:) = 0. ! large-scale microphysical tendencies
 
    if(dosubsidence) call subsidence()
-   if(dodrivenequilibrium) call dodrivenequilibrium()
+   if(dodrivenequilibrium) call drivenequilibrium()
 
    ! normalize large-scale vertical momentum forcing
    ulsvadv(:) = ulsvadv(:) / float(nx*ny) 

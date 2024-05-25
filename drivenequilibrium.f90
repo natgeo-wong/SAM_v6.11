@@ -3,6 +3,7 @@ subroutine drivenequilibrium
 	
 use vars
 use microphysics, only: micro_field, index_water_vapor, nmicro_fields, mklsadv
+use params, only: ggr, cp
 implicit none
 
 integer i,j,k,k1,k2,n

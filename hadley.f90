@@ -36,11 +36,6 @@ real, intent(in) :: z(nz) ! pressure of model levels in Pa (domain-mean for LES)
 real, intent(in) :: tabs_model(nzm) ! model temperature profile in K (domain-mean for LES)
 
 real, intent(in) :: wmax ! pressure of model levels in Pa (domain-mean for LES)
-real, intent(in) :: w1 ! pressure of model levels in Pa (domain-mean for LES)
-real, intent(in) :: w2 ! pressure of model levels in Pa (domain-mean for LES)
-real, intent(in) :: w3 ! pressure of model levels in Pa (domain-mean for LES)
-real, intent(in) :: w4 ! pressure of model levels in Pa (domain-mean for LES)
-real, intent(in) :: w5 ! pressure of model levels in Pa (domain-mean for LES)
 
 ! ======= output =======
 real, intent(out) :: whadley(nzm) ! WTG large-scale pressure velocity in Pa/s on model levels.

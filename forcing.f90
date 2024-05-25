@@ -331,11 +331,11 @@ if(dolargescale.and.time.gt.timelargescale) then
    ! ---------------------------------------------------------------
    ! Initialize large-scale advection tendencies:
 
-   ulsvadv(:)   = 0.
-   vlsvadv(:)   = 0.
-   qlsvadv(:)   = 0.
-   tlsvadv(:)   = 0.
-   mklsadv(:,:) = 0. ! large-scale microphysical tendencies
+   ulsvadv = 0.
+   vlsvadv = 0.
+   qlsvadv = 0.
+   tlsvadv = 0.
+   mklsadv = 0. ! large-scale microphysical tendencies
 
    if(dosubsidence) call subsidence()
    if(dodrivenequilibrium) call dodrivenequilibrium()

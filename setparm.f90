@@ -55,7 +55,7 @@ NAMELIST /KUANG_PARAMS/ dompiensemble, &
                 wtgscale_time, am_wtg, am_wtg_exp, lambda_wtg, &
                 dowtgLBL, boundstatic, tau_wtg, dthetadz_min, &
                 wtgscale_vertmodepwr, wtgscale_vertmodenum, wtgscale_vertmodescl, &
-                dohadley, dodrivenequilibrium, whadmax, hadscale_time, &
+                dohadley, dodrivenequilibrium, whadmax, zhadmax, hadscale_time, &
                 dosstislands, &
                 sstislands_radius, sstislands_landmld, sstislands_oceanmld, &
                 sstislands_nrow, sstislands_ncol, sstislands_sep, &

@@ -211,6 +211,7 @@ logical :: nrestart_resetsst = .false.
 logical :: dohadley = .false.
 logical :: dodrivenequilibrium = .false.
 real    :: whadmax  = 0.
+real    :: zhadmax  = 15000.
 real    :: hadscale_time = 0.
 
 ! Kuang-Lab Additions End Here

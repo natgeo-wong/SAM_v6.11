@@ -24,7 +24,7 @@
 !   upwards as in SAM, the model for which this routine was first
 !   written.
 
-subroutine hadley(masterproc, nzm, nz, z, tabs_model, wmax, whadley)
+subroutine hadley(masterproc, nzm, nz, z, tabs_model, wmax, zhadmax, whadley)
 
 implicit none
 
@@ -36,6 +36,7 @@ real, intent(in) :: z(nz) ! pressure of model levels in Pa (domain-mean for LES)
 real, intent(in) :: tabs_model(nzm) ! model temperature profile in K (domain-mean for LES)
 
 real, intent(in) :: wmax ! pressure of model levels in Pa (domain-mean for LES)
+real, intent(in) :: zhadmax ! pressure of model levels in Pa (domain-mean for LES)
 
 ! ======= output =======
 real, intent(out) :: whadley(nzm) ! WTG large-scale pressure velocity in Pa/s on model levels.

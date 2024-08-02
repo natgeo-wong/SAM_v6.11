@@ -3,7 +3,7 @@ subroutine forcing
 	
 use vars
 use params
-use microphysics, only: micro_field, index_water_vapor, total_water
+use microphysics, only: micro_field, index_water_vapor, total_water, mklsadv
 use simple_ocean, only: sst_evolve
 
 implicit none
@@ -125,15 +125,11 @@ end do
 ! ---------------------------------------------------------------
 ! Initialize tendencies:
 
+ttend(:) = 0.
+qtend(:) = 0.
 
-do k=1,nzm
-   ttend(k)=0.
-   qtend(k)=0.
-end do
-
-
+! ---------------------------------------------------------------
 ! Large-Scale Advection Forcing:
-
 
 if(dolargescale.and.time.gt.timelargescale) then
 
@@ -316,7 +312,41 @@ if(dolargescale.and.time.gt.timelargescale) then
 
    end if
 
+   if (dohadley) then
+      if(hadscale_time.gt.0) then
+         thadmax = (nstop * dt - timelargescale) * hadscale_time
+         thad = time - timelargescale
+         if(thad.gt.thadmax) then
+            whad = whadmax
+         else
+            whad = whadmax * thad / thadmax
+         endif
+      else
+         whad = whadmax
+      endif
+      call hadley(masterproc, nzm, nz, z, tabs0, whad, zhadmax, whadley)
+      if(.NOT.dodrivenequilibrium) then
+         wsub(1:nzm) = wsub(1:nzm) + whadley(1:nzm)
+         dosubsidence = .true.
+      end if
+   end if
+
+   ! ---------------------------------------------------------------
+   ! Initialize large-scale advection tendencies:
+
+   ulsvadv(:)   = 0.
+   vlsvadv(:)   = 0.
+   qlsvadv(:)   = 0.
+   tlsvadv(:)   = 0.
+   mklsadv(:,:) = 0. ! large-scale microphysical tendencies
+
    if(dosubsidence) call subsidence()
+   if(dodrivenequilibrium) call drivenequilibrium()
+
+   ! normalize large-scale vertical momentum forcing
+   ulsvadv(:) = ulsvadv(:) / float(nx*ny) 
+   vlsvadv(:) = vlsvadv(:) / float(nx*ny) 
+   mklsadv(1:nzm,index_water_vapor) = qlsvadv(1:nzm) * float(nx*ny)
 
 end if 
 

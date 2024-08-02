@@ -70,6 +70,9 @@ real :: thetad2 ! Static Stability
 real :: tv_model(nzm) ! virtual temperature of model sounding in K
 real :: tv_ref(nzm) !  virtual temperature of reference sounding in K
 
+w_wtg(:) = 0
+wwtgc(:) = 0
+
 if (z(nz) < 1.e4) then
 
   if(masterproc) then

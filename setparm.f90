@@ -52,9 +52,9 @@ NAMELIST /KUANG_PARAMS/ dompiensemble, &
                 dobulksfcflx, bulksfcflx_u, &
                 dowtg_blossey_etal_JAMES2009, dowtg_raymondzeng_QJRMS2005, &
                 dowtg_hermanraymond_JAMES2014, dowtg_decompdgw, dowtg_decomptgr, &
-                wtgscale_time, am_wtg, am_wtg_exp, lambda_wtg, &
-                dowtgLBL, boundstatic, tau_wtg, dthetadz_min, &
-                dowtgBL_2piece, &
+                wtgscale_time, am_wtg, am_wtg_exp, lambda_wtg, tau_wtg, &
+                boundstatic, dthetadz_min, &
+                dowtgBL, dorz2005, dowtgBL_2piece, &
                 wtgscale_vertmodepwr, wtgscale_vertmodenum, wtgscale_vertmodescl, &
                 dohadley, dodrivenequilibrium, whadmax, zhadmax, hadscale_time, &
                 dosstislands, &

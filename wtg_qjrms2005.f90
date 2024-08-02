@@ -26,7 +26,8 @@
 
 subroutine wtg_qjrms2005(masterproc, nzm, nz, z, &
                           theta_ref, theta_model, tabs_model, ttheta_wtg, &
-                          dowtgLBL, boundstatic, dthetadz_min, w_wtg, wwtgr)
+                          dowtgBL, &
+                          boundstatic, dthetadz_min, w_wtg, wwtgr)
 
 implicit none
 
@@ -43,7 +44,10 @@ real, intent(in) :: tabs_model(nzm) ! model temperature profile in K (domain-mea
 !   default is 1 day^-1 (ttheta_wtg = 1/86400 s^-1)
 real, intent(in) :: ttheta_wtg     ! potential temperature relaxation timescale (s^-1)
 
-logical, intent(in) :: dowtgLBL    ! Calculate w_wtg at boundary layer instead of linear interpolation
+logical, intent(in) :: dowtgBL    ! Calculate w_wtg at boundary layer instead of linear interpolation
+logical, intent(in) :: dorz2005   ! If not dowtgBL, if dorz2005 then use linear interpolation to fill up vertical velocity. Otherwise never mind.
+logical, intent(in) :: dodowtgBL_2piece ! If dowtgBL and dodowtgBL_2piece, the boundary layer relaxation timescale is 100 times that of the free troposphere
+
 logical, intent(in) :: boundstatic ! Restrict lower bound for static stability
 real, intent(in) :: dthetadz_min   ! if boundstatic = .true., what is the minimum bound?
 
@@ -61,6 +65,7 @@ real :: ztrop ! Height of tropopause level (m)
 real :: dthetadz ! Static Stability
 real, parameter :: pi = 3.141592653589793 ! from MATLAB, format long.
 real :: theta_diff ! Static Stability
+real :: ttheta_wtg_BL ! tau for the boundary layer
 
 if (z(nz) < 1.e4) then
 
@@ -91,13 +96,11 @@ ztrop = z(ktrop)
 ! ===== find index of boundary layer top =====
 ! the boundary layer is defined to be the bottom 1km layer of the atmosphere
 kbl = 1 ! set to be the model bottom
-if(.NOT.dowtgLBL) then
-  do k = nzm,1,-1
-    if (z(k)>1000) then
-      kbl = k
-    end if
-  end do
-end if
+do k = nzm,1,-1
+  if (z(k)>1000) then
+    kbl = k
+  end if
+end do
 
 !! Set to zero before calculations
 w_wtg(:) = 0
@@ -116,7 +119,7 @@ do k = kbl,ktrop
 
 end do
 
-if(.NOT.dowtgLBL) then
+if(.NOT.dowtgBL) then
 
   if(dorz2005)
     do k = 1,(kbl-1)

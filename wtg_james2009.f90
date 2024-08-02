@@ -26,7 +26,7 @@
 
 subroutine wtg_james2009(nzm, pres, tabs_ref, qv_ref, tabs_model, &
      qv_model, qcond_model, f_coriolis, lambda_wtg, am_wtg, am_wtg_exp, &
-     omega_wtg, ktrop)
+     dowtgBL_2piece, omega_wtg, ktrop)
   implicit none
 
   ! ======= inputs =======
@@ -48,6 +48,8 @@ subroutine wtg_james2009(nzm, pres, tabs_ref, qv_ref, tabs_model, &
   !   Also in paper: am_wtg = 0.5/day and am_wtg_exp=0. (vertically-uniform)
   real, intent(in) :: am_wtg     ! WTG momentum damping rate in 1/s at p/pref (default = 1./86400. /s)
   real, intent(in) :: am_wtg_exp ! exponenent in WTG momentum damping rate, dimensionless (default = 1.)
+
+  logical, intent(in) :: dowtgBL_2piece ! If true, then the boundary layer (>900 hPa) a_m is 100 times that in the free troposphere
 
   ! ======= output =======
   integer, intent(out) :: ktrop ! index of interface just above the cold point.
@@ -89,14 +91,14 @@ subroutine wtg_james2009(nzm, pres, tabs_ref, qv_ref, tabs_model, &
     ! call driver routine using input variables, since reordering is un-necessary.
     call wtg_james2009_driver(nzm, pres, tabs_ref, qv_ref, tabs_model, &
          qv_model, qcond_model, f_coriolis, lambda_wtg, am_wtg, am_wtg_exp, &
-         omega_wtg, ktrop)
+         dowtgBL_2piece, omega_wtg, ktrop)
   end if
 
 contains
 
   subroutine wtg_james2009_driver(nzm, pres, tabs_ref, qv_ref, tabs_model, &
        qv_model, qcond_model, f_coriolis, lambda_wtg, am_wtg, am_wtg_exp, &
-       omega_wtg, ktrop)
+       dowtgBL_2piece, omega_wtg, ktrop)
     implicit none
 
     ! ======= inputs =======
@@ -118,6 +120,8 @@ contains
     !   Also in paper: am_wtg = 0.5/day and am_wtg_exp=0. (vertically-uniform)
     real, intent(in) :: am_wtg     ! WTG momentum damping rate in 1/s at p/pref (default = 1./86400. /s)
     real, intent(in) :: am_wtg_exp ! exponenent in WTG momentum damping rate, dimensionless (default = 1.)
+
+    logical, intent(in) :: dowtgBL_2piece ! If true, then the boundary layer (>900 hPa) a_m is 100 times that in the free troposphere
 
     ! ======= output =======
     integer, intent(out) :: ktrop ! index of interface just above the cold point.
@@ -290,7 +294,7 @@ contains
       ! momentum damping rate
       tmp_am(k) = am_wtg*(presc(k)/pres_ref)**am_wtg_exp
     end do
-    
+
     if(dowtgBL_2piece) then
       do k = 1,ktrop-1
         if (presc(k).GT.900e2) then

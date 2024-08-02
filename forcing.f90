@@ -252,11 +252,11 @@ if(dolargescale.and.time.gt.timelargescale) then
 
       if (dowtg_blossey_etal_JAMES2009) call wtg_james2009(nzm, &
             100.*pres, tg0, qg0, tabs0, qv0, qn0+qp0, &
-            fcor, lambda_wtg, am_wtg_time, am_wtg_exp, o_wtg, ktrop)
+            fcor, lambda_wtg, am_wtg_time, am_wtg_exp, dowtgBL_2piece, o_wtg, ktrop)
       if (dowtg_decompdgw) then
          call wtg_james2009(nzm, &
             100.*pres, tg0, qg0, tabs0, qv0, qn0+qp0, &
-            fcor, lambda_wtg, am_wtg_time, am_wtg_exp, owtgr, ktrop)
+            fcor, lambda_wtg, am_wtg_time, am_wtg_exp, dowtgBL_2piece, owtgr, ktrop)
          call wtg_decompdgw(masterproc, &
             nzm, nz, z, 100.*pg0, tg0, qg0, tabs0, qv0, qn0+qp0, &
             lambda_wtg, am_wtg_time, wtgscale_vertmodenum, wtgscale_vertmodescl, &
@@ -288,15 +288,16 @@ if(dolargescale.and.time.gt.timelargescale) then
       end do
 
       if (dowtg_raymondzeng_QJRMS2005)   call wtg_qjrms2005(masterproc, nzm, nz, z, &
-                              tp0, tpm, tabs0, tau_wtg_time, dowtgLBL, boundstatic, &
-                              dthetadz_min, w_wtg, wwtgr)
+                              tp0, tpm, tabs0, tau_wtg_time, &
+                              dowtgBL, dorz2005, dowtgBL_2piece, &
+                              boundstatic, dthetadz_min, w_wtg, wwtgr)
       if (dowtg_hermanraymond_JAMES2014) call wtg_james2014(masterproc, nzm, nz, z, &
-                              tp0, tpm, tabs0, tau_wtg_time, dowtgLBL, boundstatic, &
+                              tp0, tpm, tabs0, tau_wtg_time, dowtgBL, boundstatic, &
                               dthetadz_min, wtgscale_vertmodepwr, w_wtg, wwtgr, wwtgc)
       if (dowtg_decomptgr)               call wtg_decomptgr(masterproc, nzm, nz, z, &
                               tp0, tpm, tabs0, tau_wtg_time, &
                               wtgscale_vertmodenum, wtgscale_vertmodescl, &
-                              dowtgLBL, boundstatic, dthetadz_min, w_wtg, wwtgr, wwtgc)
+                              dowtgBL, boundstatic, dthetadz_min, w_wtg, wwtgr, wwtgc)
 
       ! convert from omega in Pa/s to wsub in m/s
       o_wtg(1:nzm) = -w_wtg(1:nzm)*rho(1:nzm)*ggr

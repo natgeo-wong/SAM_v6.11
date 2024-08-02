@@ -26,7 +26,7 @@
 
 subroutine wtg_james2014(masterproc, nzm, nz, z, &
                           theta_ref, theta_model, tabs_model, tau_wtg, &
-                          dowtgLBL, boundstatic, dthetadz_min, vertmodepwr, &
+                          dowtgBL, boundstatic, dthetadz_min, vertmodepwr, &
                           w_wtg, wwtgr, wwtgc)
 
 implicit none
@@ -44,7 +44,7 @@ real, intent(in) :: tabs_model(nzm) ! model temperature profile in K (domain-mea
 !   default is 1 day^-1 (tau_wtg = 1/86400 s^-1)
 real, intent(in) :: tau_wtg ! potential temperature relaxation timescale (s^-1)
 
-logical, intent(in) :: dowtgLBL    ! Calculate w_wtg at boundary layer instead of linear interpolation
+logical, intent(in) :: dowtgBL    ! Calculate w_wtg at boundary layer instead of linear interpolation
 logical, intent(in) :: boundstatic ! Restrict lower bound for static stability
 real, intent(in) :: dthetadz_min   ! if boundstatic = .true., what is the minimum bound?
 real, intent(in) :: vertmodepwr    ! exponent modifying strength of higher-order baroclinic modes, larger values mean higher-order modes are weaker
@@ -106,7 +106,7 @@ ztrop = z(ktrop)
 ! ===== find index of boundary layer top =====
 ! the boundary layer is defined to be the bottom 1km layer of the atmosphere
 kbl = 1 ! set to be the model bottom
-if(.NOT.dowtgLBL) then
+if(.NOT.dowtgBL) then
   do k = nzm,1,-1
     if (z(k)>1000) then
       kbl = k
@@ -153,7 +153,7 @@ do k = 1,ktrop
 
 end do
 
-if(.NOT.dowtgLBL) then
+if(.NOT.dowtgBL) then
   do k = kbl,ktrop
     wwtgr(k) = (theta_model(k) - theta_ref(k)) * tau_wtg / dthetadz(k)
   end do

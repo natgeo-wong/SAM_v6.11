@@ -79,7 +79,7 @@ subroutine wtg_james2009(nzm, pres, tabs_ref, qv_ref, tabs_model, &
     ! call driver routine using local variables.
     call wtg_james2009_driver(nzm, pres_local, tabs_ref_local, qv_ref_local, tabs_model_local, &
          qv_model_local, qcond_model_local, f_coriolis, lambda_wtg, am_wtg, am_wtg_exp, &
-         omega_wtg, ktrop)
+         dowtgBL_2piece, omega_wtg, ktrop)
 
     ! re-order omega to be indexed from top down.
     tmp(1:nzm) = omega_wtg(1:nzm)

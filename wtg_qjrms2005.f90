@@ -121,7 +121,7 @@ end do
 
 if(.NOT.dowtgBL) then
 
-  if(dorz2005)
+  if(dorz2005) then
     do k = 1,(kbl-1)
       wwtgr(k) = wwtgr(kbl) * z(k) / z(kbl)
       w_wtg(k) = w_wtg(kbl) * z(k) / z(kbl)
@@ -131,9 +131,7 @@ if(.NOT.dowtgBL) then
 else
 
   ttheta_wtg_BL = ttheta_wtg
-  if(dodowtgBL_2piece)
-    ttheta_wtg_BL = ttheta_wtg / 100
-  end if
+  if(dodowtgBL_2piece) ttheta_wtg_BL = ttheta_wtg / 100
 
   do k = 2,kbl
 

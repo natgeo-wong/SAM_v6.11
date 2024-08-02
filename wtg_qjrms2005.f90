@@ -26,7 +26,7 @@
 
 subroutine wtg_qjrms2005(masterproc, nzm, nz, z, &
                           theta_ref, theta_model, tabs_model, ttheta_wtg, &
-                          dowtgBL, &
+                          dowtgBL, dorz2005, dodowtgBL_2piece, &
                           boundstatic, dthetadz_min, w_wtg, wwtgr)
 
 implicit none
@@ -79,6 +79,10 @@ if (z(nz) < 1.e4) then
 
 end if
 
+!! Set to zero before calculations
+w_wtg(:) = 0
+wwtgr(:) = 0
+
 ! ===== find index of cold point tropopause in vertical. =====
 ! reverse pressure coordinate, and find index
 !   of cold point tropopause in the vertical.
@@ -101,10 +105,6 @@ do k = nzm,1,-1
     kbl = k
   end if
 end do
-
-!! Set to zero before calculations
-w_wtg(:) = 0
-wwtgr(:) = 0
 
 do k = kbl,ktrop
 

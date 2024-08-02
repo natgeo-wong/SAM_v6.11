@@ -26,7 +26,8 @@
 
 subroutine wtg_james2014(masterproc, nzm, nz, z, &
                           theta_ref, theta_model, tabs_model, tau_wtg, &
-                          dowtgBL, boundstatic, dthetadz_min, vertmodepwr, &
+                          dowtgBL, dorz2005, dodowtgBL_2piece, &
+                          boundstatic, dthetadz_min, vertmodepwr, &
                           w_wtg, wwtgr, wwtgc)
 
 implicit none
@@ -45,6 +46,9 @@ real, intent(in) :: tabs_model(nzm) ! model temperature profile in K (domain-mea
 real, intent(in) :: tau_wtg ! potential temperature relaxation timescale (s^-1)
 
 logical, intent(in) :: dowtgBL    ! Calculate w_wtg at boundary layer instead of linear interpolation
+logical, intent(in) :: dorz2005   ! If not dowtgBL, if dorz2005 then use linear interpolation to fill up vertical velocity. Otherwise never mind.
+logical, intent(in) :: dodowtgBL_2piece ! If dowtgBL and dodowtgBL_2piece, the boundary layer relaxation timescale is 100 times that of the free troposphere
+
 logical, intent(in) :: boundstatic ! Restrict lower bound for static stability
 real, intent(in) :: dthetadz_min   ! if boundstatic = .true., what is the minimum bound?
 real, intent(in) :: vertmodepwr    ! exponent modifying strength of higher-order baroclinic modes, larger values mean higher-order modes are weaker
@@ -68,6 +72,8 @@ real, parameter :: pi = 3.141592653589793 ! from MATLAB, format long.
 real :: thetad1 ! Static Stability
 real :: thetad2 ! Static Stability
 real :: dthetadz(nzm) ! virtual temperature of model sounding in K
+real :: tau_wtg_BL ! tau for the boundary layer
+real :: coeff ! constant coeff
 
 if (z(nz) < 1.e4) then
 
@@ -106,13 +112,11 @@ ztrop = z(ktrop)
 ! ===== find index of boundary layer top =====
 ! the boundary layer is defined to be the bottom 1km layer of the atmosphere
 kbl = 1 ! set to be the model bottom
-if(.NOT.dowtgBL) then
-  do k = nzm,1,-1
-    if (z(k)>1000) then
-      kbl = k
-    end if
-  end do
-end if
+do k = nzm,1,-1
+  if (z(k)>1000) then
+    kbl = k
+  end if
+end do
 
 ! ===== calculate static stability up to ztrop =====
 
@@ -142,28 +146,44 @@ do k = 2,ktrop
 
 end do
 
-wwtgc = wwtgc / ztrop * tau_wtg
+wwtgc = wwtgc / ztrop
 
-do k = 1,ktrop
+do k = kbl,ktrop
 
-  w_wtg(k) = 0
+  wwtgr(k) = (theta_model(k) - theta_ref(k)) * tau_wtg / dthetadz(k)
   do inum = 1,wtgscale_vertmodenum
-    w_wtg(k) = w_wtg(k) + wwtgc(inum) * sin(pi*z(k)*inum/ztrop) / (inum ** vertmodepwr)
+    coeff = sin(pi*z(k)*inum/ztrop) / (inum ** vertmodepwr)
+    w_wtg(k) = w_wtg(k) + wwtgc(inum) * tau_wtg * coeff
   end do
 
 end do
 
 if(.NOT.dowtgBL) then
-  do k = kbl,ktrop
-    wwtgr(k) = (theta_model(k) - theta_ref(k)) * tau_wtg / dthetadz(k)
-  end do
-  do k = 1,(kbl-1)
-    wwtgr(k) = wwtgr(kbl) * z(k) / z(kbl)
-  end do
+
+  if(dorz2005)
+    do k = 1,(kbl-1)
+      wwtgr(k) = wwtgr(kbl) * z(k) / z(kbl)
+      w_wtg(k) = w_wtg(kbl) * z(k) / z(kbl)
+    end do
+  end if
+
 else
-  do k = 1,ktrop
-    wwtgr(k) = (theta_model(k) - theta_ref(k)) * tau_wtg / dthetadz(k)
+
+  tau_wtg_BL = tau_wtg
+  if(dodowtgBL_2piece)
+    tau_wtg_BL = tau_wtg / 100
+  end if
+
+  do k = 2,kbl
+
+    wwtgr(k) = (theta_model(k) - theta_ref(k)) * tau_wtg_BL / dthetadz(k)
+    do inum = 1,wtgscale_vertmodenum
+      coeff = sin(pi*z(k)*inum/ztrop) / (inum ** vertmodepwr)
+      w_wtg(k) = w_wtg(k) + wwtgc(inum) * tau_wtg_BL * coeff
+    end do
+
   end do
+
 end if
 
 wwtgc(wtgscale_vertmodenum+1) = ztrop

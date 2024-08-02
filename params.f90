@@ -181,6 +181,8 @@ logical :: boundstatic = .true. ! Restrict the static stability lower bound to p
 real :: dthetadz_min = 1.e-3 ! if boundstatic = .true., what is the minimum bound? Default from Raymond & Zeng [2005] is 1.e-3 K/km
 real :: wtgscale_vertmodepwr = 1. ! Spectral decomposition power, default is 1 as per Herman and Raymond [2014]
 
+logical :: dowtgBL_2piece = .false. ! Assume 2 regimes of am/tau, one for boundary layer, one for free troposphere. For now, assume am/tau are 100x original values in boundary layer compared to free troposphere
+
 integer :: wtgscale_vertmodenum = 2! number of vertical modes
 real, dimension(2) :: wtgscale_vertmodescl = (/1., 1./) ! strength scaling for vertical modes (number of items = wtgscale_vertmodenum)
 

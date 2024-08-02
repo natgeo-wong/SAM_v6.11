@@ -289,7 +289,17 @@ contains
     do k = 1,ktrop-1
       ! momentum damping rate
       tmp_am(k) = am_wtg*(presc(k)/pres_ref)**am_wtg_exp
+    end do
+    
+    if(dowtgBL_2piece) then
+      do k = 1,ktrop-1
+        if (presc(k).GT.900e2) then
+          tmp_am(k) = tmp_am(k) * 100
+        end if
+      end do
+    end if
 
+    do k = 1,ktrop-1
       ! coefficient on LHS
       tmp_coef(k) = (f_coriolis**2 + tmp_am(k)**2) / tmp_am(k)
     end do

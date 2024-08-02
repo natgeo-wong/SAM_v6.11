@@ -56,6 +56,7 @@ NAMELIST /KUANG_PARAMS/ dompiensemble, &
                 dowtgLBL, boundstatic, tau_wtg, dthetadz_min, &
                 dowtgBL_2piece, &
                 wtgscale_vertmodepwr, wtgscale_vertmodenum, wtgscale_vertmodescl, &
+                dohadley, dodrivenequilibrium, whadmax, zhadmax, hadscale_time, &
                 dosstislands, &
                 sstislands_radius, sstislands_landmld, sstislands_oceanmld, &
                 sstislands_nrow, sstislands_ncol, sstislands_sep, &
@@ -297,6 +298,13 @@ end if
             if(masterproc) write(*,*) 'Island separation is too small, setting to double of sstislands_radius'
             sstislands_sep = sstislands_radius * 2
           end if
+        end if
+
+        !===============================================================
+        ! Hadley Cell Things
+          
+        if(dohadley) then
+          if(masterproc) write(*,*) 'Simulating a Hadley cell-esque vertical motion'
         end if
         
         !===============================================================

@@ -69,6 +69,10 @@ real :: thetad1 ! Static Stability
 real :: thetad2 ! Static Stability
 real :: dthetadz(nzm) ! virtual temperature of model sounding in K
 
+w_wtg(:) = 0
+wwtgr(:) = 0
+wwtgc(:) = 0
+
 if (z(nz) < 1.e4) then
 
   if(masterproc) then

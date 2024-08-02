@@ -99,6 +99,10 @@ if(.NOT.dowtgLBL) then
   end do
 end if
 
+!! Set to zero before calculations
+w_wtg(:) = 0
+wwtgr(:) = 0
+
 do k = kbl,ktrop
 
   dthetadz = (theta_model(k+1)-theta_model(k-1)) / (z(k+1)-z(k-1))

@@ -126,13 +126,13 @@ integer:: nensemble =0   ! the number of subensemble set of perturbations
 integer:: perturb_type  = 0 ! type of initial noise in setperturb()
 
 ! Initial bubble parameters. Activated when perturb_type = 2
-  real:: bubble_x0 = 0.
-  real:: bubble_y0 = 0.
-  real:: bubble_z0 = 0.
-  real:: bubble_radius_hor = 0.
-  real:: bubble_radius_ver = 0.
-  real:: bubble_dtemp = 0.
-  real:: bubble_dq = 0.
+real:: bubble_x0 = 0.
+real:: bubble_y0 = 0.
+real:: bubble_z0 = 0.
+real:: bubble_radius_hor = 0.
+real:: bubble_radius_ver = 0.
+real:: bubble_dtemp = 0.
+real:: bubble_dq = 0.
 
 !=====================================================
 ! Kuang-Lab Additions Begin Here
@@ -209,6 +209,13 @@ character(80) :: lsmfile = ""
 
 ! If nrestart = 2 and dodynamicocean = false, if nrestart_resetsst = true, set all sst back to tabs_s
 logical :: nrestart_resetsst = .false.
+
+! Try to simulate a Hadley Cell (with varying tropopause heights)
+logical :: dohadley = .false.
+logical :: dodrivenequilibrium = .false.
+real    :: whadmax  = 0.
+real    :: zhadmax  = 15000.
+real    :: hadscale_time = 0.
 
 ! Kuang-Lab Additions End Here
 !=====================================================

@@ -99,25 +99,36 @@ if(.NOT.dowtgLBL) then
   end do
 end if
 
+do k = kbl,ktrop
+
+  dthetadz = (theta_model(k+1)-theta_model(k-1)) / (z(k+1)-z(k-1))
+  if (boundstatic.AND.(dthetadz.lt.dthetadz_min)) dthetadz = dthetadz_min
+  ! According to Raymond and Zeng (2005) model feedbacks in the upper troposphere can
+  ! otherwise result in very weak static stabilities and unrealistically
+  ! large values of w_wtg
+  theta_diff = theta_model(k)-theta_ref(k)
+  wwtgr(k) = theta_diff * ttheta_wtg / dthetadz
+  w_wtg(k) = sin(pi*z(k)/ztrop) * wwtgr(k)
+
+end do
+
 if(.NOT.dowtgLBL) then
-  do k = kbl,ktrop
 
-    dthetadz = (theta_model(k+1)-theta_model(k-1)) / (z(k+1)-z(k-1))
-    if (boundstatic.AND.(dthetadz.lt.dthetadz_min)) dthetadz = dthetadz_min
-    ! According to Raymond and Zeng (2005) model feedbacks in the upper troposphere can
-    ! otherwise result in very weak static stabilities and unrealistically
-    ! large values of w_wtg
-    theta_diff = theta_model(k)-theta_ref(k)
-    wwtgr(k) = theta_diff * ttheta_wtg / dthetadz
-    w_wtg(k) = sin(pi*z(k)/ztrop) * wwtgr(k)
+  if(dorz2005)
+    do k = 1,(kbl-1)
+      wwtgr(k) = wwtgr(kbl) * z(k) / z(kbl)
+      w_wtg(k) = w_wtg(kbl) * z(k) / z(kbl)
+    end do
+  end if
 
-  end do
-  do k = 1,(kbl-1)
-    wwtgr(k) = wwtgr(kbl) * z(k) / z(kbl)
-    w_wtg(k) = w_wtg(kbl) * z(k) / z(kbl)
-  end do
 else
-  do k = 2,ktrop
+
+  ttheta_wtg_BL = ttheta_wtg
+  if(dodowtgBL_2piece)
+    ttheta_wtg_BL = ttheta_wtg / 100
+  end if
+
+  do k = 2,kbl
 
     dthetadz = (theta_model(k+1)-theta_model(k-1)) / (z(k+1)-z(k-1))
     if (boundstatic.AND.(dthetadz.lt.dthetadz_min)) dthetadz = dthetadz_min
@@ -125,15 +136,16 @@ else
     ! otherwise result in very weak static stabilities and unrealistically
     ! large values of w_wtg
     theta_diff = theta_model(k)-theta_ref(k)
-    wwtgr(k) = theta_diff * ttheta_wtg / dthetadz
+    wwtgr(k) = theta_diff * ttheta_wtg_BL / dthetadz
     w_wtg(k) = sin(pi*z(k)/ztrop) * wwtgr(k)
 
   end do
   dthetadz = (theta_model(2)-theta_model(1)) / (z(2) - z(1))
   if (boundstatic.AND.(dthetadz.lt.dthetadz_min)) dthetadz = dthetadz_min
   theta_diff = theta_model(1)-theta_ref(1)
-  wwtgr(1) = theta_diff * ttheta_wtg / dthetadz
+  wwtgr(1) = theta_diff * ttheta_wtg_BL / dthetadz
   w_wtg(1) = sin(pi*z(1)/ztrop) * wwtgr(1)
+  
 end if
 
 end subroutine wtg_qjrms2005

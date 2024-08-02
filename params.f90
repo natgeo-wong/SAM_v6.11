@@ -176,11 +176,12 @@ real :: am_wtg_exp = 0. ! exponent of p/p0 in momentum damping rate.
 real :: lambda_wtg = 650.e3 ! quarter wavelength in m. default = 650.e3 (=650 km).
 
 real :: tau_wtg = 1. ! Relaxation timescale (in hours) for WTG Approximation of Raymond and Zeng [2005]
-logical :: dowtgLBL = .false.
 logical :: boundstatic = .true. ! Restrict the static stability lower bound to prevent unrealistically large values of w_wtg
 real :: dthetadz_min = 1.e-3 ! if boundstatic = .true., what is the minimum bound? Default from Raymond & Zeng [2005] is 1.e-3 K/km
 real :: wtgscale_vertmodepwr = 1. ! Spectral decomposition power, default is 1 as per Herman and Raymond [2014]
 
+logical :: dowtgBL  = .false.
+logical :: dorz2005 = .true. ! Linear interpolation of w in boundary layer. If dowtgBL is false, then dorz2005 is true unless otherwise specified
 logical :: dowtgBL_2piece = .false. ! Assume 2 regimes of am/tau, one for boundary layer, one for free troposphere. For now, assume am/tau are 100x original values in boundary layer compared to free troposphere
 
 integer :: wtgscale_vertmodenum = 2! number of vertical modes

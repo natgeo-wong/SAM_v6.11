@@ -2,7 +2,7 @@ subroutine hbuf_conditionals_init(count,trcount)
   use vars, only: ncondavg, condavgname, condavglongname
   use rad, only: do_output_clearsky_heating_profiles
   use params, only: dodgw, dotgr, dowtg_decomp, dowtg_decompdgw, dowtg_decomptgr, &
-       dowtg_raymondzeng_QJRMS2005, dowtg_hermanraymond_JAMES2014
+       dowtg_raymondzeng_QJRMS2005, dowtg_hermanraymond_JAMES2014, dohadley
   implicit none
 
   ! Initialize the list of UW statistics variables written in statistics.f90
@@ -43,6 +43,11 @@ subroutine hbuf_conditionals_init(count,trcount)
          'Raw (Non-Adjusted) Component of the WTG Vertical Velocity','m/s',0)
     call add_to_namelist(count,trcount,'OWTGRAW', &
          'Raw (Non-Adjusted) Component of the WTG Pressure Velocity','Pa/s',0)
+  end if
+
+  if(dohadley) then
+    call add_to_namelist(count,trcount,'WHADLEY', &
+         'Vertical Velocity of Simulated Hadley Cell','m/s',0)
   end if
 
   !bloss: setup to add an arbitrary number of conditional statistics

@@ -99,6 +99,10 @@ if(.NOT.dowtgLBL) then
   end do
 end if
 
+!! Set to zero before calculations
+w_wtg(:) = 0
+wwtgr(:) = 0
+
 if(.NOT.dowtgLBL) then
   do k = kbl,ktrop
 

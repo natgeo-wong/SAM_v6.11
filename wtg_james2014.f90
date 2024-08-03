@@ -172,7 +172,7 @@ else
   tau_wtg_BL = tau_wtg
   if(dodowtgBL_2piece) tau_wtg_BL = tau_wtg / 100
 
-  do k = 2,kbl
+  do k = 1,(kbl-1)
 
     wwtgr(k) = (theta_model(k) - theta_ref(k)) * tau_wtg_BL / dthetadz(k)
     do inum = 1,wtgscale_vertmodenum

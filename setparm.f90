@@ -48,7 +48,7 @@ NAMELIST /PARAMETERS/ dodamping, doupperbound, docloud, doprecip, &
 ! Parameters added by Kuang Lab at Harvard
 NAMELIST /KUANG_PARAMS/ dompiensemble, &
                 dolayerperturb, tperturbi, qperturbi, tperturbA, qperturbA, &
-                doradtendency, troptend, &
+                doradtendency, troptend, timeradtendency, &
                 dobulksfcflx, bulksfcflx_u, &
                 dowtg_blossey_etal_JAMES2009, dowtg_raymondzeng_QJRMS2005, &
                 dowtg_hermanraymond_JAMES2014, dowtg_decompdgw, dowtg_decomptgr, &

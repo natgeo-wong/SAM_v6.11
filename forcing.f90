@@ -450,7 +450,7 @@ endif
 ! Temperature Tendency Forcing:
 ! Simple Radiative Tendencies taken from Pauluis & Garner [2006]
 
-if(doradtendency.and.time.gt.timelargescale) then
+if(doradtendency.and.time.gt.timeradtendency) then
 
   do k = 1,nzm
     do j=1,ny

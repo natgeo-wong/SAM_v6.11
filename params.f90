@@ -151,6 +151,7 @@ real:: qperturbA = 1.
 ! Added by Nathanael Wong on 2023/07/05
 logical :: doradtendency = .false. 
 real :: troptend = 1.5 ! Convective tendency in Pauluis & Garner [2006]
+real :: timeradtendency = 0. ! Time to apply radiative tendencies
 
 ! Option to fix wind speed used in calculation of bulk surface fluxes
 ! Taken from Peter Blossey's version of SAM

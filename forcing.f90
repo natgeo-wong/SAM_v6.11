@@ -61,51 +61,52 @@ do n=1,2
    end if
 
    do iz = 1,nzm
-   if(zgrid) then
-      do i = 2,nzsnd
-         if(z(iz).le.zsnd(i,m)) then
-            coef = (z(iz)-zsnd(i-1,m))/(zsnd(i,m)-zsnd(i-1,m)) 
-            tt(iz,n)=tsnd(i-1,m)+(tsnd(i,m)-tsnd(i-1,m))*coef
-            if(pgrid) then
-               pp(iz,n)=psnd(i-1,m)+(psnd(i,m)-psnd(i-1,m))*coef
-               tt(iz,n)=tt(iz,n)/((1000./pp(iz,n))**(rgas/cp))
-            else
-               tt(iz,n)=tt(iz,n)/prespotb(iz)
+      
+      if(zgrid) then
+         do i = 2,nzsnd
+            if(z(iz).le.zsnd(i,m)) then
+               coef = (z(iz)-zsnd(i-1,m))/(zsnd(i,m)-zsnd(i-1,m)) 
+               tt(iz,n)=tsnd(i-1,m)+(tsnd(i,m)-tsnd(i-1,m))*coef
+               if(pgrid) then
+                  pp(iz,n)=psnd(i-1,m)+(psnd(i,m)-psnd(i-1,m))*coef
+                  tt(iz,n)=tt(iz,n)/((1000./pp(iz,n))**(rgas/cp))
+               else
+                  tt(iz,n)=tt(iz,n)/prespotb(iz)
+               endif
+               tp(iz,n)=tsnd(i-1,m)+(tsnd(i,m)-tsnd(i-1,m))*coef
+               qq(iz,n)=qsnd(i-1,m)+(qsnd(i,m)-qsnd(i-1,m))*coef
+               uu(iz,n)=usnd(i-1,m)+(usnd(i,m)-usnd(i-1,m))*coef
+               vv(iz,n)=vsnd(i-1,m)+(vsnd(i,m)-vsnd(i-1,m))*coef
+               goto 11
             endif
-            tp(iz,n)=tsnd(i-1,m)+(tsnd(i,m)-tsnd(i-1,m))*coef
-            qq(iz,n)=qsnd(i-1,m)+(qsnd(i,m)-qsnd(i-1,m))*coef
-            uu(iz,n)=usnd(i-1,m)+(usnd(i,m)-usnd(i-1,m))*coef
-            vv(iz,n)=vsnd(i-1,m)+(vsnd(i,m)-vsnd(i-1,m))*coef
-            goto 11
-         endif
-      end do
-   else
-      do i = 2,nzsnd
-         if(pres(iz).ge.psnd(i,m)) then
-            coef = (pres(iz)-psnd(i-1,m))/(psnd(i,m)-psnd(i-1,m))
-            tt(iz,n)=tsnd(i-1,m)+(tsnd(i,m)-tsnd(i-1,m))*coef/prespotb(iz)
-            tp(iz,n)=tsnd(i-1,m)+(tsnd(i,m)-tsnd(i-1,m))*coef
-            qq(iz,n)=qsnd(i-1,m)+(qsnd(i,m)-qsnd(i-1,m))*coef
-            uu(iz,n)=usnd(i-1,m)+(usnd(i,m)-usnd(i-1,m))*coef
-            vv(iz,n)=vsnd(i-1,m)+(vsnd(i,m)-vsnd(i-1,m))*coef
-            pp(iz,n)=psnd(i-1,m)+(psnd(i,m)-psnd(i-1,m))*coef
-            goto 11
-         endif
-      end do
-   end if
+         end do
+      else
+         do i = 2,nzsnd
+            if(pres(iz).ge.psnd(i,m)) then
+               coef = (pres(iz)-psnd(i-1,m))/(psnd(i,m)-psnd(i-1,m))
+               tt(iz,n)=tsnd(i-1,m)+(tsnd(i,m)-tsnd(i-1,m))*coef/prespotb(iz)
+               tp(iz,n)=tsnd(i-1,m)+(tsnd(i,m)-tsnd(i-1,m))*coef
+               qq(iz,n)=qsnd(i-1,m)+(qsnd(i,m)-qsnd(i-1,m))*coef
+               uu(iz,n)=usnd(i-1,m)+(usnd(i,m)-usnd(i-1,m))*coef
+               vv(iz,n)=vsnd(i-1,m)+(vsnd(i,m)-vsnd(i-1,m))*coef
+               pp(iz,n)=psnd(i-1,m)+(psnd(i,m)-psnd(i-1,m))*coef
+               goto 11
+            endif
+         end do
+      end if
 
-   call atmosphere(z(iz-1)/1000.,ratio1,ratio2,ratio_t1)
-   call atmosphere(z(iz)/1000.,ratio1,ratio2,ratio_t2)
+      call atmosphere(z(iz-1)/1000.,ratio1,ratio2,ratio_t1)
+      call atmosphere(z(iz)/1000.,ratio1,ratio2,ratio_t2)
 
-   tt(iz,n)=ratio_t2/ratio_t1*tt(iz-1,n)
-!      qq(iz,n)=max(0.,2.*qq(iz-1,n)-qq(iz-2,n))
-   qq(iz,n) = qq(iz-1,n)*exp(-(z(iz)-z(iz-1))/3000.)
-   uu(iz,n)=uu(iz-1,n)
-   vv(iz,n)=vv(iz-1,n)
+      tt(iz,n)=ratio_t2/ratio_t1*tt(iz-1,n)
+   !      qq(iz,n)=max(0.,2.*qq(iz-1,n)-qq(iz-2,n))
+      qq(iz,n) = qq(iz-1,n)*exp(-(z(iz)-z(iz-1))/3000.)
+      uu(iz,n)=uu(iz-1,n)
+      vv(iz,n)=vv(iz-1,n)
 
-   11 continue
+      11 continue
 
-end do ! iz 
+   end do ! iz 
 
 end do ! n
 

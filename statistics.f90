@@ -1243,6 +1243,11 @@ real, dimension(nzm) :: rhowcl, rhowmsecl, rhowtlcl, rhowqtcl,  &
 		call hbuf_put('OWTGRAW',owtgr,1.)
 	end if
 
+	! add output for hadley large-scale vertical velocity
+	if(dohadley) then
+		call hbuf_put('WHADLEY',whadley,1.)
+	end if
+
 !---------------------------------------------------------
 !  Apparent heat/moisture sources/sinks
 

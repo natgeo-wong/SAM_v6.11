@@ -9,6 +9,7 @@ implicit none
 real t_s, q_s, w_s, r_s, z0_s, t_h, q_h, ta_h, u_h, v_h, u_h0
 real taux0, tauy0, xlmo
 real diag_ustar, coef, coef1
+real cd, delt, ssq, delq, wrk
 real tmp1, tmp2, tmpu(0:nx,ny), tmpv(nx,0:ny)
 real zr(nx,ny),presr(nx,ny),ur(nx,ny),vr(nx,ny),tr(nx,ny),qvr(nx,ny),t_sfc(nx,ny)
 integer i,j,k

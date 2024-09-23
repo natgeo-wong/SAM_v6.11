@@ -262,6 +262,7 @@ if(dolargescale.and.time.gt.timelargescale) then
             lambda_wtg, am_wtg_time, wtgscale_vertmodenum, wtgscale_vertmodescl, &
             o_wtg, wwtgc, ktrop)
       end if
+      if (dowtg_kuang_JAS2008) call wtg_jas2008(tg0, ktrop)
 
       ! convert from omega in Pa/s to wsub in m/s
       w_wtg(1:nzm) = -o_wtg(1:nzm)/rho(1:nzm)/ggr

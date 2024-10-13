@@ -9,16 +9,36 @@ contains
 
 subroutine wtg_linearwave
 
+   integer :: k
+   integer :: ktrop
+
+   ! ===== find index of cold point tropopause in vertical. =====
+   ! reverse pressure coordinate, and find index
+   !   of cold point tropopause in the vertical.
+   ktrop = nzm+1 ! default is top of model/atmosphere (counting from surface)
+   min_temp = tabs0(nzm)
+   do k = 1,nzm
+      if(tabs_model(k).lt.min_temp) then
+         ktrop = k
+         min_temp = tabs0(k)
+      end if
+   end do
+
+   ! At tropopause and above, quash any pre-existing vertical velocity from previous timestep to zero.
+   do k = ktrop,nzm
+      w_wtg(k) = 0
+   end do
+
    tv_bg   = tg0   * (1+0.61*qg0)
    tv_wave = tabs0 * (1+0.61*qv0)
    dwdt    = 0.
 
    call calc_wtend(
-      0.5*pi/lambda_wtg,w_wtg(1:nzm-2),tv_wave(1:nzm-2),tv_bg(1:nzm-2),
-      rho(1:nzm-2),z(1:nzm-2),zi(1:nzm-1),dwdt(1:nzm-2),nzm-2
+      0.5*pi/lambda_wtg, w_wtg(1:ktrop), tv_wave(1:ktrop), tv_bg(1:ktrop),
+      rho(1:ktrop), z(1:ktrop), zi(1:ktrop+1), dwdt(1:ktrop), ktrop
    )
 
-   w_wtg = w_wtg * (1. - dt * am_wtg_time) + dwdt * dt
+   w_wtg = (w_wtg + dwdt * dt) / (1. + dt * am_wtg_time) 
 
 end subroutine wtg_linearwave
 
@@ -70,12 +90,12 @@ subroutine calc_wtend(wn, w_curr, tv_curr, tv_fullbg, rho_full, &
 
 !     Gaussian Elimination
       rhs=0.
-      do k=1,nz
+      do k=2,nz-1
          rhs(k)=-rho_full(k)*ggr*wn*wn*(tv_curr(k)-tv_fullbg(k))/tv_fullbg(k)*dz(k)*dz(k+1)/2.
       end do
 
 !     set up the tridiagonal matrix
-      do k=1,nz
+      do k=2,nz-1
          aa(k)=dz(k+1)/(dz(k)+dz(k+1))
          bb(k)=-1.
          cc(k)=dz(k)/(dz(k)+dz(k+1))

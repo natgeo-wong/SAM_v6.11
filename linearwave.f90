@@ -101,14 +101,15 @@ subroutine calc_wtend(wn, w_curr, tv_curr, tv_fullbg, rho_full, &
          cc(k)=dz(k)/(dz(k)+dz(k+1))
       end do
 
-      !symmetric lower BC
+      ! boundary condition at surface, omega'=0 (homogeneous Dirichlet BC).
       aa(1)=0.
-      bb(1)=-(2*dz(2)+dz(1))/(dz(1)+dz(2))
+      bb(1)=1.
+      cc(1)=0.
 
-      !radiating upper BC
-      aa(nz)=dz(nz+1)/dz(nz)
-      bb(nz)=-1.*dz(nz+1)/dz(nz)
-      rhs(nz)=rhs(nz)+rho_full(nz)*sqrt(N2top)*wn*w_curr(nz)*dz(nz+1)
+      ! apply omega'=0 at tropopause (homogeneous Dirichlet BC).
+      aa(1)=0.
+      bb(1)=1.
+      cc(1)=0.
 
       !Gaussian Elimination with no pivoting
       do k=1,nz-1

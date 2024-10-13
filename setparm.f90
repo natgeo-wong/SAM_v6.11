@@ -52,6 +52,7 @@ NAMELIST /KUANG_PARAMS/ dompiensemble, &
                 dobulksfcflx, bulksfcflx_u, &
                 dowtg_blossey_etal_JAMES2009, dowtg_raymondzeng_QJRMS2005, &
                 dowtg_hermanraymond_JAMES2014, dowtg_decompdgw, dowtg_decomptgr, &
+                dowtg_linearwave, &
                 wtgscale_time, am_wtg, am_wtg_exp, lambda_wtg, &
                 dowtgLBL, boundstatic, tau_wtg, dthetadz_min, &
                 wtgscale_vertmodepwr, wtgscale_vertmodenum, wtgscale_vertmodescl, &
@@ -249,6 +250,12 @@ end if
         if(dowtg_decomptgr) then
           dotgr = .true.
           dowtg_decomp = .true.
+          if(masterproc) write(*,*) 'Temperature Gradient Relaxation scheme (Spectral Decomposition into half- and full-sine) is being used'
+          dowtg_num = dowtg_num + 1
+        end if
+
+        if(dowtg_linearwave) then
+          dolinearwave = .true.
           if(masterproc) write(*,*) 'Temperature Gradient Relaxation scheme (Spectral Decomposition into half- and full-sine) is being used'
           dowtg_num = dowtg_num + 1
         end if

@@ -5,6 +5,7 @@ use vars
 use params
 use microphysics, only: micro_field, index_water_vapor, total_water, mklsadv
 use simple_ocean, only: sst_evolve
+use linearwave
 
 implicit none
 
@@ -304,7 +305,28 @@ if(dolargescale.and.time.gt.timelargescale) then
 
    end if
 
-   if (dotgr.OR.dodgw) then
+   if (dowtg_linearwave) then
+
+      if(wtgscale_time.gt.0) then
+         twtgmax = (nstop * dt - timelargescale) * wtgscale_time
+         twtg = time-timelargescale
+         if(twtg.gt.twtgmax) then
+         am_wtg_time = am_wtg
+         else
+         am_wtg_time = am_wtg * twtgmax / twtg
+         endif
+      else
+         am_wtg_time = am_wtg
+      endif
+
+      call wtg_linearwave()
+
+      ! convert from omega in Pa/s to wsub in m/s
+      o_wtg(1:nzm) = -w_wtg(1:nzm)*rho(1:nzm)*ggr
+
+   end if
+
+   if (dotgr.OR.dodgw.OR.dolinearwave) then
 
       ! add to reference large-scale vertical velocity.
       wsub(1:nzm) = wsub(1:nzm) + w_wtg(1:nzm)

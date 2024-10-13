@@ -163,6 +163,7 @@ real :: bulksfcflx_u = 0.
 logical :: dodgw = .false.
 logical :: dotgr = .false.
 logical :: dowtg_decomp = .false.
+logical :: dolinearwave = .false.
 real :: wtgscale_time = 0. ! period over which theta relaxation timescale scales from infinity to ttheta_wtg.  Express as fraction of time over which WTG large-scale forcing is implemented.  So if WTG/Large-scale is turned on for 100 days, twtg_scale = 1/4 means that the scaling up to WTG occurs over 25 days.
 
 logical :: dowtg_blossey_etal_JAMES2009  = .false.

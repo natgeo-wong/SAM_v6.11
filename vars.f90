@@ -247,6 +247,11 @@ real :: o_wtg(nz)
 real :: owtgr(nz)
 real :: wwtgc(nz)
 
+! WTG Linear Wave variables
+real :: tv_wave(nzm)
+real :: tv_bg(nzm)
+real :: dwdt(nzm)
+
 real lsm_xy(nx,ny) ! Land-Sea Mask
 real mld_xy(nx,ny) ! Mixed-Layer Depth
 

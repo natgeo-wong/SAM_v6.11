@@ -29,16 +29,16 @@ subroutine wtg_linearwave
       w_wtg(k) = 0
    end do
 
-   tv_bg   = tg0   * (1+0.61*qg0)
+   tv_lsbg = tg0   * (1+0.61*qg0)
    tv_wave = tabs0 * (1+0.61*qv0)
-   dwdt    = 0.
+   dwwtgdt = 0.
 
    call calc_wtend(
-      0.5*pi/lambda_wtg, w_wtg(1:ktrop), tv_wave(1:ktrop), tv_bg(1:ktrop),
-      rho(1:ktrop), z(1:ktrop), zi(1:ktrop+1), dwdt(1:ktrop), ktrop
+      0.5*pi/lambda_wtg, w_wtg(1:ktrop), tv_wave(1:ktrop), tv_lsbg(1:ktrop),
+      rho(1:ktrop), z(1:ktrop), zi(1:ktrop+1), dwwtgdt(1:ktrop), ktrop
    )
 
-   w_wtg = (w_wtg + dwdt * dt) / (1. + dt * am_wtg_time) 
+   w_wtg = (w_wtg + dwwtgdt * dt) / (1. + dt * am_wtg_time) 
 
 end subroutine wtg_linearwave
 

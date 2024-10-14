@@ -169,8 +169,9 @@ real :: wtgscale_time = 0. ! period over which theta relaxation timescale scales
 logical :: dowtg_blossey_etal_JAMES2009  = .false.
 logical :: dowtg_raymondzeng_QJRMS2005   = .false. 
 logical :: dowtg_hermanraymond_JAMES2014 = .false.
-logical :: dowtg_decompdgw = .false.
-logical :: dowtg_decomptgr = .false.
+logical :: dowtg_decompdgw  = .false.
+logical :: dowtg_decomptgr  = .false.
+logical :: dowtg_linearwave = .false.
 
 real :: am_wtg = 1. ! momentum damping rate in 1/d -- note must be non-zero.
 real :: am_wtg_exp = 0. ! exponent of p/p0 in momentum damping rate.

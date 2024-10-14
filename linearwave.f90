@@ -11,6 +11,7 @@ subroutine wtg_linearwave
 
    integer :: k
    integer :: ktrop
+   real    :: min_temp
 
    ! ===== find index of cold point tropopause in vertical. =====
    ! reverse pressure coordinate, and find index

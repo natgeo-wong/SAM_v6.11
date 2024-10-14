@@ -18,7 +18,7 @@ subroutine wtg_linearwave
    ktrop = nzm+1 ! default is top of model/atmosphere (counting from surface)
    min_temp = tabs0(nzm)
    do k = 1,nzm
-      if(tabs_model(k).lt.min_temp) then
+      if(tabs0(k).lt.min_temp) then
          ktrop = k
          min_temp = tabs0(k)
       end if
@@ -33,10 +33,9 @@ subroutine wtg_linearwave
    tv_wave = tabs0 * (1+0.61*qv0)
    dwwtgdt = 0.
 
-   call calc_wtend(
-      0.5*pi/lambda_wtg, w_wtg(1:ktrop), tv_wave(1:ktrop), tv_lsbg(1:ktrop),
-      rho(1:ktrop), z(1:ktrop), zi(1:ktrop+1), dwwtgdt(1:ktrop), ktrop
-   )
+   call calc_wtend(0.5*pi/lambda_wtg, w_wtg(1:ktrop), tv_wave(1:ktrop), &
+                     tv_lsbg(1:ktrop), rho(1:ktrop), z(1:ktrop), zi(1:ktrop+1), &
+                     dwwtgdt(1:ktrop), ktrop)
 
    w_wtg(1:nzm) = (w_wtg(1:nzm) + dwwtgdt * dt) / (1. + dt * am_wtg_time) 
 

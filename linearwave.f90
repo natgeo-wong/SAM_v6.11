@@ -38,7 +38,7 @@ subroutine wtg_linearwave
       rho(1:ktrop), z(1:ktrop), zi(1:ktrop+1), dwwtgdt(1:ktrop), ktrop
    )
 
-   w_wtg = (w_wtg + dwwtgdt * dt) / (1. + dt * am_wtg_time) 
+   w_wtg(1:nzm) = (w_wtg(1:nzm) + dwwtgdt * dt) / (1. + dt * am_wtg_time) 
 
 end subroutine wtg_linearwave
 

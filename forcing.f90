@@ -262,7 +262,7 @@ if(dolargescale.and.time.gt.timelargescale) then
 
       if (dowtg_kuang_JAS2008) then
 
-         call wtg_linearwave()
+         call wtg_jas2008()
          o_wtg(1:nzm) = -w_wtg(1:nzm)*rho(1:nzm)*ggr
 
       end if

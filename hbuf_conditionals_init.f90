@@ -1,8 +1,9 @@
 subroutine hbuf_conditionals_init(count,trcount)
   use vars, only: ncondavg, condavgname, condavglongname
   use rad, only: do_output_clearsky_heating_profiles
-  use params, only: dodgw, dotgr, dowtg_decomp, dowtg_decompdgw, dowtg_decomptgr, &
-       dowtg_raymondzeng_QJRMS2005, dowtg_hermanraymond_JAMES2014, dohadley
+  use params, only: dodgw, dotgr, dolinearwave, dohadley, &
+                    dowtg_decomp, dowtg_decompdgw, dowtg_decomptgr, &
+                    dowtg_raymondzeng_QJRMS2005, dowtg_hermanraymond_JAMES2014
   implicit none
 
   ! Initialize the list of UW statistics variables written in statistics.f90
@@ -20,7 +21,7 @@ subroutine hbuf_conditionals_init(count,trcount)
          'Clearsky shortwave heating rate','K/d',0)
   end if
 
-  if(dodgw.OR.dotgr) then
+  if(dodgw.OR.dotgr.OR.dolinearwave) then
     call add_to_namelist(count,trcount,'WWTG', &
          'Large-scale W induced by weak temperature gradient approx','m/s',0)
     call add_to_namelist(count,trcount,'OWTG', &

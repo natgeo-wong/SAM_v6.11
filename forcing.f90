@@ -5,7 +5,6 @@ use vars
 use params
 use microphysics, only: micro_field, index_water_vapor, total_water, mklsadv
 use simple_ocean, only: sst_evolve
-use linearwave
 
 implicit none
 

@@ -228,6 +228,12 @@ end if
           dowtg_num = dowtg_num + 1
         end if
 
+        if(dowtg_kuang_JAS2008) then
+          dodgw = .true.
+          if(masterproc) write(*,*) 'Do the time-dependent DGW implementation of Kuang [2008]'
+          dowtg_num = dowtg_num + 1
+        end if
+
         if(dowtg_decompdgw) then
           dodgw = .true.
           dowtg_decomp = .true.
@@ -250,12 +256,6 @@ end if
         if(dowtg_decomptgr) then
           dotgr = .true.
           dowtg_decomp = .true.
-          if(masterproc) write(*,*) 'Temperature Gradient Relaxation scheme (Spectral Decomposition into half- and full-sine) is being used'
-          dowtg_num = dowtg_num + 1
-        end if
-
-        if(dowtg_linearwave) then
-          dolinearwave = .true.
           if(masterproc) write(*,*) 'Temperature Gradient Relaxation scheme (Spectral Decomposition into half- and full-sine) is being used'
           dowtg_num = dowtg_num + 1
         end if

@@ -251,10 +251,24 @@ if(dolargescale.and.time.gt.timelargescale) then
          am_wtg_time = am_wtg
       endif
 
-      if (dowtg_blossey_etal_JAMES2009) call wtg_james2009(nzm, &
+      if (dowtg_blossey_etal_JAMES2009) then
+
+         call wtg_james2009(nzm, &
             100.*pres, tg0, qg0, tabs0, qv0, qn0+qp0, &
             fcor, lambda_wtg, am_wtg_time, am_wtg_exp, o_wtg, ktrop)
+         w_wtg(1:nzm) = -o_wtg(1:nzm)/rho(1:nzm)/ggr
+
+      end if
+
+      if (dowtg_kuang_JAS2008) then
+
+         call wtg_linearwave()
+         o_wtg(1:nzm) = -w_wtg(1:nzm)*rho(1:nzm)*ggr
+
+      end if
+
       if (dowtg_decompdgw) then
+
          call wtg_james2009(nzm, &
             100.*pres, tg0, qg0, tabs0, qv0, qn0+qp0, &
             fcor, lambda_wtg, am_wtg_time, am_wtg_exp, owtgr, ktrop)
@@ -262,11 +276,11 @@ if(dolargescale.and.time.gt.timelargescale) then
             nzm, nz, z, 100.*pg0, tg0, qg0, tabs0, qv0, qn0+qp0, &
             lambda_wtg, am_wtg_time, wtgscale_vertmodenum, wtgscale_vertmodescl, &
             o_wtg, wwtgc, ktrop)
-      end if
 
-      ! convert from omega in Pa/s to wsub in m/s
-      w_wtg(1:nzm) = -o_wtg(1:nzm)/rho(1:nzm)/ggr
-      if (dowtg_decompdgw) wwtgr(1:nzm) = -owtgr(1:nzm)/rho(1:nzm)/ggr
+         w_wtg(1:nzm) = -o_wtg(1:nzm)/rho(1:nzm)/ggr
+         wwtgr(1:nzm) = -owtgr(1:nzm)/rho(1:nzm)/ggr
+         
+      end if
 
    end if
 
@@ -305,28 +319,7 @@ if(dolargescale.and.time.gt.timelargescale) then
 
    end if
 
-   if (dowtg_linearwave) then
-
-      if(wtgscale_time.gt.0) then
-         twtgmax = (nstop * dt - timelargescale) * wtgscale_time
-         twtg = time-timelargescale
-         if(twtg.gt.twtgmax) then
-         am_wtg_time = am_wtg
-         else
-         am_wtg_time = am_wtg * twtgmax / twtg
-         endif
-      else
-         am_wtg_time = am_wtg
-      endif
-
-      call wtg_linearwave()
-
-      ! convert from omega in Pa/s to wsub in m/s
-      o_wtg(1:nzm) = -w_wtg(1:nzm)*rho(1:nzm)*ggr
-
-   end if
-
-   if (dotgr.OR.dodgw.OR.dolinearwave) then
+   if (dotgr.OR.dodgw) then
 
       ! add to reference large-scale vertical velocity.
       wsub(1:nzm) = wsub(1:nzm) + w_wtg(1:nzm)

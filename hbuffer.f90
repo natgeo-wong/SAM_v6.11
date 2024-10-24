@@ -15,6 +15,8 @@ implicit none
 	integer status(HBUF_MAX_LENGTH)
 	integer average_type(HBUF_MAX_LENGTH)
 
+        integer,save:: statfileindex
+        character *4,save:: timechar
 CONTAINS
 
 !------------------------------------------------------------
@@ -253,12 +255,23 @@ if(masterproc) then
     filestatus='new'
   end if
 
-  open (55,file='./OUT_STAT/'// &
+  if(dosepstat) then
+    ! write stat to different files to avoid large file (Qiyu 2024)
+    statfileindex=0
+    write(timechar,'(i4)') statfileindex
+    open (55,file='./OUT_STAT/'// &
+                  case(1:lenstr(case))//'_'// &
+                  caseid(1:lenstr(caseid))//'_'// &
+                  timechar(5-lenstr(timechar):4)// &
+                  '.stat', &
+                  status=filestatus,form='unformatted')
+  else
+    open (55,file='./OUT_STAT/'// &
                   case(1:lenstr(case))//'_'// &
                   caseid(1:lenstr(caseid))//'.stat', &
                   status=filestatus,form='unformatted')
+  end if
   close(55)
-
 end if
 
 close (66)
@@ -538,12 +551,24 @@ endif
 if(dompiensemble) dompi = .false.
 
 if(masterproc) then
-
-  open (ntape,file='./OUT_STAT/'// &
+  if(dosepstat) then
+    ! write stat to different files to avoid large file (Qiyu 2024)
+    statfileindex=(nstep-1)/nstep_sepstat
+    write(timechar,'(i4)') statfileindex
+    open (ntape,file='./OUT_STAT/'// &
+                  case(1:lenstr(case))//'_'// &
+                  caseid(1:lenstr(caseid))//'_'// &
+                  timechar(5-lenstr(timechar):4)// &
+                  '.stat', &
+                  status='unknown',form='unformatted')
+  else
+    statfileindex = 0
+    open (ntape,file='./OUT_STAT/'// &
                   case(1:lenstr(case))//'_'// &
                   caseid(1:lenstr(caseid))//'.stat', &
                   status='unknown',form='unformatted')
-  if(nstep.ne.nstat) then
+  end if
+  if(nstep.ne.nstat+dosepstat*statfileindex*nstep_sepstat) then
     do while(.true.)
       read(ntape, end=222) 
       read(ntape)  dummy,dummy,nsteplast

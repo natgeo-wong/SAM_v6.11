@@ -17,6 +17,7 @@ implicit none
 
         integer,save:: statfileindex
         character *4,save:: timechar
+        integer:: nstep_eof
 CONTAINS
 
 !------------------------------------------------------------
@@ -561,14 +562,16 @@ if(masterproc) then
                   timechar(5-lenstr(timechar):4)// &
                   '.stat', &
                   status='unknown',form='unformatted')
+    nstep_eof = nstat+statfileindex*nstep_sepstat
   else
     statfileindex = 0
     open (ntape,file='./OUT_STAT/'// &
                   case(1:lenstr(case))//'_'// &
                   caseid(1:lenstr(caseid))//'.stat', &
                   status='unknown',form='unformatted')
+    nstep_eof = nstat
   end if
-  if(nstep.ne.nstat+dosepstat*statfileindex*nstep_sepstat) then
+  if(nstep.ne.nstep_eof) then
     do while(.true.)
       read(ntape, end=222) 
       read(ntape)  dummy,dummy,nsteplast

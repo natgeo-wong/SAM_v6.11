@@ -156,7 +156,12 @@ real :: troptend = 1.5 ! Convective tendency in Pauluis & Garner [2006]
 ! Taken from Peter Blossey's version of SAM
 ! Added by Nathanael Wong on 2023/07/05
 logical :: dobulksfcflx = .false.
-real :: bulksfcflx_u = 0.
+real :: bulksfcflx_u = 5.
+
+! Option to divide output stat file every some steps
+! to avoid large stat file
+logical :: dosepstat = .false.
+integer :: nstep_sepstat = 99999999
 
 ! Damped Gravity Wave and Temperature Gradient Relaxation Implementations
 ! Added by Nathanael Wong on 2023/07/05

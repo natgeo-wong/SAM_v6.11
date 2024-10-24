@@ -50,6 +50,7 @@ NAMELIST /KUANG_PARAMS/ dompiensemble, &
                 dolayerperturb, tperturbi, qperturbi, tperturbA, qperturbA, &
                 doradtendency, troptend, &
                 dobulksfcflx, bulksfcflx_u, &
+                dosepstat, nstep_sepstat, &
                 dowtg_blossey_etal_JAMES2009, dowtg_raymondzeng_QJRMS2005, &
                 dowtg_hermanraymond_JAMES2014, dowtg_decompdgw, dowtg_decomptgr, &
                 dowtg_linearwave, &

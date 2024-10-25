@@ -13,11 +13,11 @@ implicit none
    ! reverse pressure coordinate, and find index
    !   of cold point tropopause in the vertical.
    ktrop = nzm+1 ! default is top of model/atmosphere (counting from surface)
-   min_temp = tabs0(nzm)
+   min_temp = tg0(nzm)
    do k = 1,nzm
-      if(tabs0(k).lt.min_temp) then
+      if(tg0(k).lt.min_temp) then
          ktrop = k
-         min_temp = tabs0(k)
+         min_temp = tg0(k)
       end if
    end do
 

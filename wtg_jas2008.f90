@@ -9,22 +9,42 @@ implicit none
    integer :: ktrop
    real    :: min_temp
 
-   ! ===== find index of cold point tropopause in vertical. =====
-   ! reverse pressure coordinate, and find index
-   !   of cold point tropopause in the vertical.
-   ktrop = nzm+1 ! default is top of model/atmosphere (counting from surface)
-   min_temp = tg0(nzm)
-   do k = 1,nzm
-      if(tg0(k).lt.min_temp) then
-         ktrop = k
-         min_temp = tg0(k)
-      end if
-   end do
+   if (dowtg_timedependence) then
 
-   ! At tropopause and above, quash any pre-existing vertical velocity from previous timestep to zero.
-   do k = ktrop,nzm
-      w_wtg(k) = 0
-   end do
+      ! ===== find index of cold point tropopause in vertical. =====
+      ! reverse pressure coordinate, and find index
+      !   of cold point tropopause in the vertical.
+      ktrop = nzm+1 ! default is top of model/atmosphere (counting from surface)
+      min_temp = tg0(nzm)
+      do k = 1,nzm
+         if(tg0(k).lt.min_temp) then
+            ktrop = k
+            min_temp = tg0(k)
+         end if
+      end do
+
+      ! At tropopause and above, quash any pre-existing vertical velocity from previous timestep to zero.
+      do k = ktrop,nzm
+         w_wtg(k) = 0
+      end do
+   
+   else
+
+      ! ===== find index of cold point tropopause in vertical. =====
+      ! reverse pressure coordinate, and find index
+      !   of cold point tropopause in the vertical.
+      ktrop = nzm+1 ! default is top of model/atmosphere (counting from surface)
+      min_temp = tabs0(nzm)
+      do k = 1,nzm
+         if(tabs0(k).lt.min_temp) then
+            ktrop = k
+            min_temp = tabs0(k)
+         end if
+      end do
+
+      w_wtg = 0.
+
+   end if
 
    tv_lsbg = tg0   * (1. + 0.61*qg0)
    tv_wave = tabs0 * (1. + 0.61*qv0 - qn0 - qp0)
@@ -34,7 +54,16 @@ implicit none
                      tv_lsbg(1:ktrop), rho(1:ktrop), z(1:ktrop), zi(1:ktrop+1), &
                      dwwtgdt(1:ktrop), ktrop)
 
-   w_wtg(1:nzm) = (w_wtg(1:nzm) + dwwtgdt * dt) / (1. + dt * am_wtg_time)
+
+   if (dowtg_timedependence) then
+
+      w_wtg(1:nzm) = (w_wtg(1:nzm) + dwwtgdt * dt) / (1. + dt * am_wtg_time)
+
+   else
+
+      w_wtg(1:nzm) = dwwtgdt
+
+   end if
 
    contains
 

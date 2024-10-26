@@ -26,8 +26,8 @@ implicit none
       w_wtg(k) = 0
    end do
 
-   tv_lsbg = tg0   * (1. +0.61*qg0)
-   tv_wave = tabs0 * (1. +0.61*qv0)
+   tv_lsbg = tg0   * (1. + 0.61*qg0)
+   tv_wave = tabs0 * (1. + 0.61*qv0 - qn0 - qp0)
    dwwtgdt = 0.
 
    call calc_wtend(0.5*pi/lambda_wtg, w_wtg(1:ktrop), tv_wave(1:ktrop), &
@@ -61,7 +61,6 @@ implicit none
       wtend                      ! Cell center w tendency
 
 !     ------------------------------ local variables ------------------------------
-      real  N2top                ! Top-level buoyancy frequency squared
 
       real, dimension(1:nz+1) ::                                             &
       dz                         ! grid spacing between midpoint levels
@@ -74,14 +73,12 @@ implicit none
       integer :: k               ! Vertical loop counter
 
 !     ------------------------------ executable code ------------------------------
-   
-      N2top=ggr/tv_fullbg(nz)*((tv_fullbg(nz)-tv_fullbg(nz-1))/(z_full(nz)-z_full(nz-1))+ggr/cp)
 
 !     compute grid spacing between midpoint levels
       do k=2,nz
          dz(k)=z_full(k)-z_full(k-1)
       end do
-      dz(1)=z_full(1)
+      dz(1)=2*z_full(1)
       dz(nz+1)=2*(z_half(nz+1)-z_full(nz))
 
 !     Gaussian Elimination
@@ -91,16 +88,15 @@ implicit none
       end do
 
 !     set up the tridiagonal matrix
-      do k=2,nz-1
+      do k=1,nz-1
          aa(k)=dz(k+1)/(dz(k)+dz(k+1))
          bb(k)=-1.
          cc(k)=dz(k)/(dz(k)+dz(k+1))
       end do
 
-      ! boundary condition at surface, omega'=0 (homogeneous Dirichlet BC).
+      ! Symmetric boundary conditions?
       aa(1)=0.
-      bb(1)=1.
-      cc(1)=0.
+      bb(1)=-(2*dz(2)+dz(1))/(dz(1)+dz(2))
 
       ! apply omega'=0 at tropopause (homogeneous Dirichlet BC).
       aa(nz)=0.

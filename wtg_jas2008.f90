@@ -42,18 +42,14 @@ implicit none
          end if
       end do
 
-      w_wtg = 0.
-
    end if
 
    tv_lsbg = tg0   * (1. + 0.61*qg0)
    tv_wave = tabs0 * (1. + 0.61*qv0 - qn0 - qp0)
    dwwtgdt = 0.
 
-   call calc_wtend(0.5*pi/lambda_wtg, w_wtg(1:ktrop), tv_wave(1:ktrop), &
-                     tv_lsbg(1:ktrop), rho(1:ktrop), z(1:ktrop), zi(1:ktrop+1), &
-                     dwwtgdt(1:ktrop), ktrop)
-
+   call calc_wtend(0.5*pi/lambda_wtg, tv_wave(1:ktrop), tv_lsbg(1:ktrop), &
+                     rho(1:ktrop), z(1:ktrop), zi(1:ktrop+1), dwwtgdt(1:ktrop), ktrop)
 
    if (dowtg_timedependence) then
 
@@ -61,13 +57,14 @@ implicit none
 
    else
 
-      w_wtg(1:nzm) = dwwtgdt
+      w_wtg = 0.
+      w_wtg(1:nzm) = dwwtgdt / am_wtg_time
 
    end if
 
    contains
 
-   subroutine calc_wtend(wn, w_curr, tv_curr, tv_fullbg, rho_full, & 
+   subroutine calc_wtend(wn, tv_curr, tv_fullbg, rho_full, & 
                         z_full, z_half, wtend, nz)
    !     ------------------------------ input arguments ------------------------------
 
@@ -75,7 +72,6 @@ implicit none
 
       real, dimension(nz), intent(in) ::                 &
       tv_curr,           &       ! Cell center virtual temperature
-      w_curr,            &       ! Cell center wave vertical velocity
       tv_fullbg,         &       ! Cell center background virtual temperature
       z_full,            &       ! Cell center height
       rho_full                   ! Cell center density

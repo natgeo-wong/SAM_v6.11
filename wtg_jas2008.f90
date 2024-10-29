@@ -6,59 +6,91 @@ use params
 implicit none
 
    integer :: k
+   integer :: kk
    integer :: ktrop
+   integer :: ktrop1
+   real :: ztrop
+   real :: ztrop1
    real    :: min_temp
 
-   if (dowtg_timedependence) then
+   ! if (dowtg_timedependence) then
 
-      ! ===== find index of cold point tropopause in vertical. =====
-      ! reverse pressure coordinate, and find index
-      !   of cold point tropopause in the vertical.
-      ktrop = nzm+1 ! default is top of model/atmosphere (counting from surface)
-      min_temp = tg0(nzm)
-      do k = 1,nzm
-         if(tg0(k).lt.min_temp) then
-            ktrop = k
-            min_temp = tg0(k)
-         end if
-      end do
+   !    ! ===== find index of cold point tropopause in vertical. =====
+   !    ! reverse pressure coordinate, and find index
+   !    !   of cold point tropopause in the vertical.
+   !    ktrop = nzm+1 ! default is top of model/atmosphere (counting from surface)
+   !    min_temp = tg0(nzm)
+   !    do k = 1,nzm
+   !       if(tg0(k).lt.min_temp) then
+   !          ktrop = k
+   !          min_temp = tg0(k)
+   !       end if
+   !    end do
 
-      ! At tropopause and above, quash any pre-existing vertical velocity from previous timestep to zero.
-      do k = ktrop,nzm
-         w_wtg(k) = 0
-      end do
+   !    ! ===== find index of previous cold point tropopause in vertical. =====
+   !    ! reverse pressure coordinate, and find index
+   !    !   of cold point tropopause in the vertical.
+   !    ktrop1 = nzm !
+   !    do k = nzm,1,-1
+   !       if(w_wtg(k).EQ.0) then
+   !          ktrop1 = k
+   !       end if
+   !    end do
+
+   !    if ((ktrop1.NE.1).AND.(ktrop1.NE.ktrop))
+
+   !       ztrop = z(ktrop)
+   !       ztrop1 = z(ktrop1)
+   !       wwtgi = 0.
+
+   !       do k = 2 : (ktrop-1)
+   !          do kk = 1 : nzm
+   !             wwtgi(k)
+   !          end do
+   !       end do
+
+   !       do k = 1,nzm
+   !          w_wtg(k) = wwtgi(k)
+   !       end do
+
+   !    end if
+
+   !    ! At tropopause and above, quash any pre-existing vertical velocity from previous timestep to zero.
+   !    do k = ktrop,nzm
+   !       w_wtg(k) = 0
+   !    end do
    
-   else
+   ! else
 
-      ! ===== find index of cold point tropopause in vertical. =====
-      ! reverse pressure coordinate, and find index
-      !   of cold point tropopause in the vertical.
-      ktrop = nzm+1 ! default is top of model/atmosphere (counting from surface)
-      min_temp = tabs0(nzm)
-      do k = 1,nzm
-         if(tabs0(k).lt.min_temp) then
-            ktrop = k
-            min_temp = tabs0(k)
-         end if
-      end do
+   !    ! ===== find index of cold point tropopause in vertical. =====
+   !    ! reverse pressure coordinate, and find index
+   !    !   of cold point tropopause in the vertical.
+   !    ktrop = nzm+1 ! default is top of model/atmosphere (counting from surface)
+   !    min_temp = tabs0(nzm)
+   !    do k = 1,nzm
+   !       if(tabs0(k).lt.min_temp) then
+   !          ktrop = k
+   !          min_temp = tabs0(k)
+   !       end if
+   !    end do
 
-   end if
+   ! end if
 
    tv_lsbg = tg0   * (1. + 0.61*qg0)
    tv_wave = tabs0 * (1. + 0.61*qv0 - qn0 - qp0)
    dwwtgdt = 0.
 
-   call calc_wtend(0.5*pi/lambda_wtg, tv_wave(1:ktrop), tv_lsbg(1:ktrop), &
-                     rho(1:ktrop), z(1:ktrop), zi(1:ktrop+1), dwwtgdt(1:ktrop), ktrop)
+   call calc_wtend(0.5*pi/lambda_wtg, tv_wave(1:nzm-2), tv_lsbg(1:nzm-2), &
+                     rho(1:nzm-2), z(1:nzm-2), zi(1:nzm-1), dwwtgdt(1:nzm-2), nzm-2)
 
    if (dowtg_timedependence) then
 
-      w_wtg(1:nzm) = (w_wtg(1:nzm) + dwwtgdt * dt) / (1. + dt * am_wtg_time)
+      w_wtg(1:nzm-2) = (w_wtg(1:nzm-2) + dwwtgdt * dt) / (1. + dt * am_wtg_time)
 
    else
 
       w_wtg = 0.
-      w_wtg(1:nzm) = dwwtgdt / am_wtg_time
+      w_wtg(1:nzm-2) = dwwtgdt / am_wtg_time
 
    end if
 
@@ -87,6 +119,7 @@ implicit none
 
 !     ------------------------------ local variables ------------------------------
 
+      real  N2top                ! Top-level buoyancy frequency squared
       real, dimension(1:nz+1) ::                                             &
       dz                         ! grid spacing between midpoint levels
       real, dimension(1:nz) ::                                             &
@@ -99,6 +132,8 @@ implicit none
 
 !     ------------------------------ executable code ------------------------------
 
+      N2top=ggr/tv_fullbg(nz)*((tv_fullbg(nz)-tv_fullbg(nz-1))/(z_full(nz)-z_full(nz-1))+ggr/cp)
+
 !     compute grid spacing between midpoint levels
       do k=2,nz
          dz(k)=z_full(k)-z_full(k-1)
@@ -108,12 +143,12 @@ implicit none
 
 !     Gaussian Elimination
       rhs=0.
-      do k=2,nz-1
+      do k=1,nz
          rhs(k)=-rho_full(k)*ggr*wn*wn*(tv_curr(k)-tv_fullbg(k))/tv_fullbg(k)*dz(k)*dz(k+1)/2.
       end do
 
 !     set up the tridiagonal matrix
-      do k=1,nz-1
+      do k=1,nz
          aa(k)=dz(k+1)/(dz(k)+dz(k+1))
          bb(k)=-1.
          cc(k)=dz(k)/(dz(k)+dz(k+1))
@@ -123,10 +158,10 @@ implicit none
       aa(1)=0.
       bb(1)=-(2*dz(2)+dz(1))/(dz(1)+dz(2))
 
-      ! apply omega'=0 at tropopause (homogeneous Dirichlet BC).
-      aa(nz)=0.
-      bb(nz)=1.
-      cc(nz)=0.
+      !radiating upper BC
+      aa(nz)=dz(nz+1)/dz(nz)
+      bb(nz)=-1.*dz(nz+1)/dz(nz)
+      rhs(nz)=rhs(nz)+rho_full(nz)*sqrt(N2top)*wn*w_curr(nz)*dz(nz+1)
 
       !Gaussian Elimination with no pivoting
       do k=1,nz-1

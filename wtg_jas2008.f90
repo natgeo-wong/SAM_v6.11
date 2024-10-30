@@ -167,7 +167,7 @@ implicit none
       aa(nz)=0.
       bb(nz)=1.
       cc(nz)=0.
-      rhs(nz)=rgas*(ta_curr(nz)-tabg_curr(nz))*wn/rho_full(nz)/sqrt(N2top)
+      rhs(nz)=rgas*(ta_curr(nz)-tabg_curr(nz))*wn/sqrt(N2top)
 
       !Gaussian Elimination with no pivoting
       do k=1,nz-1

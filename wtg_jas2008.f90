@@ -164,7 +164,9 @@ implicit none
       bb(1)=-(2*dz(2)+dz(1))/(dz(1)+dz(2))
 
       !radiating upper BC
-      bb(nz)=1
+      aa(nz)=0.
+      bb(nz)=1.
+      cc(nz)=0.
       rhs(nz)=rgas*(ta_curr(nz)-tabg_curr(nz))*wn/rho_full(nz)/sqrt(N2top)
 
       !Gaussian Elimination with no pivoting

@@ -80,29 +80,31 @@ implicit none
    tv_wave = tabs0 * (1. + 0.61*qv0 - qn0 - qp0)
    dwwtgdt = 0.
 
-   call calc_wtend(0.5*pi/lambda_wtg, tv_wave(1:nzm-2), tv_lsbg(1:nzm-2), &
-                     rho(1:nzm-2), z(1:nzm-2), zi(1:nzm-1), dwwtgdt(1:nzm-2), nzm-2)
+   call calc_wtend(0.5*pi/lambda_wtg, w_wtg(1:nzm-2), dwwtgdt(1:nzm-2), &
+                     tv_wave(1:nzm-2), tv_lsbg(1:nzm-2), rho(1:nzm-2), &
+                     z(1:nzm-2), zi(1:nzm-1), nzm-2)
 
    if (dowtg_timedependence) then
 
-      w_wtg(1:nzm-2) = (w_wtg(1:nzm-2) + dwwtgdt * dt) / (1. + dt * am_wtg_time)
+      w_wtg(1:nzm) = (w_wtg(1:nzm) + dwwtgdt * dt) / (1. + dt * am_wtg_time)
 
    else
 
       w_wtg = 0.
-      w_wtg(1:nzm-2) = dwwtgdt / am_wtg_time
+      w_wtg(1:nzm) = dwwtgdt / am_wtg_time
 
    end if
 
    contains
 
-   subroutine calc_wtend(wn, tv_curr, tv_fullbg, rho_full, & 
-                        z_full, z_half, wtend, nz)
+   subroutine calc_wtend(wn, w_curr, wtend, tv_curr, tv_fullbg, rho_full, & 
+                           z_full, z_half, nz)
    !     ------------------------------ input arguments ------------------------------
 
       integer, intent(in) :: nz  ! number of midpoint levels, the number of interface levels is nz+1
 
       real, dimension(nz), intent(in) ::                 &
+      w_curr,            &       ! Cell center wave vertical velocity
       tv_curr,           &       ! Cell center virtual temperature
       tv_fullbg,         &       ! Cell center background virtual temperature
       z_full,            &       ! Cell center height

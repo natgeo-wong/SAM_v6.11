@@ -82,7 +82,7 @@ implicit none
 
    call calc_wtend(0.5*pi/lambda_wtg, w_wtg(1:nzm-2), dwwtgdt(1:nzm-2), &
                      tv_wave(1:nzm-2), tv_lsbg(1:nzm-2), rho(1:nzm-2), &
-                     z(1:nzm-2), zi(1:nzm-1), nzm-2)
+                     z(1:nzm-2), zi(1:nzm-1), pres(1:nzm-2), nzm-2)
 
    if (dowtg_timedependence) then
 
@@ -98,7 +98,7 @@ implicit none
    contains
 
    subroutine calc_wtend(wn, w_curr, wtend, tv_curr, tv_fullbg, rho_full, & 
-                           z_full, z_half, nz)
+                           z_full, z_half, p_full, nz)
    !     ------------------------------ input arguments ------------------------------
 
       integer, intent(in) :: nz  ! number of midpoint levels, the number of interface levels is nz+1
@@ -108,6 +108,7 @@ implicit none
       tv_curr,           &       ! Cell center virtual temperature
       tv_fullbg,         &       ! Cell center background virtual temperature
       z_full,            &       ! Cell center height
+      p_full,            &       ! Cell center pressure
       rho_full                   ! Cell center density
       real, dimension(nz+1), intent(in) ::                 &
       z_half                     ! Interface-level height, including the surface, which is at height zero
@@ -150,7 +151,7 @@ implicit none
       end do
 
 !     set up the tridiagonal matrix
-      do k=1,nz
+      do k=1,nz-1
          aa(k)=dz(k+1)/(dz(k)+dz(k+1))
          bb(k)=-1.
          cc(k)=dz(k)/(dz(k)+dz(k+1))
@@ -161,9 +162,8 @@ implicit none
       bb(1)=-(2*dz(2)+dz(1))/(dz(1)+dz(2))
 
       !radiating upper BC
-      aa(nz)=dz(nz+1)/dz(nz)
-      bb(nz)=-1.*dz(nz+1)/dz(nz)
-      rhs(nz)=rhs(nz)+rho_full(nz)*sqrt(N2top)*wn*w_curr(nz)*dz(nz+1)
+      bb(nz)=1
+      rhs(nz)=p_full(nz)*100*wn/rho_full(nz)/N2top
 
       !Gaussian Elimination with no pivoting
       do k=1,nz-1

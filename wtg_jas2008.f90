@@ -163,7 +163,7 @@ implicit none
 
       !radiating upper BC
       bb(nz)=1
-      rhs(nz)=p_full(nz)*100*wn/rho_full(nz)/N2top
+      rhs(nz)=p_full(nz)*100*wn/rho_full(nz)/sqrt(N2top)
 
       !Gaussian Elimination with no pivoting
       do k=1,nz-1

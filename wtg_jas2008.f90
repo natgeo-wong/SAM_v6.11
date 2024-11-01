@@ -13,76 +13,78 @@ implicit none
    real :: ztrop1
    real    :: min_temp
 
-   ! if (dowtg_timedependence) then
+   if (dowtg_timedependence) then
 
-   !    ! ===== find index of cold point tropopause in vertical. =====
-   !    ! reverse pressure coordinate, and find index
-   !    !   of cold point tropopause in the vertical.
-   !    ktrop = nzm+1 ! default is top of model/atmosphere (counting from surface)
-   !    min_temp = tg0(nzm)
-   !    do k = 1,nzm
-   !       if(tg0(k).lt.min_temp) then
-   !          ktrop = k
-   !          min_temp = tg0(k)
-   !       end if
-   !    end do
+      ! ! ===== find index of cold point tropopause in vertical. =====
+      ! ! reverse pressure coordinate, and find index
+      ! !   of cold point tropopause in the vertical.
+      ! ktrop = nzm+1 ! default is top of model/atmosphere (counting from surface)
+      ! min_temp = tg0(nzm)
+      ! do k = 1,nzm
+      !    if(tg0(k).lt.min_temp) then
+      !       ktrop = k
+      !       min_temp = tg0(k)
+      !    end if
+      ! end do
 
-   !    ! ===== find index of previous cold point tropopause in vertical. =====
-   !    ! reverse pressure coordinate, and find index
-   !    !   of cold point tropopause in the vertical.
-   !    ktrop1 = nzm !
-   !    do k = nzm,1,-1
-   !       if(w_wtg(k).EQ.0) then
-   !          ktrop1 = k
-   !       end if
-   !    end do
+      ! ! ===== find index of previous cold point tropopause in vertical. =====
+      ! ! reverse pressure coordinate, and find index
+      ! !   of cold point tropopause in the vertical.
+      ! ktrop1 = nzm !
+      ! do k = nzm,1,-1
+      !    if(w_wtg(k).EQ.0) then
+      !       ktrop1 = k
+      !    end if
+      ! end do
 
-   !    if ((ktrop1.NE.1).AND.(ktrop1.NE.ktrop))
+      ! if ((ktrop1.NE.1).AND.(ktrop1.NE.ktrop))
 
-   !       ztrop = z(ktrop)
-   !       ztrop1 = z(ktrop1)
-   !       wwtgi = 0.
+      !    ztrop = z(ktrop)
+      !    ztrop1 = z(ktrop1)
+      !    wwtgi = 0.
 
-   !       do k = 2 : (ktrop-1)
-   !          do kk = 1 : nzm
-   !             wwtgi(k)
-   !          end do
-   !       end do
+      !    do k = 2 : (ktrop-1)
+      !       do kk = 1 : nzm
+      !          wwtgi(k)
+      !       end do
+      !    end do
 
-   !       do k = 1,nzm
-   !          w_wtg(k) = wwtgi(k)
-   !       end do
+      !    do k = 1,nzm
+      !       w_wtg(k) = wwtgi(k)
+      !    end do
 
-   !    end if
+      ! end if
 
-   !    ! At tropopause and above, quash any pre-existing vertical velocity from previous timestep to zero.
-   !    do k = ktrop,nzm
-   !       w_wtg(k) = 0
-   !    end do
+      ! ! At tropopause and above, quash any pre-existing vertical velocity from previous timestep to zero.
+      ! do k = ktrop,nzm
+      !    w_wtg(k) = 0
+      ! end do
+
+      ktrop = nzm-2
    
-   ! else
+   else
 
-   !    ! ===== find index of cold point tropopause in vertical. =====
-   !    ! reverse pressure coordinate, and find index
-   !    !   of cold point tropopause in the vertical.
-   !    ktrop = nzm+1 ! default is top of model/atmosphere (counting from surface)
-   !    min_temp = tabs0(nzm)
-   !    do k = 1,nzm
-   !       if(tabs0(k).lt.min_temp) then
-   !          ktrop = k
-   !          min_temp = tabs0(k)
-   !       end if
-   !    end do
+      ! ===== find index of cold point tropopause in vertical. =====
+      ! reverse pressure coordinate, and find index
+      !   of cold point tropopause in the vertical.
+      ktrop = nzm+1 ! default is top of model/atmosphere (counting from surface)
+      min_temp = tabs0(nzm)
+      do k = 1,nzm
+         if(tabs0(k).lt.min_temp) then
+            ktrop = k
+            min_temp = tabs0(k)
+         end if
+      end do
 
-   ! end if
+   end if
 
    tv_lsbg = tg0   * (1. + 0.61*qg0)
    tv_wave = tabs0 * (1. + 0.61*qv0 - qn0 - qp0)
    dwwtgdt = 0.
 
-   call calc_wtend(0.5*pi/lambda_wtg, w_wtg(1:nzm-2), dwwtgdt(1:nzm-2), &
-                     tabs0(1:nzm-2), tg0(1:nzm-2), tv_wave(1:nzm-2), tv_lsbg(1:nzm-2), &
-                     rho(1:nzm-2), z(1:nzm-2), zi(1:nzm-1), nzm-2)
+   call calc_wtend(0.5*pi/lambda_wtg, w_wtg(1:ktrop), dwwtgdt(1:ktrop), &
+                     tabs0(1:ktrop), tg0(1:ktrop), tv_wave(1:ktrop), tv_lsbg(1:ktrop), &
+                     rho(1:ktrop), z(1:ktrop), zi(1:ktrop+1), ktrop)
 
    if (dowtg_timedependence) then
 
@@ -100,6 +102,9 @@ implicit none
    subroutine calc_wtend(wn, w_curr, wtend, &
                            ta_curr, tabg_curr, tv_curr, tv_fullbg, &
                            rho_full, z_full, z_half, nz)
+
+      use params, only: dowtg_timedependence
+
    !     ------------------------------ input arguments ------------------------------
 
       integer, intent(in) :: nz  ! number of midpoint levels, the number of interface levels is nz+1
@@ -163,11 +168,22 @@ implicit none
       aa(1)=0.
       bb(1)=-(2*dz(2)+dz(1))/(dz(1)+dz(2))
 
-      !radiating upper BC
-      aa(nz)=0.
-      bb(nz)=1.
-      cc(nz)=0.
-      rhs(nz)=rgas*(ta_curr(nz)-tabg_curr(nz))*wn/sqrt(N2top)
+      if (dowtg_timedependence) then
+
+         !radiating upper BC
+         aa(nz)=dz(nz+1)/dz(nz)
+         bb(nz)=-1.*dz(nz+1)/dz(nz)
+         rhs(nz)=rhs(nz)+rho_full(nz)*sqrt(N2top)*wn*w_curr(nz)*dz(nz+1)
+
+      else
+
+         ! dirichlet boundary conditions at tropopause (w' = 0)
+         aa(nz)=0.
+         bb(nz)=1.
+         cc(nz)=0.
+         rhs(nz)=0
+
+      end if
 
       !Gaussian Elimination with no pivoting
       do k=1,nz-1

@@ -60,7 +60,7 @@ implicit none
       !    w_wtg(k) = 0
       ! end do
 
-      ktrop = nzm-2
+      ktrop = nzm-4
    
    else
 

@@ -168,15 +168,17 @@ integer :: nstep_sepstat = 99999999
 logical :: dodgw = .false.
 logical :: dotgr = .false.
 logical :: dowtg_decomp = .false.
-logical :: dolinearwave = .false.
 real :: wtgscale_time = 0. ! period over which theta relaxation timescale scales from infinity to ttheta_wtg.  Express as fraction of time over which WTG large-scale forcing is implemented.  So if WTG/Large-scale is turned on for 100 days, twtg_scale = 1/4 means that the scaling up to WTG occurs over 25 days.
+
+logical :: dowtg_timedependence = .false.
+! Add time-dependence to WTG schemes, which could be important for small damping values
 
 logical :: dowtg_blossey_etal_JAMES2009  = .false.
 logical :: dowtg_raymondzeng_QJRMS2005   = .false. 
 logical :: dowtg_hermanraymond_JAMES2014 = .false.
+logical :: dowtg_kuang_JAS2008           = .false.
 logical :: dowtg_decompdgw  = .false.
 logical :: dowtg_decomptgr  = .false.
-logical :: dowtg_linearwave = .false.
 
 real :: am_wtg = 1. ! momentum damping rate in 1/d -- note must be non-zero.
 real :: am_wtg_exp = 0. ! exponent of p/p0 in momentum damping rate.

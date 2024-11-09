@@ -50,10 +50,9 @@ NAMELIST /KUANG_PARAMS/ dompiensemble, &
                 dolayerperturb, tperturbi, qperturbi, tperturbA, qperturbA, &
                 doradtendency, troptend, &
                 dobulksfcflx, bulksfcflx_u, &
-                dosepstat, nstep_sepstat, &
-                dowtg_blossey_etal_JAMES2009, dowtg_raymondzeng_QJRMS2005, &
-                dowtg_hermanraymond_JAMES2014, dowtg_decompdgw, dowtg_decomptgr, &
-                dowtg_linearwave, &
+                dowtg_blossey_etal_JAMES2009, dowtg_kuang_JAS2008, & 
+                dowtg_raymondzeng_QJRMS2005, dowtg_hermanraymond_JAMES2014, &
+                dowtg_decompdgw, dowtg_decomptgr, dowtg_timedependence, &
                 wtgscale_time, am_wtg, am_wtg_exp, lambda_wtg, &
                 dowtgLBL, boundstatic, tau_wtg, dthetadz_min, &
                 wtgscale_vertmodepwr, wtgscale_vertmodenum, wtgscale_vertmodescl, &
@@ -62,7 +61,8 @@ NAMELIST /KUANG_PARAMS/ dompiensemble, &
                 sstislands_radius, sstislands_landmld, sstislands_oceanmld, &
                 sstislands_nrow, sstislands_ncol, sstislands_sep, &
                 readlsm, lsmfile, &
-                nrestart_resetsst
+                nrestart_resetsst, &
+                dosepstat, nstep_sepstat
 
 !bloss: Create dummy namelist, so that we can figure out error code
 !       for a mising namelist.  This lets us differentiate between
@@ -229,6 +229,12 @@ end if
           dowtg_num = dowtg_num + 1
         end if
 
+        if(dowtg_kuang_JAS2008) then
+          dodgw = .true.
+          if(masterproc) write(*,*) 'Do the time-dependent DGW implementation of Kuang [2008]'
+          dowtg_num = dowtg_num + 1
+        end if
+
         if(dowtg_decompdgw) then
           dodgw = .true.
           dowtg_decomp = .true.
@@ -251,12 +257,6 @@ end if
         if(dowtg_decomptgr) then
           dotgr = .true.
           dowtg_decomp = .true.
-          if(masterproc) write(*,*) 'Temperature Gradient Relaxation scheme (Spectral Decomposition into half- and full-sine) is being used'
-          dowtg_num = dowtg_num + 1
-        end if
-
-        if(dowtg_linearwave) then
-          dolinearwave = .true.
           if(masterproc) write(*,*) 'Temperature Gradient Relaxation scheme (Spectral Decomposition into half- and full-sine) is being used'
           dowtg_num = dowtg_num + 1
         end if

@@ -57,12 +57,14 @@ if(.not.SFC_FLX_FXD) then
          end do
        end do
 
+        !bulk sfc fluxes, only apply to latent and sensible heat
+        !default value for bulksfcflx_u = 5 m/s
         if(dobulksfcflx) then
           do j=1,ny
             do i=1,nx
               cd = 1.1e-3
-              delt = t(i,j,1) + t00 - gamaz(1) - (sstxy(i,j))
-              ssq  = qsatw(sstxy(i,j),pres(1))
+              delt = t(i,j,1) - gamaz(1) - (sstxy(i,j) + t00)
+              ssq  = qsatw(sstxy(i,j)+t00, pres(1))
               delq = qv(i,j,1)  - ssq
               wrk  = (log(10/1.e-4)/log(z(1)/1.e-4))**2
               fluxbt(i,j) = -cd * bulksfcflx_u * delt * wrk

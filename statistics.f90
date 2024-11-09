@@ -1226,7 +1226,7 @@ real, dimension(nzm) :: rhowcl, rhowmsecl, rhowtlcl, rhowqtcl,  &
 	call compute_instr_diags()
 
 	! add output for reference large-scale vertical velocity
-	if(dodgw.OR.dotgr.OR.dolinearwave) then
+	if(dodgw.OR.dotgr) then
 		call hbuf_put('WWTG',w_wtg,1.)
 		call hbuf_put('OWTG',o_wtg,1.)
 		call hbuf_put('WOBSREF',wsub_ref,1.)

@@ -193,7 +193,8 @@
 
         write(65)  &
          u, v, w, t, p, qv, qcl, qci, qpl, qpi, dudt, dvdt, dwdt, &
-         tracer, micro_field, sgs_field, sgs_field_diag, z, pres, prespot, presi, prespoti, &
+         tracer, micro_field, sgs_field, sgs_field_diag, z, pres, &
+         prespot, prespotb, presi, prespoti, &
          rho, rhow, bet, sstxy, precinst, rank, nx, ny, nz, irecc
         close(65)
         if(masterproc) then
@@ -244,7 +245,8 @@
 
         read(65)  &
          u, v, w, t, p, qv, qcl, qci, qpl, qpi, dudt, dvdt, dwdt, &
-         tracer, micro_field, sgs_field, sgs_field_diag, z, pres, prespot, presi, prespoti, &
+         tracer, micro_field, sgs_field, sgs_field_diag, z, pres, &
+         prespot, prespotb, presi, prespoti, &
          rho, rhow, bet, sstxy, precinst, rank1, nx1, ny1, nz1, irecc
         close(65)
         read(66) version1, &

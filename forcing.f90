@@ -357,9 +357,6 @@ if(dolargescale.and.time.gt.timelargescale) then
    if(dosubsidence) call subsidence()
    if(dodrivenequilibrium) call drivenequilibrium()
 
-   if(noqlsvadv) qlsvadv(:) = 0.
-   if(notlsvadv) tlsvadv(:) = 0.
-
    ! normalize large-scale vertical momentum forcing
    ulsvadv(:) = ulsvadv(:) / float(nx*ny) 
    vlsvadv(:) = vlsvadv(:) / float(nx*ny) 

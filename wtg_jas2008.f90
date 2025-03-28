@@ -95,7 +95,7 @@ implicit none
    end if
 
    dwwtgdt = 0.
-
+   
    call calc_wtend(0.5*pi/lambda_wtg, w_wtg(1:ktrop), dwwtgdt(1:ktrop), &
                      tabs0(1:ktrop), tg0(1:ktrop), tv_wave(1:ktrop), tv_lsbg(1:ktrop), &
                      rho(1:ktrop), z(1:ktrop), zi(1:ktrop+1), ktrop)

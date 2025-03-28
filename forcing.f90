@@ -93,10 +93,9 @@ do n=1,2
          endif
       end do
    end if
-
    call atmosphere(z(iz-1)/1000.,ratio1,ratio2,ratio_t1)
    call atmosphere(z(iz)/1000.,ratio1,ratio2,ratio_t2)
-
+   
    tt(iz,n)=ratio_t2/ratio_t1*tt(iz-1,n)
 !      qq(iz,n)=max(0.,2.*qq(iz-1,n)-qq(iz-2,n))
    qq(iz,n) = qq(iz-1,n)*exp(-(z(iz)-z(iz-1))/3000.)

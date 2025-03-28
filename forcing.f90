@@ -322,7 +322,7 @@ if(dolargescale.and.time.gt.timelargescale) then
 
       ! add to reference large-scale vertical velocity.
       wsub(1:nzm) = wsub(1:nzm) + w_wtg(1:nzm)
-      dosubsidence = .true.
+      if(.NOT.dodrivenequilibrium) dosubsidence = .true.
 
    end if
 
@@ -354,11 +354,9 @@ if(dolargescale.and.time.gt.timelargescale) then
    tlsvadv(:)   = 0.
    mklsadv(:,:) = 0. ! large-scale microphysical tendencies
 
+   if(dosubsidence.AND.dodrivenequilibrium) dodrivenequilibrium = .false. 
    if(dosubsidence) call subsidence()
    if(dodrivenequilibrium) call drivenequilibrium()
-
-   if(noqlsvadv) qlsvadv(:) = 0.
-   if(notlsvadv) tlsvadv(:) = 0.
 
    ! normalize large-scale vertical momentum forcing
    ulsvadv(:) = ulsvadv(:) / float(nx*ny) 

@@ -29,6 +29,10 @@ do k=2,nzm-1
   end do
 
 end do
+
+if (notlsvadv) t_tend(:,:,:) = 0.
+if (noqlsvadv) q_tend(:,:,:) = 0.
+
 do k=2,nzm-1
   t_vtend = 0.
   q_vtend = 0.

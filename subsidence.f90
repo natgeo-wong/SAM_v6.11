@@ -1,6 +1,7 @@
 
 subroutine subsidence()
-	
+
+use params, only: noqlsvadv, notlsvadv
 use vars
 use microphysics, only: micro_field, index_water_vapor, nmicro_fields, mklsadv
 implicit none
@@ -41,6 +42,7 @@ do k=2,nzm-1
         do j=1,ny
            do i=1,nx
               dq = - rdz * (micro_field(i,j,k1,n)-micro_field(i,j,k2,n))
+              if (noqlsvadv) dq = 0.
               micro_field(i,j,k,n) = micro_field(i,j,k,n) + dtn*dq
               mklsadv(k,n) = mklsadv(k,n) + dq
            end do
@@ -49,6 +51,10 @@ do k=2,nzm-1
   end do
 
 end do
+
+if (notlsvadv) t_tend(:,:,:) = 0.
+if (noqlsvadv) q_tend(:,:,:) = 0.
+
 do k=2,nzm-1
   t_vtend = 0.
   q_vtend = 0.

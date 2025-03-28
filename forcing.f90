@@ -322,7 +322,7 @@ if(dolargescale.and.time.gt.timelargescale) then
 
       ! add to reference large-scale vertical velocity.
       wsub(1:nzm) = wsub(1:nzm) + w_wtg(1:nzm)
-      dosubsidence = .true.
+      if(.NOT.dodrivenequilibrium) dosubsidence = .true.
 
    end if
 

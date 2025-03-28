@@ -11,7 +11,8 @@ implicit none
    integer :: ktrop1
    real :: ztrop
    real :: ztrop1
-   real    :: min_temp
+   real :: min_temp
+   real :: coef, buffer(nzm), buffer1(nzm)
 
    if (dowtg_timedependence) then
 
@@ -79,7 +80,20 @@ implicit none
    end if
 
    tv_lsbg = tg0   * (1. + 0.61*qg0)
-   tv_wave = tabs0 * (1. + 0.61*qv0 - qn0 - qp0)
+
+   if(dompiensemble) then
+      coef = 1. / nsubdomains
+      do k = 1, nzm
+         buffer(k) = tabs0(k) * (1. + 0.61*qv0(k) - qn0(k) - qp0(k))
+      end do
+      call task_sum_real8(buffer,buffer1,nzm)
+      do k = 1, nzm
+         tv_wave(k) = buffer1(k) * coef
+      end do
+   else
+      tv_wave = tabs0 * (1. + 0.61*qv0 - qn0 - qp0)
+   end if
+
    dwwtgdt = 0.
 
    call calc_wtend(0.5*pi/lambda_wtg, w_wtg(1:ktrop), dwwtgdt(1:ktrop), &

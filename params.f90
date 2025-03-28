@@ -223,6 +223,10 @@ real    :: whadmax  = 0.
 real    :: zhadmax  = 15000.
 real    :: hadscale_time = 0.
 
+! No large-scale vertical advection of moisture and temperature
+logical :: noqlsvadv = .false.
+logical :: notlsvadv = .false.
+
 ! Kuang-Lab Additions End Here
 !=====================================================
 

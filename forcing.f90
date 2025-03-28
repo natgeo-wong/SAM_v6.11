@@ -354,6 +354,7 @@ if(dolargescale.and.time.gt.timelargescale) then
    tlsvadv(:)   = 0.
    mklsadv(:,:) = 0. ! large-scale microphysical tendencies
 
+   if(dosubsidence.AND.dodrivenequilibrium) dodrivenequilibrium = .false. 
    if(dosubsidence) call subsidence()
    if(dodrivenequilibrium) call drivenequilibrium()
 

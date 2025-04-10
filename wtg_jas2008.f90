@@ -81,7 +81,7 @@ implicit none
 
    tv_lsbg = tg0   * (1. + 0.61*qg0)
 
-   if(dompiensemble) then
+   if(dompiensemble.and.(icycle.eq.1)) then
       coef = 1. / nsubdomains
       do k = 1, nzm
          buffer(k) = tabs0(k) * (1. + 0.61*qv0(k) - qn0(k) - qp0(k))

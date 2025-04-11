@@ -260,7 +260,8 @@ if(dolargescale.and.time.gt.timelargescale) then
 
       if (dowtg_kuang_JAS2008) then
 
-         call wtg_jas2008()
+         call wtg_jas2008(nzm, dtn, z, zi, rho, tg0, qg0, tabs0, &
+            qv0, qn0+qp0, lambda_wtg, am_wtg_time, w_wtg, dwwtgdt)
          o_wtg(1:nzm) = -w_wtg(1:nzm)*rho(1:nzm)*ggr
 
       end if

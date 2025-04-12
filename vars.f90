@@ -248,6 +248,7 @@ real :: owtgr(nz)
 real :: wwtgc(nz)
 
 ! WTG Linear Wave variables
+real :: t_wtg(nzm), q_wtg(nzm), qcond_wtg(nzm)
 real :: tv_wtg(nzm)
 real :: tv_lsbg(nzm)
 real :: dwwtgdt(nzm)

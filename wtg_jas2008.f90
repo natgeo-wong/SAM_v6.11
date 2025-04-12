@@ -111,19 +111,7 @@ subroutine wtg_jas2008(nzm, dtn, z, zi, rho, tabs_ref, qv_ref, tabs_model, &
    end if
 
    tv_lsbg = tabs_ref   * (1. + 0.61*qv_ref)
-
-   if(dompiensemble.and.(icycle.eq.1)) then
-      coef = 1. / nsubdomains
-      do k = 1, nzm
-         buffer(k) = tabs_model(k) * (1. + 0.61*qv_model(k) - qcond_model(k))
-      end do
-      call task_sum_real8(buffer,buffer1,nzm)
-      do k = 1, nzm
-         tv_wtg(k) = buffer1(k) * coef
-      end do
-   else
-      tv_wtg = tabs_model * (1. + 0.61*qv_model - qcond_model)
-   end if
+   tv_wtg = tabs_model * (1. + 0.61*qv_model - qcond_model)
 
    dwdt_ls = 0.
    

@@ -357,7 +357,7 @@ if(dolargescale.and.time.gt.timelargescale) then
 
       ! add to reference large-scale vertical velocity.
       wsub(1:nzm) = wsub(1:nzm) + w_wtg(1:nzm)
-      if(.NOT.dodrivenequilibrium) dosubsidence = .true.
+      dosubsidence = .true.
 
    end if
 
@@ -374,10 +374,8 @@ if(dolargescale.and.time.gt.timelargescale) then
          whad = whadmax
       endif
       call hadley(masterproc, nzm, nz, z, t_wtg, whad, zhadmax, whadley)
-      if(.NOT.dodrivenequilibrium) then
-         wsub(1:nzm) = wsub(1:nzm) + whadley(1:nzm)
-         dosubsidence = .true.
-      end if
+      wsub(1:nzm) = wsub(1:nzm) + whadley(1:nzm)
+      dosubsidence = .true.
    end if
 
    ! ---------------------------------------------------------------
@@ -389,13 +387,19 @@ if(dolargescale.and.time.gt.timelargescale) then
    tlsvadv(:)   = 0.
    mklsadv(:,:) = 0. ! large-scale microphysical tendencies
 
-   if(dosubsidence.AND.dodrivenequilibrium) dodrivenequilibrium = .false. 
-   if(dosubsidence) call subsidence()
-   if(dodrivenequilibrium) call drivenequilibrium()
+   !if(dosubsidence.AND.dodrivenequilibrium) dodrivenequilibrium = .false. 
+   if(dosubsidence) then
+      if(doadv3d) then
+         call subsidence_3d()
+      else
+         call subsidence_1d()
+      end if
+   end if
+   !if(dodrivenequilibrium) call drivenequilibrium()
 
    ! normalize large-scale vertical momentum forcing
-   ulsvadv(:) = ulsvadv(:) / float(nx*ny) 
-   vlsvadv(:) = vlsvadv(:) / float(nx*ny) 
+   !ulsvadv(:) = ulsvadv(:) / float(nx*ny) 
+   !vlsvadv(:) = vlsvadv(:) / float(nx*ny) 
    mklsadv(1:nzm,index_water_vapor) = qlsvadv(1:nzm) * float(nx*ny)
 
 end if 

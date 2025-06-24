@@ -338,7 +338,7 @@ data ntape/56/
 aver=1./dble(n)
 factor=1./dble(nx*ny)
 
-! Kuang Ensemble run: turn on mpi to calculate outpu (Song Qiyu, 2022)
+! Kuang Ensemble run: turn on mpi to calculate output (Song Qiyu, 2022)
 if(dompiensemble) dompi = .true.
 
 if(dompi) then

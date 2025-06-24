@@ -218,14 +218,23 @@ logical :: nrestart_resetsst = .false.
 
 ! Try to simulate a Hadley Cell (with varying tropopause heights)
 logical :: dohadley = .false.
-logical :: dodrivenequilibrium = .false.
+!logical :: dodrivenequilibrium = .false.
 real    :: whadmax  = 0.
 real    :: zhadmax  = 15000.
 real    :: hadscale_time = 0.
 
-! No large-scale vertical advection of moisture and temperature
-logical :: noqlsvadv = .false.
-logical :: notlsvadv = .false.
+! Option for whether to advect 1d profile for wtg advection
+logical :: doadv3d = .false. ! this was true in the vanilla SAM
+
+! Options for which 1d profile to advect if advecting 1d
+logical :: doadvinic = .false. ! advect initial profile
+logical :: doadvbg = .false. ! advect computed background (time-invariant)
+logical :: doadvensnoise = .false. ! works with dompiensemble, advect the profile in each ensemble member
+! if none of the above: advect the mean profile, which will also evolve with time
+
+! Options for large-scale vertical advection of temperature/moisture, u/v wind
+logical :: dotqlsvadv = .false.
+logical :: douvlsvadv = .false.
 
 ! Kuang-Lab Additions End Here
 !=====================================================

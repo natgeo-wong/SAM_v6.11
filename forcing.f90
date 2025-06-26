@@ -25,11 +25,15 @@ integer :: ktrop
 ! mpiensemble mean
 real :: coef_subdomain
 real :: buffer(nzm,5), buffer1(nzm,5)
-real :: pres_wtg(nzm)
-real :: prespot_wtg(nzm)
+real, save :: pres_wtg(nzm), pres_wtg_calcw(nzm)
+real, save :: prespot_wtg(nzm), prespot_wtg_calcw(nzm)
+
+! wtg background
+real :: buffer2(nzm,3), buffer3(nzm,3)
+
+real :: tmp(nzm)
 
 call t_startf ('forcing')
-
 
 ! if doseasons=.false. do perpetual forcing
 
@@ -244,6 +248,8 @@ if(dolargescale.and.time.gt.timelargescale) then
    ! for mpiensemble run, use the ensemble mean profiles to calculate forcing for
    ! all members
    if (dompiensemble) then
+      ! need to keep the forcing identical in each subdomain/ensemble member
+      ! so sync the mean profiles before calculation, only when icycle=1
       if (icycle.eq.1) then
          coef_subdomain = 1. / dble(nsubdomains)
          do k = 1, nzm
@@ -261,145 +267,220 @@ if(dolargescale.and.time.gt.timelargescale) then
             pres_wtg(k) = buffer1(k,4) * coef_subdomain
             prespot_wtg(k) = buffer1(k,5) * coef_subdomain
          end do
+
+         ! use the mean profile to calculate w
+         t_wtg_calcw = t_wtg
+         q_wtg_calcw = q_wtg
+         qcond_wtg_calcw = qcond_wtg
+         pres_wtg_calcw = pres_wtg
+         prespot_wtg_calcw = prespot_wtg
+         if (doadvensnoise) then
+            ! use the profile from certain member to calculate w
+            ! make sure the calculation below is identical for each subdomain/ensemble member
+            if(masterproc)   tmp = tabs0
+            call task_bcast_real(0,tmp,nzm)
+            t_wtg_calcw = tmp
+
+            if(masterproc)   tmp = qv0
+            call task_bcast_real(0,tmp,nzm)
+            q_wtg_calcw = tmp
+
+            if(masterproc)   tmp = qn0 + qp0
+            call task_bcast_real(0,tmp,nzm)
+            qcond_wtg_calcw = tmp
+
+            if(masterproc)   tmp = pres
+            call task_bcast_real(0,tmp,nzm)
+            pres_wtg_calcw = tmp
+
+            if(masterproc)   tmp = prespot
+            call task_bcast_real(0,tmp,nzm)
+            prespot_wtg_calcw = tmp
+         end if
       end if
    else
+      ! not using mpiensemble
       t_wtg = tabs0
       q_wtg = qv0
       qcond_wtg = qn0 + qp0
       pres_wtg = pres
       prespot_wtg = prespot
+
+      t_wtg_calcw = t_wtg
+      q_wtg_calcw = q_wtg
+      qcond_wtg_calcw = qcond_wtg
+      pres_wtg_calcw = pres_wtg
+      prespot_wtg_calcw = prespot_wtg
+   end if
+   
+   ! compute wtg background, since this may be different from initial profile
+   if (docalcwtgbg.and.icycle.eq.1) then
+      if (nstep.gt.nstartwtg.and.nstep.le.nstartwtg+nstepwtgbg) then
+         t_wtgbg = t_wtgbg + dble(tabs0)
+         q_wtgbg = q_wtgbg + dble(qv0)
+         tp_wtgbg = tp_wtgbg + dble(tabs0*prespot)
+      end if
+      if (nstep.eq.nstartwtg+nstepwtgbg) then
+         t_wtgbg=t_wtgbg/dble(nstepwtgbg)
+         q_wtgbg=q_wtgbg/dble(nstepwtgbg)
+         tp_wtgbg=tp_wtgbg/dble(nstepwtgbg)
+         do k=1, nzm
+            buffer2(k,1) = t_wtgbg(k)
+            buffer2(k,2) = q_wtgbg(k)
+            buffer2(k,3) = tp_wtgbg(k)
+         end do
+         call task_sum_real8(buffer2,buffer3,nzm*3)
+         do k=1, nzm
+            t_wtgbg(k)=buffer3(k,1) * coef_subdomain
+            q_wtgbg(k)=buffer3(k,2) * coef_subdomain
+            tp_wtgbg(k)=buffer3(k,3) * coef_subdomain
+         end do
+      end if
+   end if
+   ! if the above calculation is not done, use the initial profile
+   if (.not.docalcwtgbg) then
+      t_wtgbg = tg0
+      q_wtgbg = qg0
+      tp_wtgbg = tp0
    end if
 
-   if(dodgw) then
+   if (nstep.gt.nstartwtg+nstepwtgbg*merge(1,0,docalcwtgbg)) then
 
-      if(wtgscale_time.gt.0) then
-         twtgmax = (nstop * dt - timelargescale) * wtgscale_time
-         twtg = time-timelargescale
-         if(twtg.gt.twtgmax) then
-         am_wtg_time = am_wtg
+      if(dodgw) then
+   
+         if(wtgscale_time.gt.0) then
+            twtgmax = (nstop * dt - max(timelargescale, (nstartwtg+nstepwtgbg*merge(1,0,docalcwtgbg))*dt)) * wtgscale_time
+            twtg = time-day0*86400. - max(timelargescale, (nstartwtg+nstepwtgbg*merge(1,0,docalcwtgbg))*dt)
+            if(twtg.gt.twtgmax) then
+            am_wtg_time = am_wtg
+            else
+            am_wtg_time = am_wtg * twtgmax / twtg
+            endif
          else
-         am_wtg_time = am_wtg * twtgmax / twtg
+            am_wtg_time = am_wtg
          endif
-      else
-         am_wtg_time = am_wtg
-      endif
-
-      if (dowtg_blossey_etal_JAMES2009) then
-
-         call wtg_james2009(nzm, &
-            100.*pres_wtg, tg0, qg0, t_wtg, q_wtg, qcond_wtg, &
-            fcor, lambda_wtg, am_wtg_time, am_wtg_exp, o_wtg, ktrop)
-         w_wtg(1:nzm) = -o_wtg(1:nzm)/rho(1:nzm)/ggr
-
+   
+         if (dowtg_blossey_etal_JAMES2009) then
+   
+            call wtg_james2009(nzm, &
+               100.*pres_wtg, t_wtgbg, q_wtgbg, t_wtg_calcw, q_wtg_calcw, qcond_wtg_calcw, &
+               fcor, lambda_wtg, am_wtg_time, am_wtg_exp, o_wtg, ktrop)
+            w_wtg(1:nzm) = -o_wtg(1:nzm)/rho(1:nzm)/ggr
+   
+         end if
+   
+         if (dowtg_kuang_JAS2008) then
+   
+            call wtg_jas2008(nzm, dtn, z, zi, rho, t_wtgbg, q_wtgbg, t_wtg_calcw, &
+               q_wtg_calcw, qcond_wtg_calcw, lambda_wtg, am_wtg_time, w_wtg, dwwtgdt)
+            o_wtg(1:nzm) = -w_wtg(1:nzm)*rho(1:nzm)*ggr
+   
+         end if
+   
+         if (dowtg_decompdgw) then
+   
+            call wtg_james2009(nzm, &
+               100.*pres_wtg, t_wtgbg, q_wtgbg, t_wtg_calcw, q_wtg_calcw, qcond_wtg_calcw, &
+               fcor, lambda_wtg, am_wtg_time, am_wtg_exp, owtgr, ktrop)
+            call wtg_decompdgw(masterproc, &
+               nzm, nz, z, 100.*pg0, t_wtgbg, q_wtgbg, t_wtg_calcw, q_wtg_calcw, qcond_wtg_calcw, &
+               lambda_wtg, am_wtg_time, wtgscale_vertmodenum, wtgscale_vertmodescl, &
+               o_wtg, wwtgc, ktrop)
+   
+            w_wtg(1:nzm) = -o_wtg(1:nzm)/rho(1:nzm)/ggr
+            wwtgr(1:nzm) = -owtgr(1:nzm)/rho(1:nzm)/ggr
+            
+         end if
+   
       end if
-
-      if (dowtg_kuang_JAS2008) then
-
-         call wtg_jas2008(nzm, dtn, z, zi, rho, tg0, qg0, t_wtg, &
-            q_wtg, qcond_wtg, lambda_wtg, am_wtg_time, w_wtg, dwwtgdt)
+   
+      if (dotgr) then
+   
+         if(wtgscale_time.gt.0) then
+            twtgmax = (nstop * dt - max(timelargescale, (nstartwtg+nstepwtgbg*merge(1,0,docalcwtgbg))*dt)) * wtgscale_time
+            twtg = time-day0*86400. - max(timelargescale, (nstartwtg+nstepwtgbg*merge(1,0,docalcwtgbg))*dt)
+            if(twtg.gt.twtgmax) then
+            tau_wtg_time = tau_wtg
+            else
+            tau_wtg_time = tau_wtg * twtg / twtgmax
+            endif
+         else
+            tau_wtg_time = tau_wtg
+         endif
+   
+         do k = 1,nzm
+            tpm(k) = t_wtg_calcw(k) * prespot_wtg_calcw(k)
+         end do
+   
+         if (dowtg_raymondzeng_QJRMS2005)   call wtg_qjrms2005(masterproc, nzm, nz, z, &
+                                 tp_wtgbg, tpm, t_wtg_calcw, tau_wtg_time, dowtgLBL, boundstatic, &
+                                 dthetadz_min, w_wtg, wwtgr)
+         if (dowtg_hermanraymond_JAMES2014) call wtg_james2014(masterproc, nzm, nz, z, &
+                                 tp_wtgbg, tpm, t_wtg_calcw, tau_wtg_time, dowtgLBL, boundstatic, &
+                                 dthetadz_min, wtgscale_vertmodepwr, w_wtg, wwtgr, wwtgc)
+         if (dowtg_decomptgr)               call wtg_decomptgr(masterproc, nzm, nz, z, &
+                                 tp_wtgbg, tpm, t_wtg_calcw, tau_wtg_time, &
+                                 wtgscale_vertmodenum, wtgscale_vertmodescl, &
+                                 dowtgLBL, boundstatic, dthetadz_min, w_wtg, wwtgr, wwtgc)
+   
+         ! convert from omega in Pa/s to wsub in m/s
          o_wtg(1:nzm) = -w_wtg(1:nzm)*rho(1:nzm)*ggr
-
+         owtgr(1:nzm) = -wwtgr(1:nzm)*rho(1:nzm)*ggr
+   
       end if
-
-      if (dowtg_decompdgw) then
-
-         call wtg_james2009(nzm, &
-            100.*pres_wtg, tg0, qg0, t_wtg, q_wtg, qcond_wtg, &
-            fcor, lambda_wtg, am_wtg_time, am_wtg_exp, owtgr, ktrop)
-         call wtg_decompdgw(masterproc, &
-            nzm, nz, z, 100.*pg0, tg0, qg0, t_wtg, q_wtg, qcond_wtg, &
-            lambda_wtg, am_wtg_time, wtgscale_vertmodenum, wtgscale_vertmodescl, &
-            o_wtg, wwtgc, ktrop)
-
-         w_wtg(1:nzm) = -o_wtg(1:nzm)/rho(1:nzm)/ggr
-         wwtgr(1:nzm) = -owtgr(1:nzm)/rho(1:nzm)/ggr
-         
+   
+      if (dotgr.OR.dodgw) then
+   
+         ! add to reference large-scale vertical velocity.
+         wsub(1:nzm) = wsub(1:nzm) + w_wtg(1:nzm)
+         dosubsidence = .true.
+   
       end if
-
-   end if
-
-   if (dotgr) then
-
-      if(wtgscale_time.gt.0) then
-         twtgmax = (nstop * dt - timelargescale) * wtgscale_time
-         twtg = time-timelargescale
-         if(twtg.gt.twtgmax) then
-         tau_wtg_time = tau_wtg
+   
+      if (dohadley) then
+         if(hadscale_time.gt.0) then
+            thadmax = (nstop * dt - max(timelargescale, (nstartwtg+nstepwtgbg*merge(1,0,docalcwtgbg))*dt)) * hadscale_time
+            thad = time-day0*86400. - max(timelargescale, (nstartwtg+nstepwtgbg*merge(1,0,docalcwtgbg))*dt)
+            if(thad.gt.thadmax) then
+               whad = whadmax
+            else
+               whad = whadmax * thad / thadmax
+            endif
          else
-         tau_wtg_time = tau_wtg * twtg / twtgmax
-         endif
-      else
-         tau_wtg_time = tau_wtg
-      endif
-
-      do k = 1,nzm
-         tpm(k) = t_wtg(k) * prespot_wtg(k)
-      end do
-
-      if (dowtg_raymondzeng_QJRMS2005)   call wtg_qjrms2005(masterproc, nzm, nz, z, &
-                              tp0, tpm, t_wtg, tau_wtg_time, dowtgLBL, boundstatic, &
-                              dthetadz_min, w_wtg, wwtgr)
-      if (dowtg_hermanraymond_JAMES2014) call wtg_james2014(masterproc, nzm, nz, z, &
-                              tp0, tpm, t_wtg, tau_wtg_time, dowtgLBL, boundstatic, &
-                              dthetadz_min, wtgscale_vertmodepwr, w_wtg, wwtgr, wwtgc)
-      if (dowtg_decomptgr)               call wtg_decomptgr(masterproc, nzm, nz, z, &
-                              tp0, tpm, t_wtg, tau_wtg_time, &
-                              wtgscale_vertmodenum, wtgscale_vertmodescl, &
-                              dowtgLBL, boundstatic, dthetadz_min, w_wtg, wwtgr, wwtgc)
-
-      ! convert from omega in Pa/s to wsub in m/s
-      o_wtg(1:nzm) = -w_wtg(1:nzm)*rho(1:nzm)*ggr
-      owtgr(1:nzm) = -wwtgr(1:nzm)*rho(1:nzm)*ggr
-
-   end if
-
-   if (dotgr.OR.dodgw) then
-
-      ! add to reference large-scale vertical velocity.
-      wsub(1:nzm) = wsub(1:nzm) + w_wtg(1:nzm)
-      if(.NOT.dodrivenequilibrium) dosubsidence = .true.
-
-   end if
-
-   if (dohadley) then
-      if(hadscale_time.gt.0) then
-         thadmax = (nstop * dt - timelargescale) * hadscale_time
-         thad = time - timelargescale
-         if(thad.gt.thadmax) then
             whad = whadmax
-         else
-            whad = whadmax * thad / thadmax
          endif
-      else
-         whad = whadmax
-      endif
-      call hadley(masterproc, nzm, nz, z, t_wtg, whad, zhadmax, whadley)
-      if(.NOT.dodrivenequilibrium) then
+         call hadley(masterproc, nzm, nz, z, t_wtg_calcw, whad, zhadmax, whadley)
          wsub(1:nzm) = wsub(1:nzm) + whadley(1:nzm)
          dosubsidence = .true.
       end if
+
+      ! ---------------------------------------------------------------
+      ! Initialize large-scale advection tendencies:
+   
+      ulsvadv(:)   = 0.
+      vlsvadv(:)   = 0.
+      qlsvadv(:)   = 0.
+      tlsvadv(:)   = 0.
+      mklsadv(:,:) = 0. ! large-scale microphysical tendencies
+   
+      !if(dosubsidence.AND.dodrivenequilibrium) dodrivenequilibrium = .false. 
+      if(dosubsidence) then
+         if(doadv3d) then
+            call subsidence_3d()
+         else
+            call subsidence_1d()
+         end if
+      end if
+      !if(dodrivenequilibrium) call drivenequilibrium()
+   
+      ! normalize large-scale vertical momentum forcing
+      ! this is now done in subsidence_1d/3d
+      !ulsvadv(:) = ulsvadv(:) / float(nx*ny) 
+      !vlsvadv(:) = vlsvadv(:) / float(nx*ny) 
+      !mklsadv(1:nzm,index_water_vapor) = qlsvadv(1:nzm) * float(nx*ny)
+
    end if
-
-   ! ---------------------------------------------------------------
-   ! Initialize large-scale advection tendencies:
-
-   ulsvadv(:)   = 0.
-   vlsvadv(:)   = 0.
-   qlsvadv(:)   = 0.
-   tlsvadv(:)   = 0.
-   mklsadv(:,:) = 0. ! large-scale microphysical tendencies
-
-   if(dosubsidence.AND.dodrivenequilibrium) dodrivenequilibrium = .false. 
-   if(dosubsidence) call subsidence()
-   if(dodrivenequilibrium) call drivenequilibrium()
-
-   ! normalize large-scale vertical momentum forcing
-   ulsvadv(:) = ulsvadv(:) / float(nx*ny) 
-   vlsvadv(:) = vlsvadv(:) / float(nx*ny) 
-   mklsadv(1:nzm,index_water_vapor) = qlsvadv(1:nzm) * float(nx*ny)
-
 end if 
-
 !---------------------------------------------------------------------
 ! Prescribed Radiation Forcing:
 

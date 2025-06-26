@@ -227,6 +227,8 @@ real, dimension(nzm) :: rhowcl, rhowmsecl, rhowtlcl, rhowqtcl,  &
         ! Add profiles before forcing
         call hbuf_put('T_WTG',t_wtg,1.)
         call hbuf_put('QV_WTG',q_wtg,1.e3)
+        call hbuf_put('T_WTG_W', t_wtg_calcw,1.)
+        call hbuf_put('QV_WTG_W', q_wtg_calcw,1.e3)
 
 !-------------------------------------------------------------
 !	Fluxes:

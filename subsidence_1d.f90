@@ -1,7 +1,7 @@
 
 subroutine subsidence_1d()      
 ! in this case, domain mean U,V should be zero, so douvlsvadv should be effectively false 
-use params, only: ggr, cp, dotqlsvadv, doadvinic, doadvbg, doadvensnoise
+use params, only: ggr, cp, dotqlsvadv, doadvinic, doadvbg
 use vars
 use microphysics, only: micro_field, index_water_vapor, nmicro_fields, mklsadv
 implicit none
@@ -35,12 +35,8 @@ do k=1,nzm-1
          q_vtend = - rdz * (qg0(k1)-qg0(k2))
       else if (doadvbg) then
          ! advect the wtg background - to be completed, placeholder now
-         t_vtend = - rdz * (t_wtg(k1)-t_wtg(k2)) - wsub(k) * ggr / cp
-         q_vtend = - rdz * (q_wtg(k1)-q_wtg(k2))
-      else if (doadvensnoise) then
-         ! advect the mean profile of each ensemble member
-         t_vtend = - rdz * (tabs0(k1)-tabs0(k2)) - wsub(k) * ggr / cp
-         q_vtend = - rdz * (qv0(k1)-qv0(k2))
+         t_vtend = - rdz * (t_wtgbg(k1)-t_wtgbg(k2)) - wsub(k) * ggr / cp
+         q_vtend = - rdz * (q_wtgbg(k1)-q_wtgbg(k2))
       else
          ! advect ensemble mean profile
          t_vtend = - rdz * (t_wtg(k1)-t_wtg(k2)) - wsub(k) * ggr / cp

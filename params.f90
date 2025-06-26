@@ -228,9 +228,14 @@ logical :: doadv3d = .false. ! this was true in the vanilla SAM
 
 ! Options for which 1d profile to advect if advecting 1d
 logical :: doadvinic = .false. ! advect initial profile
+logical :: docalcwtgbg = .false. ! even if not doadvbg, may still want to calculate the wtg bg
 logical :: doadvbg = .false. ! advect computed background (time-invariant)
-logical :: doadvensnoise = .false. ! works with dompiensemble, advect the profile in each ensemble member
+logical :: doadvensnoise = .false. ! works with dompiensemble, use the large-scale w from one ensemble member
 ! if none of the above: advect the mean profile, which will also evolve with time
+
+! temporal parameters for wtg
+integer :: nstartwtg = 0 ! nstep to start wtg calculation
+integer :: nstepwtgbg = 0 ! nstep after nstartwtg to calculate wtg background profile
 
 ! Options for large-scale vertical advection of temperature/moisture, u/v wind
 logical :: dotqlsvadv = .false.

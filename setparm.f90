@@ -63,7 +63,8 @@ NAMELIST /KUANG_PARAMS/ dompiensemble, &
                 readlsm, lsmfile, &
                 nrestart_resetsst, &
                 dosepstat, nstep_sepstat, &
-                doadv3d, doadvinic, doadvbg, doadvensnoise, &
+                doadv3d, doadvinic, docalcwtgbg, doadvbg, doadvensnoise, &
+                nstartwtg, nstepwtgbg, &
                 dotqlsvadv, douvlsvadv
 
 !bloss: Create dummy namelist, so that we can figure out error code
@@ -223,8 +224,6 @@ end if
 
         dowtg_num = 0
 
-        dowtg_num = 0
-
         if(dowtg_blossey_etal_JAMES2009) then
           dodgw = .true.
           if(masterproc) write(*,*) 'Damped Gravity Wave scheme (based on BBW09 in JAMES) is being used'
@@ -292,6 +291,56 @@ end if
             if(wtgscale_vertmodescl(imode).gt.1) wtgscale_vertmodescl(imode) = 1
             if(wtgscale_vertmodescl(imode).lt.0) wtgscale_vertmodescl(imode) = 0
           end do
+        end if
+
+        !if (dowtg_num.eq.0.and..not.dohadley) then
+        !  doadvinic = .false.
+        !  doadvbg = .false.
+        !  docalcwtgbg = .false.
+        !  doadvensnoise = .false.
+        !  doadv3d = .true.
+        !  nstartwtg = 999999999
+        !  if (masterproc) then
+        !    writr(*,*) 'Not using wtg/hadley schemes, use default 3d subsidence if needed.'
+        !  end if
+        !end if
+
+        if (doadv3d) then
+          if (doadvinic.or.doadvbg.or.doadvensnoise) then
+            if (masterproc) then
+              write(*,*) '********************************************************'
+              write(*,*) '  Unsupported setup in large-scale vertical advection'
+              write(*,*) '  Please confirm subsidence 1d or 3d fields.'
+              write(*,*) '********************************************************'
+            end if
+            call task_abort()
+          end if
+        end if
+
+        if (doadvbg) then
+          ! advect calculated time-invariant background profile
+          docalcwtgbg = .true.
+        end if
+
+        if (docalcwtgbg) then
+          if (nstepwtgbg.le.0) then
+            if (masterproc) then
+              write(*,*) '********************************************************'
+              write(*,*) '  Positive number of steps needed for the calculation of'
+              write(*,*) '  wtg background profile calculation'
+              write(*,*) '********************************************************'
+            end if
+            call task_abort()
+          end if
+        end if
+
+        if (doadvensnoise.and..not.dompiensemble) then
+          if (masterproc) then
+            write(*,*) '********************************************************'
+            write(*,*) 'doadvensnoise only works with dompiensemble'
+            write(*,*) '********************************************************'
+          end if
+          call task_abort()
         end if
 
         !===============================================================

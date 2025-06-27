@@ -236,6 +236,8 @@ logical :: doadvensnoise = .false. ! works with dompiensemble, use the large-sca
 ! temporal parameters for wtg
 integer :: nstartwtg = 0 ! nstep to start wtg calculation
 integer :: nstepwtgbg = 0 ! nstep after nstartwtg to calculate wtg background profile
+integer :: nstepwtg = 999999999 ! keep constant wtg forcing in this many steps
+logical :: dowtgtimestep = .false.
 
 ! Options for large-scale vertical advection of temperature/moisture, u/v wind
 logical :: dotqlsvadv = .false.

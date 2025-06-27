@@ -3,7 +3,7 @@
 !
 !   http://dx.doi.org/10.1175/2007JAS2399.1
 
-subroutine wtg_jas2008(nzm, dtn, z, zi, rho, tabs_ref, qv_ref, tabs_model, &
+subroutine wtg_jas2008(nzm, timestep, z, zi, rho, tabs_ref, qv_ref, tabs_model, &
      qv_model, qcond_model, lambda_wtg, am_wtg, w_ls, dwdt_ls)
 
   use grid, only: icycle, ncycle, nsubdomains
@@ -13,7 +13,7 @@ subroutine wtg_jas2008(nzm, dtn, z, zi, rho, tabs_ref, qv_ref, tabs_model, &
 
   ! ======= inputs =======
   integer, intent(in) :: nzm ! number of model levels
-  real, intent(in) :: dtn ! current dynamical time step
+  real, intent(in) :: timestep ! current dynamical time step
   real, intent(in) :: z(nzm) ! model cell center height
   real, intent(in) :: zi(nzm+1) ! model interface height
   real, intent(in) :: rho(nzm) ! model cell center density
@@ -121,7 +121,7 @@ subroutine wtg_jas2008(nzm, dtn, z, zi, rho, tabs_ref, qv_ref, tabs_model, &
 
    if (dowtg_timedependence) then
 
-      w_ls(1:nzm) = (w_ls(1:nzm) + dwdt_ls * dtn) / (1. + dtn * am_wtg)
+      w_ls(1:nzm) = (w_ls(1:nzm) + dwdt_ls * timestep) / (1. + timestep * am_wtg)
 
    else
 

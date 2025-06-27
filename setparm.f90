@@ -64,7 +64,7 @@ NAMELIST /KUANG_PARAMS/ dompiensemble, &
                 nrestart_resetsst, &
                 dosepstat, nstep_sepstat, &
                 doadv3d, doadvinic, docalcwtgbg, doadvbg, doadvensnoise, &
-                nstartwtg, nstepwtgbg, &
+                nstartwtg, nstepwtgbg, nstepwtg, dowtgtimestep, &
                 dotqlsvadv, douvlsvadv
 
 !bloss: Create dummy namelist, so that we can figure out error code
@@ -306,7 +306,7 @@ end if
         !end if
 
         if (doadv3d) then
-          if (doadvinic.or.doadvbg.or.doadvensnoise) then
+          if (doadvinic.or.doadvbg) then
             if (masterproc) then
               write(*,*) '********************************************************'
               write(*,*) '  Unsupported setup in large-scale vertical advection'
@@ -314,6 +314,13 @@ end if
               write(*,*) '********************************************************'
             end if
             call task_abort()
+          end if
+        else if (doadvinic.and.doadvbg) then
+          if (masterproc) then
+            write(*,*) '********************************************************'
+            write(*,*) '  Unsupported setup in large-scale vertical advection'
+            write(*,*) '  Please confirm doadvinic OR doadvbg.'
+            write(*,*) '********************************************************'
           end if
         end if
 
@@ -337,11 +344,45 @@ end if
         if (doadvensnoise.and..not.dompiensemble) then
           if (masterproc) then
             write(*,*) '********************************************************'
-            write(*,*) 'doadvensnoise only works with dompiensemble'
+            write(*,*) '  doadvensnoise only works with dompiensemble'
             write(*,*) '********************************************************'
           end if
           call task_abort()
         end if
+
+        if (.not.dowtgtimestep) then
+          ! do the calculation at every step
+          nstepwtg = 1
+        end if
+
+        if (dompiensemble.and.(dowtg_num.gt.0.or.dohadley)) then
+          if (mod(nstepwtg,nstat).ne.0) then
+            if (masterproc) then
+              write(*,*) '********************************************************'
+              write(*,*) '  nstepwtg should be multiple of nstat, so that forcing'
+              write(*,*) '  remains constant during each nstat steps.'
+              write(*,*) '********************************************************'
+            end if
+            call task_abort()
+          else
+            ! print out some parameters
+            if (masterproc) then
+              write(*,*) 'Using WTG schemes with mpiensemble:'
+              write(*,*) '  Start WTG scheme after # steps:', nstartwtg
+              if (docalcwtgbg) &
+              write(*,*) '  Then use # steps to compute background profiles:', nstepwtgbg
+              write(*,*) '  After this, update the forcing every # steps:', nstepwtg
+              write(*,*) '  Advect 1d profile?', .not.doadv3d
+              if (.not. doadv3d) then
+                if (doadvinic) write(*,*) '    advect initial profiles'
+                if (doadvbg)   write(*,*) '    advect computed time-invariant background'
+                if (.not.(doadvinic.or.doadvbg)) &
+                               write(*,*) '    advect ensemble mean profiles'
+              end if
+            end if
+          end if
+        end if
+
 
         !===============================================================
         ! Mixed-Layer Island Archipelagoes

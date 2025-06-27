@@ -33,6 +33,8 @@ real :: buffer2(nzm,3), buffer3(nzm,3)
 
 real :: tmp(nzm)
 
+real :: wtgtimestep
+
 call t_startf ('forcing')
 
 ! if doseasons=.false. do perpetual forcing
@@ -245,74 +247,6 @@ if(dolargescale.and.time.gt.timelargescale) then
    ! by WTG or scaling techniques, similar to Blossey's version of SAM
    wsub_ref(1:nzm) = wsub(1:nzm)
    
-   ! for mpiensemble run, use the ensemble mean profiles to calculate forcing for
-   ! all members
-   if (dompiensemble) then
-      ! need to keep the forcing identical in each subdomain/ensemble member
-      ! so sync the mean profiles before calculation, only when icycle=1
-      if (icycle.eq.1) then
-         coef_subdomain = 1. / dble(nsubdomains)
-         do k = 1, nzm
-            buffer(k,1) = tabs0(k)
-            buffer(k,2) = qv0(k)
-            buffer(k,3) = qn0(k) + qp0(k)
-            buffer(k,4) = pres(k)
-            buffer(k,5) = prespot(k)
-         end do
-         call task_sum_real8(buffer,buffer1,nzm*5)
-         do k = 1, nzm
-            t_wtg(k) = buffer1(k,1) * coef_subdomain
-            q_wtg(k) = buffer1(k,2) * coef_subdomain
-            qcond_wtg(k) = buffer1(k,3) * coef_subdomain
-            pres_wtg(k) = buffer1(k,4) * coef_subdomain
-            prespot_wtg(k) = buffer1(k,5) * coef_subdomain
-         end do
-
-         ! use the mean profile to calculate w
-         t_wtg_calcw = t_wtg
-         q_wtg_calcw = q_wtg
-         qcond_wtg_calcw = qcond_wtg
-         pres_wtg_calcw = pres_wtg
-         prespot_wtg_calcw = prespot_wtg
-         if (doadvensnoise) then
-            ! use the profile from certain member to calculate w
-            ! make sure the calculation below is identical for each subdomain/ensemble member
-            if(masterproc)   tmp = tabs0
-            call task_bcast_real(0,tmp,nzm)
-            t_wtg_calcw = tmp
-
-            if(masterproc)   tmp = qv0
-            call task_bcast_real(0,tmp,nzm)
-            q_wtg_calcw = tmp
-
-            if(masterproc)   tmp = qn0 + qp0
-            call task_bcast_real(0,tmp,nzm)
-            qcond_wtg_calcw = tmp
-
-            if(masterproc)   tmp = pres
-            call task_bcast_real(0,tmp,nzm)
-            pres_wtg_calcw = tmp
-
-            if(masterproc)   tmp = prespot
-            call task_bcast_real(0,tmp,nzm)
-            prespot_wtg_calcw = tmp
-         end if
-      end if
-   else
-      ! not using mpiensemble
-      t_wtg = tabs0
-      q_wtg = qv0
-      qcond_wtg = qn0 + qp0
-      pres_wtg = pres
-      prespot_wtg = prespot
-
-      t_wtg_calcw = t_wtg
-      q_wtg_calcw = q_wtg
-      qcond_wtg_calcw = qcond_wtg
-      pres_wtg_calcw = pres_wtg
-      prespot_wtg_calcw = prespot_wtg
-   end if
-   
    ! compute wtg background, since this may be different from initial profile
    if (docalcwtgbg.and.icycle.eq.1) then
       if (nstep.gt.nstartwtg.and.nstep.le.nstartwtg+nstepwtgbg) then
@@ -324,6 +258,7 @@ if(dolargescale.and.time.gt.timelargescale) then
          t_wtgbg=t_wtgbg/dble(nstepwtgbg)
          q_wtgbg=q_wtgbg/dble(nstepwtgbg)
          tp_wtgbg=tp_wtgbg/dble(nstepwtgbg)
+         coef_subdomain = 1. / dble(nsubdomains)
          do k=1, nzm
             buffer2(k,1) = t_wtgbg(k)
             buffer2(k,2) = q_wtgbg(k)
@@ -344,8 +279,119 @@ if(dolargescale.and.time.gt.timelargescale) then
       tp_wtgbg = tp0
    end if
 
-   if (nstep.gt.nstartwtg+nstepwtgbg*merge(1,0,docalcwtgbg)) then
+   ! for mpiensemble run, use the ensemble mean profiles to calculate forcing for all members
+   ! for dowtgtimestep, also need the profiles to be updated every nstepwtg steps
+   if (dompiensemble.or.dowtgtimestep) then
+      if (icycle.eq.1 &
+              .and. nstep.le.nstartwtg+nstepwtgbg*merge(1,0,docalcwtgbg) &
+              .and. mod(nstep-1-floor((timelargescale-1e-5)/dt)-1, nstepwtg).eq.0) then
+         ! calculate wtg profiles to be used in subsidence_1d/3d
+         ! this is only necessary if wsub_ref.neq.0
+         ! otherwise, subsidence is not called
+         ! if not dowtgtimestep, nstepwtg is set as 1
+         coef_subdomain = 1. / dble(nsubdomains)
+         do k = 1, nzm
+            buffer(k,1) = tabs0(k)
+            buffer(k,2) = qv0(k)
+            buffer(k,3) = qn0(k) + qp0(k)
+            buffer(k,4) = pres(k)
+            buffer(k,5) = prespot(k)
+         end do
+         call task_sum_real8(buffer,buffer1,nzm*5)
+         do k = 1, nzm
+            ! these are from the fields at the end of last step
+            ! will be used in advection tendency
+            t_wtg(k) = buffer1(k,1) * coef_subdomain
+            q_wtg(k) = buffer1(k,2) * coef_subdomain
+            qcond_wtg(k) = buffer1(k,3) * coef_subdomain
+            pres_wtg(k) = buffer1(k,4) * coef_subdomain
+            prespot_wtg(k) = buffer1(k,5) * coef_subdomain
+         end do
+      end if
 
+      ! need to keep the forcing identical in each subdomain/ensemble member
+      ! so sync the mean profiles before calculation, only when icycle=1
+      ! update the profiles for forcing calculation every nstepwtg steps
+      ! these calculated profiles are then kept constant for the next nstepwtg steps
+      ! if not dowtgtimestep, nstepwtg is set as 1
+      if (icycle.eq.1 &
+              .and. nstep.gt.nstartwtg+nstepwtgbg*merge(1,0,docalcwtgbg) &
+              .and. mod(nstep-1-nstartwtg-nstepwtgbg*merge(1,0,docalcwtgbg),nstepwtg).eq.0) then
+         coef_subdomain = 1. / dble(nsubdomains)
+         do k = 1, nzm
+            buffer(k,1) = tabs0(k)
+            buffer(k,2) = qv0(k)
+            buffer(k,3) = qn0(k) + qp0(k)
+            buffer(k,4) = pres(k)
+            buffer(k,5) = prespot(k)
+         end do
+         call task_sum_real8(buffer,buffer1,nzm*5)
+         do k = 1, nzm
+            ! these are from the fields at the end of last step
+            ! will be used in advection tendency
+            t_wtg(k) = buffer1(k,1) * coef_subdomain
+            q_wtg(k) = buffer1(k,2) * coef_subdomain
+            qcond_wtg(k) = buffer1(k,3) * coef_subdomain
+            pres_wtg(k) = buffer1(k,4) * coef_subdomain
+            prespot_wtg(k) = buffer1(k,5) * coef_subdomain
+         end do
+
+         ! use the mean profile to calculate w
+         t_wtg_calcw = t_wtg
+         q_wtg_calcw = q_wtg
+         qcond_wtg_calcw = qcond_wtg
+         pres_wtg_calcw = pres_wtg
+         prespot_wtg_calcw = prespot_wtg
+         if (doadvensnoise) then
+            ! use the profile from certain member to calculate w
+            ! make sure the calculation below is identical for each subdomain/ensemble member
+            if(masterproc)   tmp = tabs0
+            call task_bcast_real(0,tmp,nzm)
+            t_wtg_calcw = tmp
+   
+            if(masterproc)   tmp = qv0
+            call task_bcast_real(0,tmp,nzm)
+            q_wtg_calcw = tmp
+   
+            if(masterproc)   tmp = qn0 + qp0
+            call task_bcast_real(0,tmp,nzm)
+            qcond_wtg_calcw = tmp
+   
+            if(masterproc)   tmp = pres
+            call task_bcast_real(0,tmp,nzm)
+            pres_wtg_calcw = tmp
+   
+            if(masterproc)   tmp = prespot
+            call task_bcast_real(0,tmp,nzm)
+            prespot_wtg_calcw = tmp
+         end if ! doadvensnoise
+      end if ! icycle.eq.1 and time to update
+   else
+      ! not using mpiensemble or wtgtimestep
+      t_wtg = tabs0
+      q_wtg = qv0
+      qcond_wtg = qn0 + qp0
+      pres_wtg = pres
+      prespot_wtg = prespot
+
+      t_wtg_calcw = t_wtg
+      q_wtg_calcw = q_wtg
+      qcond_wtg_calcw = qcond_wtg
+      pres_wtg_calcw = pres_wtg
+      prespot_wtg_calcw = prespot_wtg
+   end if
+   
+   ! -----------------------------------------------------------
+   ! time to calculate/update the wtg large-scale w:
+   ! nstep should be after nstartwtg (wait time) and nstepwtgbg (if necessary)
+   ! if not dompiensemble, no need to control sync
+   ! otherwise, only update w at the beginning of each block of nstepwtg steps
+   if (nstep.gt.nstartwtg+nstepwtgbg*merge(1,0,docalcwtgbg) &
+           .and. (.not.(dompiensemble.or.dowtgtimestep) &
+              .or. (icycle.eq.1 &
+                 .and. mod(nstep-1-nstartwtg-nstepwtgbg*merge(1,0,docalcwtgbg),nstepwtg).eq.0))) then
+
+      ! calculate wtg large-scle vertical velocity
       if(dodgw) then
    
          if(wtgscale_time.gt.0) then
@@ -370,8 +416,9 @@ if(dolargescale.and.time.gt.timelargescale) then
          end if
    
          if (dowtg_kuang_JAS2008) then
-   
-            call wtg_jas2008(nzm, dtn, z, zi, rho, t_wtgbg, q_wtgbg, t_wtg_calcw, &
+            wtgtimestep = dtn
+            if (dowtgtimestep) wtgtimestep=dt*dble(nstepwtg)
+            call wtg_jas2008(nzm, wtgtimestep, z, zi, rho, t_wtgbg, q_wtgbg, t_wtg_calcw, &
                q_wtg_calcw, qcond_wtg_calcw, lambda_wtg, am_wtg_time, w_wtg, dwwtgdt)
             o_wtg(1:nzm) = -w_wtg(1:nzm)*rho(1:nzm)*ggr
    
@@ -429,14 +476,6 @@ if(dolargescale.and.time.gt.timelargescale) then
    
       end if
    
-      if (dotgr.OR.dodgw) then
-   
-         ! add to reference large-scale vertical velocity.
-         wsub(1:nzm) = wsub(1:nzm) + w_wtg(1:nzm)
-         dosubsidence = .true.
-   
-      end if
-   
       if (dohadley) then
          if(hadscale_time.gt.0) then
             thadmax = (nstop * dt - max(timelargescale, (nstartwtg+nstepwtgbg*merge(1,0,docalcwtgbg))*dt)) * hadscale_time
@@ -450,35 +489,41 @@ if(dolargescale.and.time.gt.timelargescale) then
             whad = whadmax
          endif
          call hadley(masterproc, nzm, nz, z, t_wtg_calcw, whad, zhadmax, whadley)
-         wsub(1:nzm) = wsub(1:nzm) + whadley(1:nzm)
+      end if
+   end if
+
+   ! ---------------------------------------------------------------
+   ! Initialize large-scale advection tendencies:
+   ! subsidence should be done regardless of w is updated or not
+   ! the calculated tendencies should remain identical in each of the nstepwtg blocks
+   if (nstep.gt.nstartwtg+nstepwtgbg*merge(1,0,docalcwtgbg)) then
+      if (dotgr.OR.dodgw) then
+         ! add to reference large-scale vertical velocity.
+         wsub(1:nzm) = wsub_ref(1:nzm) + w_wtg(1:nzm)
          dosubsidence = .true.
       end if
 
-      ! ---------------------------------------------------------------
-      ! Initialize large-scale advection tendencies:
-   
-      ulsvadv(:)   = 0.
-      vlsvadv(:)   = 0.
-      qlsvadv(:)   = 0.
-      tlsvadv(:)   = 0.
-      mklsadv(:,:) = 0. ! large-scale microphysical tendencies
-   
-      !if(dosubsidence.AND.dodrivenequilibrium) dodrivenequilibrium = .false. 
-      if(dosubsidence) then
-         if(doadv3d) then
-            call subsidence_3d()
-         else
-            call subsidence_1d()
-         end if
+      if (dohadley) then
+         wsub(1:nzm) = wsub_ref(1:nzm) + whadley(1:nzm)
+         dosubsidence = .true.
       end if
-      !if(dodrivenequilibrium) call drivenequilibrium()
-   
-      ! normalize large-scale vertical momentum forcing
-      ! this is now done in subsidence_1d/3d
-      !ulsvadv(:) = ulsvadv(:) / float(nx*ny) 
-      !vlsvadv(:) = vlsvadv(:) / float(nx*ny) 
-      !mklsadv(1:nzm,index_water_vapor) = qlsvadv(1:nzm) * float(nx*ny)
+   end if
 
+   ulsvadv(:)   = 0.
+   vlsvadv(:)   = 0.
+   qlsvadv(:)   = 0.
+   tlsvadv(:)   = 0.
+   mklsadv(:,:) = 0. ! large-scale microphysical tendencies
+
+   ! calculate large-scale advection tendencies
+   ! apply t/q tendencies to fields
+   ! include u/v tendencies in dudt/dvdt
+   if(dosubsidence) then
+      if(doadv3d) then
+         call subsidence_3d()
+      else
+         call subsidence_1d()
+      end if
    end if
 end if 
 !---------------------------------------------------------------------

@@ -25,14 +25,10 @@ real, external :: qsatw,qsati
 !-------------------------------------------------------------
 !	read subensemble perturbation file first:
 
-do i=1,ndmax
-  tpert0(i)=0.
-  qpert0(i)=0.
-end do
-
 if(doensemble) then
-  open(76,file=trim(rundatadir)//'/tqpert',status='old',form='formatted')  
-  read(76,*)
+	
+open(76,file=trim(rundatadir)//'/tqpert',status='old',form='formatted')  
+read(76,*)
   do j=0,nensemble
     read(76,*) i,n
     do i=1,n
@@ -47,9 +43,14 @@ if(doensemble) then
     print*,'qpert:',(qpert0(i),i=1,n)
   end if
   goto 767
-  766  print*,'Error: nensemble is too large.'  
+766  print*,'Error: nensemble is too large.'  
   call task_abort()
-  767  continue
+767  continue
+else
+  do i=1,ndmax
+    tpert0(i)=0.
+    qpert0(i)=0.
+  end do
 end if
 
 
@@ -127,6 +128,8 @@ do while(.true.)
       qq(i)=qq(i)+(qq1(i)-qq(i))/(rrr2-rrr1+1.e-5)*(day-rrr1)
       uu(i)=uu(i)+(uu1(i)-uu(i))/(rrr2-rrr1+1.e-5)*(day-rrr1)
       vv(i)=vv(i)+(vv1(i)-vv(i))/(rrr2-rrr1+1.e-5)*(day-rrr1)
+      tt(i)=tt(i)+tpert0(i)
+      qq(i)=qq(i)+qpert0(i) 
       end do
     else if(pp(2).lt.pp(1)) then
       zgrid = .false.
@@ -136,6 +139,8 @@ do while(.true.)
       qq(i)=qq(i)+(qq1(i)-qq(i))/(rrr2-rrr1+1.e-5)*(day-rrr1)
       uu(i)=uu(i)+(uu1(i)-uu(i))/(rrr2-rrr1+1.e-5)*(day-rrr1)
       vv(i)=vv(i)+(vv1(i)-vv(i))/(rrr2-rrr1+1.e-5)*(day-rrr1)
+      tt(i)=tt(i)+tpert0(i)
+      qq(i)=qq(i)+qpert0(i) 
       ta(i)=tt(i)*(pp(i)/1000.)**(rgas/cp)
       end do
     else  
@@ -203,7 +208,8 @@ do k= 1,nzm
  presi(k+1)=presi(k)*exp(-ggr/rgas/tabs0(k)*(zi(k+1)-zi(k)))
  pres(k) = 0.5*(presi(k)+presi(k+1))
  prespot(k)=(1000./pres(k))**(rgas/cp)
- q0(k)=q0(k-1)*exp(-(z(k)-z(k-1))/3000.)! always decrease q0 with height
+! q0(k)=max(0.,2.*q0(k-1)-q0(k-2))
+  q0(k) = q0(k-1)*exp(-(z(k)-z(k-1))/3000.) ! always decrease q0 with height
  u0(k)=u0(k-1)
  v0(k)=v0(k-1)
  goto 13
@@ -221,11 +227,6 @@ do k= 1,nzm
  vg0(k)=v0(k)
 end do
 
-do k = 1,nzm
-  q0(k) = q0(k)+qpert0(k)*1.e-3
-  t0(k) = t0(k)+tpert0(k)
-  tv0(k) = t0(k)*(1.+epsv*q0(k))
-end do
 prespoti(:) = (1000./presi(:))**(rgas/cp)
 
 ! recompute pressure levels (for consistancy):
@@ -237,8 +238,8 @@ prespoti(:) = (1000./presi(:))**(rgas/cp)
 	
 do k=1,nzm
 
-  gamaz(k) = ggr/cp*z(k)
-  tabs0(k) = t0(k)-gamaz(k)
+  gamaz(k)=ggr/cp*z(k)
+  t0(k) = tabs0(k)+gamaz(k) 
   qv0(k) = q0(k)
   qc0(k) = 0.
   qi0(k) = 0.

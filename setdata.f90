@@ -25,10 +25,14 @@ real, external :: qsatw,qsati
 !-------------------------------------------------------------
 !	read subensemble perturbation file first:
 
+do i=1,ndmax
+  tpert0(i)=0.
+  qpert0(i)=0.
+end do
+
 if(doensemble) then
-	
-open(76,file=trim(rundatadir)//'/tqpert',status='old',form='formatted')  
-read(76,*)
+  open(76,file=trim(rundatadir)//'/tqpert',status='old',form='formatted')  
+  read(76,*)
   do j=0,nensemble
     read(76,*) i,n
     do i=1,n
@@ -43,14 +47,9 @@ read(76,*)
     print*,'qpert:',(qpert0(i),i=1,n)
   end if
   goto 767
-766  print*,'Error: nensemble is too large.'  
+  766  print*,'Error: nensemble is too large.'  
   call task_abort()
-767  continue
-else
-  do i=1,ndmax
-    tpert0(i)=0.
-    qpert0(i)=0.
-  end do
+  767  continue
 end if
 
 
@@ -204,8 +203,7 @@ do k= 1,nzm
  presi(k+1)=presi(k)*exp(-ggr/rgas/tabs0(k)*(zi(k+1)-zi(k)))
  pres(k) = 0.5*(presi(k)+presi(k+1))
  prespot(k)=(1000./pres(k))**(rgas/cp)
-! q0(k)=max(0.,2.*q0(k-1)-q0(k-2))
-  q0(k) = q0(k-1)*exp(-(z(k)-z(k-1))/3000.) ! always decrease q0 with height
+ q0(k)=q0(k-1)*exp(-(z(k)-z(k-1))/3000.)! always decrease q0 with height
  u0(k)=u0(k-1)
  v0(k)=v0(k-1)
  goto 13
@@ -217,12 +215,17 @@ do k= 1,nzm
  pres(k) = exp(log(presi(k))+log(presi(k+1)/presi(k))* &
                              (z(k)-zi(k))/(zi(k+1)-zi(k)))
  prespot(k)=(1000./pres(k))**(rgas/cp)
- tabs0(k)=(t0(k)+tpert0(k))/prespot(k)
+ tabs0(k)=t0(k)/prespot(k)
 13 continue
  ug0(k)=u0(k)
  vg0(k)=v0(k)
 end do
 
+do k = 1,nzm
+  q0(k) = q0(k)+qpert0(k)*1.e-3
+  t0(k) = t0(k)+tpert0(k)
+  tv0(k) = t0(k)*(1.+epsv*q0(k))
+end do
 prespoti(:) = (1000./presi(:))**(rgas/cp)
 
 ! recompute pressure levels (for consistancy):
@@ -234,9 +237,9 @@ prespoti(:) = (1000./presi(:))**(rgas/cp)
 	
 do k=1,nzm
 
-  gamaz(k)=ggr/cp*z(k)
-  t0(k) = tabs0(k)+gamaz(k) 
-  qv0(k) = q0(k)+qpert0(k)
+  gamaz(k) = ggr/cp*z(k)
+  tabs0(k) = t0(k)-gamaz(k)
+  qv0(k) = q0(k)
   qc0(k) = 0.
   qi0(k) = 0.
   qn0(k) = 0.

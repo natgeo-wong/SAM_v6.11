@@ -50,6 +50,9 @@ logical:: doradlat = .false.
 logical:: doradlon = .false.
 
 real(8):: tabs_s =0.	! surface temperature,K
+integer:: nx_sinusoidalsst = 1   ! Number of sinusoidal waves across x domain
+real:: dx_sinusoidalsst = 0.     ! Displacement of sinusoidal wave (ratio to wavelength)
+integer:: ny_sinusoidalsst = 1   ! Number of sinusoidal waves across y domain
 real:: delta_sst = 0.   ! amplitude of sin-pattern of sst about tabs_s (ocean_type=1)
 real:: depth_slab_ocean = 2. ! thickness of the slab-ocean (m)
 real:: Szero = 0.  ! mean ocean transport (W/m2)

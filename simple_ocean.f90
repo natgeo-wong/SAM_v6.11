@@ -23,7 +23,8 @@ CONTAINS
 SUBROUTINE set_sst()
 
   use vars, only: sstxy,t00
-  use params, only: tabs_s, delta_sst, ocean_type
+  use params, only: tabs_s, delta_sst, ocean_type, &
+                    nx_sinusoidalsst, dx_sinusoidalsst, ny_sinusoidalsst
 
 ! parameters of the sinusoidal SST destribution 
 ! along the X for Walker-type simulatons( ocean-type = 1):
@@ -39,14 +40,14 @@ SUBROUTINE set_sst()
 
     case(1) ! Sinusoidal distribution along the x-direction:
 
-      lx = float(nx_gl)*dx
+      lx = float(nx_gl)*dx/float(nx_sinusoidalsst)
       do i = 1,nx
           tmpx(i) = float(mod(rank,nsubdomains_x)*nx+i-1)*dx
       end do
       pii = atan2(0.d0,-1.d0)
       do j=1,ny
         do i=1,nx
-          sstxy(i,j) = tabs_s-delta_sst*cos(2.*pii*tmpx(i)/lx) - t00
+          sstxy(i,j) = tabs_s-delta_sst*cos(2.*pii*(tmpx(i)/lx-dx_sinusoidalsst)) - t00
         end do
       end do
     
@@ -55,7 +56,7 @@ SUBROUTINE set_sst()
       call task_rank_to_index(rank,it,jt)
       
       pii = atan2(0.d0,-1.d0)
-      lx = float(ny_gl)*dy
+      lx = float(ny_gl)*dy/float(ny_sinusoidalsst)
       do j=1,ny
         yy = dy*(j+jt-(ny_gl+YES3D-1)/2-1)
         do i=1,nx

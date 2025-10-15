@@ -34,6 +34,7 @@ NAMELIST /PARAMETERS/ dodamping, doupperbound, docloud, doprecip, &
 	              doseasons, doperpetual, doradhomo, dosfchomo, doisccp, &
                 domodis, domisr, dodynamicocean, ocean_type, delta_sst, &
                 depth_slab_ocean, Szero, deltaS, timesimpleocean, &
+                nx_sinusoidalsst, dx_sinusoidalsst, ny_sinusoidalsst, &
                 dosolarconstant, solar_constant, zenith_angle, rundatadir, &
                 dotracers, output_sep, perturb_type, &
                 doSAMconditionals, dosatupdnconditionals, &

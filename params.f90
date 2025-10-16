@@ -201,6 +201,7 @@ real, dimension(2) :: wtgscale_vertmodescl = (/1., 1./) ! strength scaling for v
 logical :: dosstislands = .false. ! specify an island within which SST is allowed to vary
 real    :: sstislands_oceanmld = 0. ! "ocean" slab depth, if 0, ocean SST is constant
 real    :: sstislands_landmld  = 0. ! "island" slab depth, set to depth_slab_ocean if 0
+integer :: sstisland_type = 1       ! type of "island". If 1, round. If 2, spans y-length
 
 ! Specify round islands using formula. If readlsm = true, then lsm file will override this
 real    :: sstislands_radius   = 0. ! "island" radii in meters

@@ -83,7 +83,7 @@ SUBROUTINE set_sst()
     case default
 
       if(masterproc) then
-          print*, 'unknown ocean type in set_sst. Exitting...'
+          print*, 'unknown ocean type in set_sst. Exiting...'
           call task_abort
       end if
 
@@ -195,27 +195,54 @@ subroutine sst_islands_setmld
 
   else
 
-    do icol = 1, sstislands_ncol
-      do irow = 1, sstislands_nrow
+    select case (sstisland_type)
+      
+      case(1) ! Round islands
 
-        island_lon = nx_gl * dx / 2 + (icol-1 - (sstislands_ncol-1)*0.5) * sstislands_sep
-        island_lat = ny_gl * dx / 2 + (irow-1 - (sstislands_nrow-1)*0.5) * sstislands_sep
+        do icol = 1, sstislands_ncol
+          do irow = 1, sstislands_nrow
 
-        do j=1,ny
-          do i=1,nx
+            island_lon = nx_gl * dx / 2 + (icol-1 - (sstislands_ncol-1)*0.5) * sstislands_sep
+            island_lat = ny_gl * dx / 2 + (irow-1 - (sstislands_nrow-1)*0.5) * sstislands_sep
 
-            distsq = ((i+it-1)*dx - island_lon)**2 + ((j+jt-1)*dy - island_lat)**2
-            if (distsq.lt.sstislands_radius**2) then
-              lsm_xy(i,j) = 1
-            else
-              lsm_xy(i,j) = 0
-            end if
+            do j=1,ny
+              do i=1,nx
+
+                distsq = ((i+it-1)*dx - island_lon)**2 + ((j+jt-1)*dy - island_lat)**2
+                if (distsq.lt.sstislands_radius**2) then
+                  lsm_xy(i,j) = 1
+                else
+                  lsm_xy(i,j) = 0
+                end if
+
+              end do
+            end do
 
           end do
         end do
+      
+      case(2) ! Islands channel
 
-      end do
-    end do
+        island_lon = nx_gl * dx / 2
+        do i=1,nx
+
+          distsq = ((i+it-1)*dx - island_lon)**2
+          if (distsq.lt.(sstislands_radius/2)**2) then
+            lsm_xy(i,:) = 1
+          else
+            lsm_xy(i,:) = 0
+          end if
+
+        end do
+      
+      case default
+
+        if(masterproc) then
+            print*, 'unknown slab-island type in sst_islands_setmld. Exiting...'
+            call task_abort
+        end if
+
+    end select
 
   end if
 

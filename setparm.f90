@@ -61,6 +61,7 @@ NAMELIST /KUANG_PARAMS/ dompiensemble, &
                 dosstislands, sstisland_type, &
                 sstislands_radius, sstislands_landmld, sstislands_oceanmld, &
                 sstislands_nrow, sstislands_ncol, sstislands_sep, &
+                island_lon, island_lat, &
                 readlsm, lsmfile, &
                 nrestart_resetsst, &
                 dosepstat, nstep_sepstat, &

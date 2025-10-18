@@ -208,6 +208,8 @@ real    :: sstislands_radius   = 0. ! "island" radii in meters
 integer :: sstislands_nrow = 1.  ! number of island rows
 integer :: sstislands_ncol = 1.  ! number of island columns
 real    :: sstislands_sep  = 0.  ! spacing between island centers, should be at least 2*sstisland_radius
+real    :: island_lon = -1,
+real    :: island_lat = -1,
 
 ! Alternatively, specify a file to read the land-sea mask data
 ! File is a binary file, with variables in this order:

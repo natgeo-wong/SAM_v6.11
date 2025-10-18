@@ -175,9 +175,10 @@ subroutine sst_islands_setmld
   use vars, only: lsm_xy, mld_xy
   use params, only: sstislands_radius, sstislands_landmld, sstislands_oceanmld, &
                     sstislands_nrow, sstislands_ncol, sstislands_sep, &
+                    island_lon, island_lat, &
                     readlsm, lsmfile
 
-  real distsq, island_lon, island_lat
+  real distsq, ilon, ilat
   integer i, j, it, jt, irow, icol
   integer lsm(1:nx_gl,1:ny_gl)
 
@@ -195,6 +196,9 @@ subroutine sst_islands_setmld
 
   else
 
+    if (island_lon.lt.0) island_lon = nx_gl * dx / 2
+    if (island_lat.lt.0) island_lat = ny_gl * dx / 2
+
     select case (sstisland_type)
       
       case(1) ! Round islands
@@ -202,13 +206,13 @@ subroutine sst_islands_setmld
         do icol = 1, sstislands_ncol
           do irow = 1, sstislands_nrow
 
-            island_lon = nx_gl * dx / 2 + (icol-1 - (sstislands_ncol-1)*0.5) * sstislands_sep
-            island_lat = ny_gl * dx / 2 + (irow-1 - (sstislands_nrow-1)*0.5) * sstislands_sep
+            ilon = island_lon + (icol-1 - (sstislands_ncol-1)*0.5) * sstislands_sep
+            ilat = island_lat + (irow-1 - (sstislands_nrow-1)*0.5) * sstislands_sep
 
             do j=1,ny
               do i=1,nx
 
-                distsq = ((i+it-1)*dx - island_lon)**2 + ((j+jt-1)*dy - island_lat)**2
+                distsq = ((i+it-1)*dx - ilon)**2 + ((j+jt-1)*dy - ilat)**2
                 if (distsq.lt.sstislands_radius**2) then
                   lsm_xy(i,j) = 1
                 else
@@ -223,11 +227,10 @@ subroutine sst_islands_setmld
       
       case(2) ! Islands channel
 
-        island_lon = nx_gl * dx / 2
         do i=1,nx
 
-          distsq = ((i+it-1)*dx - island_lon)**2
-          if (distsq.lt.(sstislands_radius/2)**2) then
+          distsq = (i+it-1)*dx - island_lon
+          if ((distsq.lt.sstislands_radius).AND.(distsq.ge.0)) then
             lsm_xy(i,:) = 1
           else
             lsm_xy(i,:) = 0

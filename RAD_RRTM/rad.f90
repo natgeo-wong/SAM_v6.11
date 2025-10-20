@@ -1242,7 +1242,7 @@ contains
 !                 BUFFERED='YES', & ! use for intel compiler
                  ACTION='READ')
           else
-            open(56, file = trim(constructRestartFileName(case, caseId_restart, nSubdomains)), &
+            open(56, file = trim(constructRestartFileName(case_restart, caseId_restart, nSubdomains)), &
                  status='unknown',form='unformatted', &
 !                 BUFFERED='YES', & ! use for intel compiler
                  ACTION='READ')

@@ -173,7 +173,8 @@ subroutine sst_islands_setmld
   ! Created submodule on 2023/07/10
 
   use vars, only: lsm_xy, mld_xy
-  use params, only: sstislands_radius, sstislands_landmld, sstislands_oceanmld, &
+  use params, only: sstisland_type, &
+                    sstislands_radius, sstislands_landmld, sstislands_oceanmld, &
                     sstislands_nrow, sstislands_ncol, sstislands_sep, &
                     island_lon, island_lat, &
                     readlsm, lsmfile

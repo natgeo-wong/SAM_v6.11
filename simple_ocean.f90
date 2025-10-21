@@ -204,6 +204,8 @@ subroutine sst_islands_setmld
       
       case(1) ! Round islands
 
+        if(masterproc) print*,'Creating Round Islands (e.g., Cronin et al. 2015) ...'
+
         do icol = 1, sstislands_ncol
           do irow = 1, sstislands_nrow
 
@@ -227,6 +229,8 @@ subroutine sst_islands_setmld
         end do
       
       case(2) ! Islands channel
+
+        if(masterproc) print*,'Creating Cross-Channel (Y-Length) Islands ...'
 
         do i=1,nx
 
